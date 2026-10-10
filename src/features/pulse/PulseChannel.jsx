@@ -8,6 +8,7 @@ import { useToast } from '../../context/ToastContext'
 import { useCall } from '../../context/CallContext'
 import { Avatar } from '../../components/ui/Avatar'
 import { LeadsModal } from '../leads/LeadsModal'
+import { ShipmentDetailsModal } from './ShipmentDetailsModal'
 import { NeedsInputCard } from './NeedsInputCard'
 import './Pulse.css'
 
@@ -145,6 +146,8 @@ export function PulseChannel() {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState('')
   const [activeLeadModal, setActiveLeadModal] = useState(null)
+  const [activeShipmentModal, setActiveShipmentModal] = useState(null)
+  const [notifiedShipments, setNotifiedShipments] = useState(new Set())
   const endRef = useRef(null)
   const info = resolveChannel(channelId)
   const messages = messagesFor(channelId)
@@ -814,7 +817,7 @@ export function PulseChannel() {
                     </div>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                       <button
-                        onClick={() => toast(`Tracking: ${m.tracking} · Out for delivery to ${m.destination}`)}
+                        onClick={() => setActiveShipmentModal(m)}
                         style={{
                           backgroundColor: '#ffffff',
                           border: '1px solid #cbd5e1',
@@ -829,9 +832,16 @@ export function PulseChannel() {
                         View details
                       </button>
                       <button
-                        onClick={() => toast(`Customer notified on WhatsApp for shipment ${m.tracking}`)}
+                        onClick={() => {
+                          setNotifiedShipments((prev) => {
+                            const next = new Set(prev)
+                            next.add(m.id)
+                            return next
+                          })
+                          toast('Customer notified')
+                        }}
                         style={{
-                          backgroundColor: '#0f6e56',
+                          backgroundColor: notifiedShipments.has(m.id) ? '#047857' : '#0f6e56',
                           border: 'none',
                           borderRadius: '8px',
                           padding: '6px 14px',
@@ -839,9 +849,10 @@ export function PulseChannel() {
                           fontWeight: 600,
                           color: '#ffffff',
                           cursor: 'pointer',
+                          transition: 'background-color 0.2s',
                         }}
                       >
-                        Notify customer
+                        {notifiedShipments.has(m.id) ? '✓ Customer notified' : 'Notify customer'}
                       </button>
                     </div>
                   </div>
@@ -988,6 +999,15 @@ export function PulseChannel() {
           leads={activeLeadModal.leads}
           startIndex={activeLeadModal.index}
           onClose={() => setActiveLeadModal(null)}
+        />
+      )}
+
+      {/* Shipment Details Modal when viewing shipment in manage-shipment */}
+      {activeShipmentModal && (
+        <ShipmentDetailsModal
+          isOpen={Boolean(activeShipmentModal)}
+          shipment={activeShipmentModal}
+          onClose={() => setActiveShipmentModal(null)}
         />
       )}
     </div>
