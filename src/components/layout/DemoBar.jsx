@@ -1,9 +1,7 @@
 import { Phone, Shield } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 
-export function DemoBar({ onOpenConsent }) {
-  const { startPractice } = useCall()
-
+export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
   return (
     <div
       style={{
@@ -74,7 +72,7 @@ export function DemoBar({ onOpenConsent }) {
         <Phone size={12} /> Phone call
       </button>
       <button
-        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245', callType: 'Call centre', initialMode: 'wa' })}
+        onClick={() => onOpenDpdpSafe?.()}
         style={{
           width: '24px',
           height: '24px',
@@ -88,7 +86,8 @@ export function DemoBar({ onOpenConsent }) {
           cursor: 'pointer',
           padding: 0,
         }}
-        aria-label="Consent tools"
+        aria-label="DPDP safety rules"
+        title="How this app keeps you DPDP-safe"
       >
         <Shield size={12} />
       </button>

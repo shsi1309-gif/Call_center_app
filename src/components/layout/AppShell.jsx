@@ -8,6 +8,7 @@ import { AvatarView } from './AvatarView'
 import { SettingsView } from './SettingsView'
 import { PhoneCallConsentModal } from './PhoneCallConsentModal'
 import { CallWrapupModal } from './CallWrapupModal'
+import { DpdpSafeModal } from './DpdpSafeModal'
 import { DemoBar } from './DemoBar'
 import { CallPanel } from '../ui/CallPanel'
 import { useCall } from '../../context/CallContext'
@@ -19,6 +20,7 @@ export function AppShell() {
   const [rankOpen, setRankOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [dpdpSafeOpen, setDpdpSafeOpen] = useState(false)
   const [consentContact, setConsentContact] = useState(null)
   const [avatarEmoji, setAvatarEmoji] = useState('🦸‍♂️')
   const [hasUnreadNotifs, setHasUnreadNotifs] = useState(true)
@@ -88,8 +90,12 @@ export function AppShell() {
           onClose={closeWrapup}
         />
       )}
+      {dpdpSafeOpen && <DpdpSafeModal onClose={() => setDpdpSafeOpen(false)} />}
       <CallPanel />
-      <DemoBar onOpenConsent={(c) => setConsentContact(c)} />
+      <DemoBar
+        onOpenConsent={(c) => setConsentContact(c)}
+        onOpenDpdpSafe={() => setDpdpSafeOpen(true)}
+      />
     </div>
   )
 }
