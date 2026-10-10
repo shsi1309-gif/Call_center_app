@@ -14,7 +14,7 @@ import { CallPanel } from '../ui/CallPanel'
 import { useCall } from '../../context/CallContext'
 
 export function AppShell() {
-  const { wrapup, closeWrapup } = useCall()
+  const { startCall, wrapup, closeWrapup } = useCall()
   const [navOpen, setNavOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [rankOpen, setRankOpen] = useState(false)
@@ -93,7 +93,19 @@ export function AppShell() {
       )}
       {dpdpSafeOpen && <DpdpSafeModal onClose={() => setDpdpSafeOpen(false)} />}
       <DemoBar
-        onOpenConsent={(c) => setConsentContact(c)}
+        onOpenConsent={(c) => {
+          startCall(
+            {
+              name: c.name || 'Faizan A.',
+              initials: (c.name || 'FA').slice(0, 2).toUpperCase(),
+              detail: c.phone || '+91 98450 61245',
+              phone: c.phone || '98450 61245',
+              callType: c.callType || 'Call centre',
+            },
+            'outgoing',
+          )
+          setConsentContact(c)
+        }}
         onOpenDpdpSafe={() => setDpdpSafeOpen(true)}
       />
     </div>

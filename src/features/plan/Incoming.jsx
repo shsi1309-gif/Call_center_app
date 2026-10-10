@@ -59,7 +59,22 @@ export function Incoming() {
                   disabled={done}
                   onClick={() => {
                     setCalledBack((s) => new Set(s).add(c.id))
-                    startCall({ name: c.name, initials: c.initials, detail: 'Calling back…' }, 'callback')
+                    startCall(
+                      {
+                        name: c.name,
+                        initials: c.initials,
+                        detail: '+91 98450 61245',
+                        phone: '98450 61245',
+                        callType: 'Call centre',
+                      },
+                      'callback',
+                    )
+                    setConsentContact({
+                      name: c.name,
+                      phone: '98450 61245',
+                      callType: 'Call centre',
+                      initialMode: 'wa',
+                    })
                   }}
                   aria-label={`${done ? 'Called back' : 'Call back'} ${c.name}`}
                   style={{
