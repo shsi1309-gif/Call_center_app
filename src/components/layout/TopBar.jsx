@@ -6,6 +6,7 @@ import './TopBar.css'
 export function TopBar({
   onToggleSidebar,
   onOpenNotifications,
+  onOpenScore,
   onOpenRank,
   onOpenAvatar,
   onOpenSettings,
@@ -59,14 +60,36 @@ export function TopBar({
         </button>
         <div
           className="rank-pill"
-          title="Your rank within RT Nagar: #3"
-          onClick={onOpenRank}
+          title="Rank & Score details"
+          onClick={() => {
+            setOpen('none')
+            onOpenRank?.()
+          }}
           style={{ cursor: 'pointer' }}
           role="button"
           tabIndex={0}
         >
-          <span className="rank-pill__ring">76</span>
-          <span>⭐#3</span>
+          <span
+            className="rank-pill__ring"
+            title="OG Score™: 76/100"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen('none')
+              onOpenScore?.()
+            }}
+          >
+            76
+          </span>
+          <span
+            title="Store Rank: #3 within RT Nagar"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen('none')
+              onOpenRank?.()
+            }}
+          >
+            ⭐#3
+          </span>
         </div>
         <button className="ar-badge" onClick={() => toggle('menu')} aria-label="Open profile menu">
           <span>{avatarEmoji}</span>

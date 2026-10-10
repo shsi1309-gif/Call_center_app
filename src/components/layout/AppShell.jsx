@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { NotificationsOverlay } from './NotificationsOverlay'
 import { RankModal } from './RankModal'
+import { ScoreModal } from './ScoreModal'
 import { AvatarView } from './AvatarView'
 import { SettingsView } from './SettingsView'
 import { PhoneCallConsentModal } from './PhoneCallConsentModal'
@@ -17,6 +18,7 @@ export function AppShell() {
   const { startCall, wrapup, closeWrapup } = useCall()
   const [navOpen, setNavOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  const [scoreOpen, setScoreOpen] = useState(false)
   const [rankOpen, setRankOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -48,6 +50,7 @@ export function AppShell() {
         <TopBar
           onToggleSidebar={() => setNavOpen((o) => !o)}
           onOpenNotifications={openNotifications}
+          onOpenScore={() => setScoreOpen(true)}
           onOpenRank={() => setRankOpen(true)}
           onOpenAvatar={() => {
             setAvatarOpen(true)
@@ -75,6 +78,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      {scoreOpen && <ScoreModal onClose={() => setScoreOpen(false)} />}
       {rankOpen && <RankModal onClose={() => setRankOpen(false)} />}
       {consentContact && (
         <PhoneCallConsentModal
