@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Mail, Share2, Users } from 'lucide-react'
 import { EVENTS } from '../../data/calendar'
-import { buildMonthGrid, dateToIso, formatLongDate, monthLabel, shiftMonth } from '../../utils/calendar'
+import { buildMonthGrid, formatLongDate, monthLabel, shiftMonth } from '../../utils/calendar'
 import { useToast } from '../../context/ToastContext'
 import { ShareInviteModal } from './ShareInviteModal'
 import './Calendar.css'
@@ -37,7 +37,6 @@ function UpcomingEventCard({ ev, onShare }) {
 export function CalendarPage() {
   const { showToast } = useToast()
   // Mock October 2026 as standard base date
-  const [todayIso] = useState('2026-10-10')
   const [cursor, setCursor] = useState({ year: 2026, month: 9 }) // 0-indexed: 9 = October
   const [selected, setSelected] = useState('2026-10-10')
   const [shareModalEvent, setShareModalEvent] = useState(null)
@@ -49,10 +48,17 @@ export function CalendarPage() {
     return map
   }, [])
 
-  // All upcoming events for calendar view
-  const upcoming = useMemo(() => {
-    return [...EVENTS].sort((a, b) => a.date.localeCompare(b.date))
-  }, [])
+  // Dynamic events based on selected date
+  const displayEvents = useMemo(() => {
+    const onSelected = eventsByDate.get(selected) ?? []
+    const future = EVENTS.filter((e) => e.date > selected).sort((a, b) => a.date.localeCompare(b.date))
+    const combined = [...onSelected, ...future]
+    if (combined.length > 0) {
+      return combined.slice(0, 3)
+    }
+    // Fallback to all sorted events if nothing found from selected onward
+    return [...EVENTS].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3)
+  }, [selected, eventsByDate])
 
   const goToday = () => {
     setCursor({ year: 2026, month: 9 })
@@ -127,7 +133,7 @@ export function CalendarPage() {
       <section className="cal__upcoming-section" aria-label="Upcoming events">
         <div className="cal__section-header">UPCOMING</div>
         <div className="cal__upcoming-list">
-          {upcoming.slice(0, 3).map((e) => (
+          {displayEvents.map((e) => (
             <UpcomingEventCard
               key={e.id}
               ev={e}
