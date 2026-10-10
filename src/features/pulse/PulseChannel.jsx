@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Send, Smile, Sparkles, Users } from 'lucide-react'
+import { ArrowLeft, ChevronRight, MessageCircle, Phone, PhoneCall, Send, Smile, Sparkles, Users } from 'lucide-react'
 import { AUTO_REPLIES, CHANNELS, DMS, ROLE_AGENTS, TASK_AGENTS } from '../../data/pulse'
 import { usePulse } from '../../context/PulseContext'
 import { useToast } from '../../context/ToastContext'
+import { useCall } from '../../context/CallContext'
 import { Avatar } from '../../components/ui/Avatar'
 import { NeedsInputCard } from './NeedsInputCard'
 import './Pulse.css'
@@ -14,24 +15,83 @@ function resolveChannel(id) {
   const agent = [...ROLE_AGENTS, ...TASK_AGENTS].find((a) => a.id === id)
   if (agent) {
     const isRole = ROLE_AGENTS.some((r) => r.id === id)
+    const isTask = TASK_AGENTS.some((t) => t.id === id)
+    let taskSub = agent.sub
+    let metricPill = ''
+    if (id === 'cross-sell-agent') {
+      taskSub = 'Cross-sell & Upsell Agent · Stores, calls and field · Your view · only your information'
+      metricPill = 'Your Attach rate 24% ▲2 today'
+    } else if (id === 'sop-agent') {
+      taskSub = 'SOP Agent · Stores, calls and field · Your view · only your information'
+      metricPill = 'Your SOP adherence 81% ▲2 today'
+    }
+
     return {
       title: `# ${agent.name}`,
-      sub: isRole ? 'Call Centre Agent · All call-centre staff · Your view · only your information' : agent.sub,
+      sub: isRole ? 'Call Centre Agent · All call-centre staff · Your view · only your information' : taskSub,
       rawName: agent.name,
       isRoleAgent: isRole,
+      isTaskAgent: isTask,
+      metricPill,
     }
   }
   const dm = DMS.find((d) => d.id === id)
   if (dm) return { title: dm.name, sub: 'Direct message', rawName: dm.name }
   if (id === 'avanibot') return { title: 'AvaniBot', sub: 'Always on · ask anything about Pulse', rawName: 'AvaniBot' }
-  if (id === 'customer-discussions') return { title: 'customer-discussions', sub: 'Relayed via WhatsApp Business', rawName: 'customer-discussions' }
+  if (id === 'customer-discussions') {
+    return {
+      title: 'customer-discussions',
+      sub: 'Relayed via WhatsApp Business · 2 open',
+      rawName: 'customer-discussions',
+      isCustomerDiscussions: true,
+    }
+  }
   return null
 }
+
+const CUSTOMER_THREADS = [
+  {
+    id: 'cd-mukunda',
+    name: 'Mukunda',
+    initials: 'MK',
+    color: '#0f766e',
+    badge: 'WA',
+    badgeColor: '#10b981',
+    text: 'Quote for Ortho GRID sent · awaiting reply',
+    time: '2:40pm',
+    unread: 1,
+  },
+  {
+    id: 'cd-kavitha',
+    name: 'Kavitha R.',
+    initials: 'KR',
+    color: '#d97706',
+    badge: 'WA',
+    badgeColor: '#10b981',
+    text: 'When can I come see the hybrid mattress?',
+    time: '11:15am',
+    unread: 2,
+  },
+  {
+    id: 'cd-ali',
+    name: 'Ali',
+    initials: 'AL',
+    color: '#dc2626',
+    badge: 'Missed',
+    badgeColor: '#ef4444',
+    isMissed: true,
+    text: 'Called 9:40am · not returned yet',
+    time: '',
+    unread: 0,
+    hasCallback: true,
+  },
+]
 
 export function PulseChannel() {
   const { channelId = '' } = useParams()
   const navigate = useNavigate()
   const toast = useToast()
+  const { startCall } = useCall()
   const { messagesFor, sendMessage, postBotMessage, markRead } = usePulse()
   const [draft, setDraft] = useState('')
   const [error, setError] = useState('')
@@ -66,6 +126,233 @@ export function PulseChannel() {
     if (initials === 'SR') return { background: '#fed7aa', color: '#7c2d12' }
     return { background: '#ede7fb', color: '#5b21b6' }
   }
+
+  // ===== Render Customer Discussions View (Image 5) =====
+  if (info.isCustomerDiscussions) {
+    return (
+      <div className="chan" style={{ backgroundColor: '#f8fafc', minHeight: '100%' }}>
+        {/* Green Top Header */}
+        <header
+          style={{
+            background: '#0f6e56',
+            padding: '12px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            color: '#ffffff',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => navigate('/pulse')}
+              aria-label="Back to Pulse"
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 700 }}>
+                <MessageCircle size={16} />
+                <span>customer-discussions</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#a7f3d0' }}>
+                Relayed via WhatsApp Business · 2 open
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Yellow Banner */}
+        <div style={{ padding: '12px 16px 0' }}>
+          <div
+            style={{
+              backgroundColor: '#fef9c3',
+              border: '1px solid #fef08a',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              color: '#854d0e',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+            onClick={() => toast('Showing 1 unanswered call and 1 unreplied chat')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PhoneCall size={15} />
+              <span>1 unanswered call & 1 unreplied chat need attention</span>
+            </div>
+            <ChevronRight size={16} />
+          </div>
+        </div>
+
+        {/* Customer Conversations List */}
+        <div style={{ padding: '16px' }}>
+          <div
+            style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6b7280',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              marginBottom: '10px',
+            }}
+          >
+            CUSTOMER CONVERSATIONS
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {CUSTOMER_THREADS.map((thread) => (
+              <div
+                key={thread.id}
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  border: '1px solid #eef2f6',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: `${thread.color}18`,
+                      color: thread.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: '13.5px',
+                    }}
+                  >
+                    {thread.initials}
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#111827' }}>
+                        {thread.name}
+                      </span>
+                      {thread.badge && (
+                        <span
+                          style={{
+                            backgroundColor: thread.isMissed ? '#fee2e2' : '#dcfce7',
+                            color: thread.isMissed ? '#dc2626' : '#16a34a',
+                            fontSize: '10.5px',
+                            fontWeight: 700,
+                            padding: '1px 6px',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                          }}
+                        >
+                          {thread.isMissed && <Phone size={10} />}
+                          {thread.badge}
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '12.5px',
+                        color: thread.isMissed ? '#dc2626' : '#6b7280',
+                        marginTop: '2px',
+                      }}
+                    >
+                      {thread.text}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {thread.hasCallback ? (
+                    <button
+                      onClick={() => {
+                        toast('Calling Ali back...')
+                        startCall({ name: 'Ali', initials: 'AL', detail: '+91 98450 11223' }, 'outgoing')
+                      }}
+                      style={{
+                        backgroundColor: '#0f6e56',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '999px',
+                        padding: '6px 14px',
+                        fontSize: '12.5px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Phone size={13} />
+                      <span>Call back</span>
+                    </button>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                      <span style={{ fontSize: '11px', color: '#9ca3af' }}>{thread.time}</span>
+                      {thread.unread > 0 && (
+                        <span
+                          style={{
+                            backgroundColor: '#22c55e',
+                            color: '#ffffff',
+                            borderRadius: '999px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            padding: '0 6px',
+                            lineHeight: '18px',
+                          }}
+                        >
+                          {thread.unread}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              textAlign: 'center',
+              fontSize: '12px',
+              color: '#9ca3af',
+              marginTop: '24px',
+            }}
+          >
+            Customer threads managed via WhatsApp Business + On-ground Calling
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ===== Standard Channel / Agent View =====
+  const hasNeedsInput =
+    channelId === 'callcentre-team' ||
+    channelId === 'avanibot' ||
+    channelId === 'callcentre-agent' ||
+    channelId === 'cross-sell-agent' ||
+    channelId === 'sop-agent'
 
   return (
     <div className="chan">
@@ -118,6 +405,21 @@ export function PulseChannel() {
                   Role agent
                 </span>
               )}
+              {info.isTaskAgent && (
+                <span
+                  style={{
+                    backgroundColor: 'rgba(168, 85, 247, 0.25)',
+                    color: '#d8b4fe',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    border: '1px solid rgba(168, 85, 247, 0.4)',
+                  }}
+                >
+                  Task agent
+                </span>
+              )}
             </div>
             {info.sub && (
               <span style={{ fontSize: '11.5px', color: '#a5b4fc' }}>
@@ -127,57 +429,89 @@ export function PulseChannel() {
           </div>
         </div>
 
-        {info.isRoleAgent ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              color: '#ffffff',
-              padding: '4px 10px',
-              borderRadius: '999px',
-              fontSize: '12px',
-              fontWeight: 600,
-            }}
-          >
-            <Users size={14} />
-            <span>3</span>
-          </div>
-        ) : (
-          <button
-            onClick={() => toast('AI suggestions for this channel')}
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.15)',
-              border: 'none',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-            }}
-            aria-label="Channel options"
-          >
-            <Sparkles size={15} />
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {info.metricPill && (
+            <div
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                color: '#ffffff',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                fontSize: '12px',
+                fontWeight: 600,
+                display: 'none',
+              }}
+              className="pulse-metric-pill"
+            >
+              {info.metricPill}
+            </div>
+          )}
+
+          {info.isRoleAgent || info.isTaskAgent ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {info.metricPill && (
+                <div
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                    color: '#ffffff',
+                    padding: '4px 12px',
+                    borderRadius: '999px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                  }}
+                >
+                  {info.metricPill}
+                </div>
+              )}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  color: '#ffffff',
+                  padding: '4px 10px',
+                  borderRadius: '999px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                }}
+              >
+                <Users size={14} />
+                <span>{info.isTaskAgent ? '5' : '3'}</span>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => toast('AI suggestions for this channel')}
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: 'none',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+              aria-label="Channel options"
+            >
+              <Sparkles size={15} />
+            </button>
+          )}
+        </div>
       </header>
 
-      {(channelId === 'callcentre-team' || channelId === 'avanibot' || channelId === 'callcentre-agent') && (
-        <NeedsInputCard channelId={channelId} />
-      )}
+      {hasNeedsInput && <NeedsInputCard channelId={channelId} />}
 
       <div className="chan__messages" role="log" aria-label="Messages">
         <div className="chan__divider">
-          <span>{channelId === 'avanibot' || channelId === 'callcentre-agent' ? 'Today' : `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`}</span>
+          <span>{channelId === 'avanibot' || channelId === 'callcentre-agent' || channelId === 'cross-sell-agent' || channelId === 'sop-agent' ? 'Today' : `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`}</span>
         </div>
         {messages.map((m) => {
           const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent'
           const avStyle = getAvatarStyle(m.initials, m.mine)
-          const isCheckDone = m.text.includes('✓ Task done · removed from your tasks')
           const lines = m.text.split('\n')
 
           return (
