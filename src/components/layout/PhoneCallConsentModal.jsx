@@ -9,9 +9,15 @@ const SCRIPTS = {
   ಕನ್ನಡ: 'ಇದನ್ನು ರೆಕಾರ್ಡ್ ಮಾಡಬಹುದೇ? ನಿಮ್ಮ ಸೇವೆ ಮತ್ತು ಫಾಲೋ-ಅಪ್‌ಗಾಗಿ ಮಾತ್ರ. ನೀವು ಬೇಡವೆನ್ನಬಹುದು ಅಥವಾ ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಅಳಿಸಲು ಕೇಳಬಹುದು.',
 }
 
-export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '98450 61245' }, onClose, onCallStarted }) {
+export function PhoneCallConsentModal({
+  contact = { name: 'Faizan A.', phone: '98450 61245' },
+  callType = 'Phone call',
+  initialMode = 'voice',
+  onClose,
+  onCallStarted,
+}) {
   const [lang, setLang] = useState('English')
-  const [mode, setMode] = useState('voice') // 'wa' | 'voice'
+  const [mode, setMode] = useState(initialMode || contact.initialMode || 'voice') // 'wa' | 'voice'
   const [phone, setPhone] = useState(contact.phone?.replace('+91', '').trim() || '98450 61245')
   const [under18, setUnder18] = useState(false)
   const [offers, setOffers] = useState(false)
@@ -78,7 +84,9 @@ export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '9
             </div>
             <div>
               <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Ask before you record</div>
-              <div style={{ fontSize: '12px', color: '#64748b' }}>Phone call · {contact.name}</div>
+              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                {callType || contact.callType || 'Call centre'} · {contact.name}
+              </div>
             </div>
           </div>
           <button

@@ -38,7 +38,7 @@ export function DemoBar({ onOpenConsent }) {
         DEMO
       </span>
       <button
-        onClick={startPractice}
+        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245', callType: 'Call centre', initialMode: 'wa' })}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -56,7 +56,7 @@ export function DemoBar({ onOpenConsent }) {
         <Phone size={12} /> In-app call
       </button>
       <button
-        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245' })}
+        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245', callType: 'Phone call', initialMode: 'voice' })}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -73,7 +73,8 @@ export function DemoBar({ onOpenConsent }) {
       >
         <Phone size={12} /> Phone call
       </button>
-      <span
+      <button
+        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245', callType: 'Call centre', initialMode: 'wa' })}
         style={{
           width: '24px',
           height: '24px',
@@ -83,10 +84,14 @@ export function DemoBar({ onOpenConsent }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 0,
         }}
+        aria-label="Consent tools"
       >
         <Shield size={12} />
-      </span>
+      </button>
     </div>
   )
 }

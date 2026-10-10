@@ -76,6 +76,8 @@ export function AppShell() {
       {consentContact && (
         <PhoneCallConsentModal
           contact={consentContact}
+          callType={consentContact.callType}
+          initialMode={consentContact.initialMode}
           onClose={() => setConsentContact(null)}
         />
       )}
