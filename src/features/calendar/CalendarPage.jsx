@@ -1,73 +1,103 @@
 import { useMemo, useState } from 'react'
-import { CalendarDays, ChevronLeft, ChevronRight, Mail } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Mail, Share2, Users } from 'lucide-react'
 import { EVENTS } from '../../data/calendar'
 import { buildMonthGrid, dateToIso, formatLongDate, monthLabel, shiftMonth } from '../../utils/calendar'
+import { useToast } from '../../context/ToastContext'
+import { ShareInviteModal } from './ShareInviteModal'
 import './Calendar.css'
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-function EventRow({ ev }) {
+function UpcomingEventCard({ ev, onShare }) {
   return (
-    <li className="cal-event">
-      <div className="cal-event__time">
-        <b>{ev.time}</b>
-        <small>{ev.period}</small>
+    <div className="cal-upcoming-card">
+      <div className="cal-upcoming-card__accent" />
+      <div className="cal-upcoming-card__time">
+        <span className="cal-upcoming-card__hour">{ev.time}</span>
+        <span className="cal-upcoming-card__period">{ev.period}</span>
       </div>
-      <div>
-        <strong>{ev.title}</strong>
-        <span>{ev.detail}</span>
+      <div className="cal-upcoming-card__content">
+        <div className="cal-upcoming-card__title">{ev.title}</div>
+        <div className="cal-upcoming-card__detail">
+          <Users size={14} className="cal-upcoming-card__icon" />
+          <span>{ev.detail}</span>
+        </div>
       </div>
-    </li>
+      <button
+        className="cal-upcoming-card__share"
+        onClick={() => onShare(ev)}
+        aria-label={`Share invite for ${ev.title}`}
+      >
+        <Share2 size={16} />
+      </button>
+    </div>
   )
 }
 
 export function CalendarPage() {
-  const [todayIso, setTodayIso] = useState(() => dateToIso(new Date()))
-  const [cursor, setCursor] = useState(() => {
-    const d = new Date()
-    return { year: d.getFullYear(), month: d.getMonth() }
-  })
-  const [selected, setSelected] = useState(todayIso)
+  const { showToast } = useToast()
+  // Mock October 2026 as standard base date
+  const [todayIso] = useState('2026-10-10')
+  const [cursor, setCursor] = useState({ year: 2026, month: 9 }) // 0-indexed: 9 = October
+  const [selected, setSelected] = useState('2026-10-10')
+  const [shareModalEvent, setShareModalEvent] = useState(null)
+
   const grid = useMemo(() => buildMonthGrid(cursor), [cursor])
   const eventsByDate = useMemo(() => {
     const map = new Map()
     EVENTS.forEach((e) => map.set(e.date, [...(map.get(e.date) ?? []), e]))
     return map
   }, [])
-  const upcoming = EVENTS.filter((e) => e.date >= todayIso).sort((a, b) => a.date.localeCompare(b.date))
-  const selectedEvents = eventsByDate.get(selected) ?? []
+
+  // All upcoming events for calendar view
+  const upcoming = useMemo(() => {
+    return [...EVENTS].sort((a, b) => a.date.localeCompare(b.date))
+  }, [])
+
   const goToday = () => {
-    const d = new Date()
-    setCursor({ year: d.getFullYear(), month: d.getMonth() })
-    setTodayIso(dateToIso(d))
-    setSelected(dateToIso(d))
+    setCursor({ year: 2026, month: 9 })
+    setSelected('2026-10-10')
+  }
+
+  const handleShareSuccess = (event) => {
+    showToast(`Invite shared for ${event.title}`)
   }
 
   return (
     <div className="cal">
-      <header className="cal__head">
-        <h1>
-          <CalendarDays size={14} /> Calendar
-        </h1>
-        <p>Mirrored from your mailbox — invites created here land there too</p>
-      </header>
+      <div className="cal__subtitle-top">
+        Mirrored from your mailbox — invites created here land there too
+      </div>
+
       <div className="cal__banner">
-        <Mail size={16} /> Store visits, coaching sessions, and meeting invites all show up here — and in your mailbox.
+        <Mail size={16} className="cal__banner-icon" />
+        <span>Store visits, coaching sessions, and meeting invites all show up here — and in your mailbox.</span>
       </div>
 
       <section className="cal__card" aria-label="Month view">
         <div className="cal__nav">
-          <button onClick={() => setCursor((c) => shiftMonth(c, -1))} aria-label="Previous month">
+          <button
+            onClick={() => setCursor((c) => shiftMonth(c, -1))}
+            aria-label="Previous month"
+            className="cal__nav-arrow"
+          >
             <ChevronLeft size={16} />
           </button>
           <h2 aria-live="polite">{monthLabel(cursor)}</h2>
-          <button className="cal__today" onClick={goToday}>
-            Today
-          </button>
-          <button onClick={() => setCursor((c) => shiftMonth(c, 1))} aria-label="Next month">
-            <ChevronRight size={16} />
-          </button>
+          <div className="cal__nav-right">
+            <button className="cal__today" onClick={goToday}>
+              Today
+            </button>
+            <button
+              onClick={() => setCursor((c) => shiftMonth(c, 1))}
+              aria-label="Next month"
+              className="cal__nav-arrow"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
+
         <div className="cal__grid" role="grid" aria-label={monthLabel(cursor)}>
           {WEEKDAYS.map((d, i) => (
             <div className="cal__dow" key={`${d}${i}`} role="columnheader">
@@ -79,41 +109,41 @@ export function CalendarPage() {
               <button
                 key={cell.iso}
                 role="gridcell"
-                className={`cal__day ${cell.iso === todayIso ? 'is-today' : ''} ${cell.iso === selected ? 'is-selected' : ''}`}
+                className={`cal__day ${cell.iso === selected ? 'is-selected' : ''}`}
                 aria-pressed={cell.iso === selected}
                 aria-label={`${formatLongDate(cell.iso)}${eventsByDate.has(cell.iso) ? ', has events' : ''}`}
                 onClick={() => setSelected(cell.iso)}
               >
-                {cell.day}
+                <span className="cal__day-num">{cell.day}</span>
                 {eventsByDate.has(cell.iso) && <i className="cal__dot" />}
               </button>
             ) : (
-              <div key={`blank-${i}`} aria-hidden="true" />
+              <div key={`blank-${i}`} aria-hidden="true" className="cal__day-blank" />
             ),
           )}
         </div>
       </section>
 
-      <section className="cal__list" aria-label="Selected day">
-        <h2 className="section-label">{formatLongDate(selected)}</h2>
-        {selectedEvents.length ? (
-          <ul>
-            {selectedEvents.map((e) => (
-              <EventRow key={e.id} ev={e} />
-            ))}
-          </ul>
-        ) : (
-          <p className="cal__empty">Nothing scheduled for this day.</p>
-        )}
-      </section>
-      <section className="cal__list" aria-label="Upcoming">
-        <h2 className="section-label">Upcoming</h2>
-        <ul>
-          {upcoming.map((e) => (
-            <EventRow key={e.id} ev={e} />
+      <section className="cal__upcoming-section" aria-label="Upcoming events">
+        <div className="cal__section-header">UPCOMING</div>
+        <div className="cal__upcoming-list">
+          {upcoming.slice(0, 3).map((e) => (
+            <UpcomingEventCard
+              key={e.id}
+              ev={e}
+              onShare={(ev) => setShareModalEvent(ev)}
+            />
           ))}
-        </ul>
+        </div>
       </section>
+
+      {/* Share Invite Modal */}
+      <ShareInviteModal
+        isOpen={Boolean(shareModalEvent)}
+        event={shareModalEvent}
+        onClose={() => setShareModalEvent(null)}
+        onShareSuccess={handleShareSuccess}
+      />
     </div>
   )
 }
