@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronUp, Pin } from 'lucide-react'
+import { ChevronUp, Pin, Mail, User, Users as UsersIcon, Check, ArrowUpRight } from 'lucide-react'
 import { usePulse } from '../../context/PulseContext'
 import { useToast } from '../../context/ToastContext'
 
@@ -12,8 +12,11 @@ export function NeedsInputCard({ channelId }) {
   const [answers, setAnswers] = useState({ item1: '', item2: '', single: '' })
   const [errors, setErrors] = useState({})
   const [resolvedItems, setResolvedItems] = useState(new Set())
+  const [ccaAcknowledged, setCcaAcknowledged] = useState(false)
+  const [showClearedToast, setShowClearedToast] = useState(false)
 
   const isAvani = channelId === 'avanibot'
+  const isAgent = channelId === 'callcentre-agent'
 
   const handleResolve = (itemId, text, ack) => {
     sendMessage(channelId, text)
@@ -34,6 +37,388 @@ export function NeedsInputCard({ channelId }) {
     setErrors((prev) => ({ ...prev, [itemId]: '' }))
   }
 
+  const handleGotIt = () => {
+    setCcaAcknowledged(true)
+    // Add bot report message and user got it message
+    postBotMessage('callcentre-agent', "Your day is in. Your manager has today's report.", 'AvaniBot')
+    sendMessage('callcentre-agent', 'Got it\n✓ Task done · removed from your tasks')
+    
+    // Show the dark floating toast pill
+    setShowClearedToast(true)
+    setTimeout(() => {
+      setShowClearedToast(false)
+    }, 4000)
+  }
+
+  // ===== Render for # callcentre-agent =====
+  if (isAgent) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {/* KPI Performance Bar */}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #e5e7eb',
+            padding: '10px 16px',
+            fontSize: '12px',
+          }}
+        >
+          <div style={{ color: '#6b7280', fontSize: '11px', fontWeight: 600, marginBottom: '6px' }}>
+            📅 Period: MTD · 1-4 Oct 2026 · conversations = count
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: '#111827', minWidth: '130px' }}>
+              <User size={14} style={{ color: '#059669' }} />
+              <span>Arvind Rajan · you</span>
+            </div>
+
+            {/* Metrics */}
+            <div style={{ display: 'flex', gap: '10px', flex: 1, minWidth: '300px' }}>
+              {/* REVENUE */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '9.5px', fontWeight: 800, color: '#6b7280', marginBottom: '2px' }}>REVENUE</div>
+                <div
+                  style={{
+                    position: 'relative',
+                    height: '22px',
+                    backgroundColor: '#fef3c7',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '84%',
+                      backgroundColor: '#fde68a',
+                      zIndex: 0,
+                    }}
+                  />
+                  <span style={{ position: 'relative', zIndex: 1, color: '#92400e' }}>420K <span style={{ fontWeight: 500, color: '#78350f' }}>/500K</span></span>
+                  <span style={{ position: 'relative', zIndex: 1, marginLeft: 'auto', color: '#92400e', fontWeight: 800 }}>84%</span>
+                </div>
+              </div>
+
+              {/* ATV */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '9.5px', fontWeight: 800, color: '#6b7280', marginBottom: '2px' }}>ATV</div>
+                <div
+                  style={{
+                    position: 'relative',
+                    height: '22px',
+                    backgroundColor: '#fef3c7',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '85%',
+                      backgroundColor: '#fde68a',
+                      zIndex: 0,
+                    }}
+                  />
+                  <span style={{ position: 'relative', zIndex: 1, color: '#92400e' }}>38.2K <span style={{ fontWeight: 500, color: '#78350f' }}>/45K</span></span>
+                  <span style={{ position: 'relative', zIndex: 1, marginLeft: 'auto', color: '#92400e', fontWeight: 800 }}>85%</span>
+                </div>
+              </div>
+
+              {/* CONVERSATIONS */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '9.5px', fontWeight: 800, color: '#6b7280', marginBottom: '2px' }}>CONVERSATIONS</div>
+                <div
+                  style={{
+                    position: 'relative',
+                    height: '22px',
+                    backgroundColor: '#fef3c7',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 8px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '84%',
+                      backgroundColor: '#fde68a',
+                      zIndex: 0,
+                    }}
+                  />
+                  <span style={{ position: 'relative', zIndex: 1, color: '#92400e' }}>168 <span style={{ fontWeight: 500, color: '#78350f' }}>/200</span></span>
+                  <span style={{ position: 'relative', zIndex: 1, marginLeft: 'auto', color: '#92400e', fontWeight: 800 }}>84%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Green Context & Tasks Section */}
+        <section
+          style={{
+            backgroundColor: '#f0fdf4',
+            borderBottom: '1px solid #bbf7d0',
+            padding: '12px 16px',
+          }}
+        >
+          {/* Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: collapsed ? 0 : '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <Mail size={15} style={{ color: '#059669' }} />
+              <strong style={{ fontSize: '13.5px', color: '#065f46' }}>My Context & Tasks</strong>
+              <span
+                style={{
+                  backgroundColor: '#047857',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  padding: '2px 6px',
+                  borderRadius: '999px',
+                }}
+              >
+                FOR YOU
+              </span>
+              <span
+                style={{
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '0 6px',
+                  borderRadius: '999px',
+                  lineHeight: '16px',
+                }}
+              >
+                {ccaAcknowledged ? '1' : '2'}
+              </span>
+              <span style={{ fontSize: '12px', color: '#4b5563' }}>
+                From your manager · 2 tasks · {ccaAcknowledged ? '1 to action' : '2 to action'}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ background: 'none', border: 'none', color: '#059669', cursor: 'pointer', padding: '2px' }}
+              aria-label="Toggle collapse"
+            >
+              <ChevronUp size={16} style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
+            </button>
+          </div>
+
+          {!collapsed && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* Incoming Context */}
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#047857', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '2px' }}>
+                  INCOMING CONTEXT
+                </div>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+                  Sent 9:00am by AvaniBot for your manager
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12.5px' }}>
+                  <div style={{ color: '#047857', fontWeight: 600 }}>
+                    ✓ Did well: Booked 6 store visits from callbacks
+                  </div>
+                  <div style={{ color: '#c2410c', fontWeight: 600 }}>
+                    ↗ Improve: Greeting in the first 10 seconds on 71% of calls
+                  </div>
+                </div>
+              </div>
+
+              {/* My Tasks Today */}
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#047857', letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  MY TASKS TODAY
+                </div>
+
+                {/* Acknowledge box (when not acknowledged) */}
+                {!ccaAcknowledged && (
+                  <div
+                    style={{
+                      backgroundColor: '#fefce8',
+                      border: '1px solid #fef08a',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#854d0e' }}>
+                      Acknowledge today's tasks
+                    </span>
+                    <button
+                      onClick={handleGotIt}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        padding: '4px 12px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#111827',
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                      }}
+                    >
+                      Got it
+                    </button>
+                  </div>
+                )}
+
+                {/* Lead to follow up */}
+                <div
+                  style={{
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span
+                      style={{
+                        backgroundColor: '#eff6ff',
+                        color: '#2563eb',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                      }}
+                    >
+                      Type 1 · Leads to follow up
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#111827' }}>
+                    Priya Iyer <span style={{ fontWeight: 400, color: '#6b7280' }}>· Billing dispute · call 4:30pm</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                    <span style={{ fontSize: '12px', color: '#6b7280' }}>Update:</span>
+                    <button
+                      onClick={() => handleResolve('priya', 'Update: Done with billing dispute.', 'Logged as Done for Priya Iyer.')}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '999px',
+                        padding: '3px 12px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Done
+                    </button>
+                    <button
+                      onClick={() => handleResolve('priya', 'Update: Not yet reached Priya.', 'Reminder set for Priya Iyer.')}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '999px',
+                        padding: '3px 12px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Not yet
+                    </button>
+                    <button
+                      onClick={() => handleResolve('priya', 'Update: Need help with Priya dispute.', 'Help request routed to manager.')}
+                      style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '999px',
+                        padding: '3px 12px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Need help
+                    </button>
+                  </div>
+
+                  {ccaAcknowledged && (
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#111827', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #f3f4f6' }}>
+                      Suresh Nair <span style={{ fontWeight: 400, color: '#6b7280' }}>· Plan upgrade · log outcome</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Floating toast after clicking Got it */}
+        {showClearedToast && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '76px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#0f172a',
+              color: '#ffffff',
+              padding: '8px 18px',
+              borderRadius: '999px',
+              fontSize: '13px',
+              fontWeight: 600,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+          >
+            <span>Task done · cleared from this channel</span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ===== Render for avanibot & callcentre-team =====
   const badgeCount = isAvani ? Math.max(0, 2 - resolvedItems.size) : (resolvedItems.has('single') ? 0 : 1)
 
   return (

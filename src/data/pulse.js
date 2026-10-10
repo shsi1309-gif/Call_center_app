@@ -58,12 +58,35 @@ export const INITIAL_MESSAGES = {
       ['Sunita Rao', '2:14pm', 'Great attitude Arvind 🌟'],
     ]),
   ],
-  'callcentre-agent': thread('cca', [
-    ['callcentre-agent', '9:02am', 'Good morning Arvind. You have 2 callbacks due today, the next one is at 4:30pm.'],
-    ['callcentre-agent', '9:03am', 'Two hot leads (Mukunda, Kavitha R.) have been untouched for 24h. Want me to queue them first?'],
-    ['You', '9:05am', 'Yes, queue Mukunda first.'],
-    ['callcentre-agent', '9:05am', 'Done. Mukunda is now at the top of Calls to make.'],
-  ]),
+  'callcentre-agent': [
+    {
+      id: 'cca-1',
+      author: 'AvaniBot',
+      initials: 'AB',
+      time: '9:00am',
+      badge: '',
+      text: "Good morning Arvind. Today's digest is pinned at the top: incoming context and the tasks allocated to you.",
+      mine: false,
+    },
+    {
+      id: 'cca-2',
+      author: 'AvaniBot',
+      initials: 'AB',
+      time: '1:00pm',
+      badge: 'Nudge',
+      text: 'Reminder: Priya Iyer still needs an update.',
+      mine: false,
+    },
+    {
+      id: 'cca-3',
+      author: 'AvaniBot',
+      initials: '5:00pm',
+      time: '5:00pm',
+      badge: 'Reminder',
+      text: 'Your end-of-day update goes to your manager at 6:00pm. Finish your tasks if you can.',
+      mine: false,
+    },
+  ],
   'cross-sell-agent': thread('xs', [
     ['cross-sell-agent', '10:10am', 'Your attach rate is 24%, up 2 points this week. Team target is 30%.'],
     [
@@ -124,13 +147,31 @@ export const INITIAL_MESSAGES = {
   ]),
   'dm-priya': thread('dmp', [['Priya Krishnan', '9:55am', 'Can you cover my 3pm slot today?']]),
   'dm-raju': thread('dmr', [['Raju Kumar', 'Yesterday', 'Nice cross-sell on the Tranquo chair! 🔥']]),
-  avanibot: thread('ab', [
-    [
-      'AvaniBot',
-      '9:00am',
-      'Hey! I\'m AvaniBot ✨ Ask me things like "what are my action items from Sunita", or tap the ✨ icon inside any channel to search just that channel.',
-    ],
-  ]),
+  avanibot: [
+    {
+      id: 'ab-1',
+      author: 'You',
+      initials: 'AR',
+      time: 'Just now',
+      text: 'Give me my daily brief',
+      mine: true,
+    },
+    {
+      id: 'ab-2',
+      author: 'AvaniBot',
+      initials: 'AB',
+      time: 'Just now',
+      badge: 'BOT',
+      text: `🌟 Here's today's brief
+• Avg Handle Time: 4m 12s ▼8% — nice improvement
+• Warranty score down 12% this week — worth a look in #avani-coaching
+• Greeting-in-first-10s at 71% — Sunita wants this pushed up
+• You've got 3 new kudos waiting 🏆
+
+Want me to open avani-coaching, or pull up your kudos?`,
+      mine: false,
+    },
+  ],
 }
 
 /** Channels whose counterpart is a bot, with the reply it gives to any message. */

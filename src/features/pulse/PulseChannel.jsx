@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Send, Smile, Sparkles } from 'lucide-react'
+import { ArrowLeft, Send, Smile, Sparkles, Users } from 'lucide-react'
 import { AUTO_REPLIES, CHANNELS, DMS, ROLE_AGENTS, TASK_AGENTS } from '../../data/pulse'
 import { usePulse } from '../../context/PulseContext'
 import { useToast } from '../../context/ToastContext'
@@ -12,7 +12,15 @@ function resolveChannel(id) {
   const ch = CHANNELS.find((c) => c.id === id)
   if (ch) return { title: `#${ch.name}`, sub: `${ch.members} members · ${ch.topic}`, rawName: ch.name }
   const agent = [...ROLE_AGENTS, ...TASK_AGENTS].find((a) => a.id === id)
-  if (agent) return { title: `# ${agent.name}`, sub: agent.sub, rawName: agent.name }
+  if (agent) {
+    const isRole = ROLE_AGENTS.some((r) => r.id === id)
+    return {
+      title: `# ${agent.name}`,
+      sub: isRole ? 'Call Centre Agent · All call-centre staff · Your view · only your information' : agent.sub,
+      rawName: agent.name,
+      isRoleAgent: isRole,
+    }
+  }
   const dm = DMS.find((d) => d.id === id)
   if (dm) return { title: dm.name, sub: 'Direct message', rawName: dm.name }
   if (id === 'avanibot') return { title: 'AvaniBot', sub: 'Always on · ask anything about Pulse', rawName: 'AvaniBot' }
@@ -61,7 +69,16 @@ export function PulseChannel() {
 
   return (
     <div className="chan">
-      <header className="chan__head" style={{ background: '#1c1335', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header
+        className="chan__head"
+        style={{
+          background: '#1c1335',
+          padding: '12px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             onClick={() => navigate('/pulse')}
@@ -81,41 +98,88 @@ export function PulseChannel() {
           >
             <ArrowLeft size={16} />
           </button>
-          <h1 style={{ fontSize: '15px', fontWeight: 700, color: '#fff', margin: 0 }}>
-            {info.title}
-          </h1>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1 style={{ fontSize: '15.5px', fontWeight: 700, color: '#fff', margin: 0 }}>
+                {info.title}
+              </h1>
+              {info.isRoleAgent && (
+                <span
+                  style={{
+                    backgroundColor: 'rgba(59, 130, 246, 0.25)',
+                    color: '#93c5fd',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    border: '1px solid rgba(59, 130, 246, 0.4)',
+                  }}
+                >
+                  Role agent
+                </span>
+              )}
+            </div>
+            {info.sub && (
+              <span style={{ fontSize: '11.5px', color: '#a5b4fc' }}>
+                {info.sub}
+              </span>
+            )}
+          </div>
         </div>
-        <button
-          onClick={() => toast('AI suggestions for this channel')}
-          style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.15)',
-            border: 'none',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-          }}
-          aria-label="Channel options"
-        >
-          <Sparkles size={15} />
-        </button>
+
+        {info.isRoleAgent ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              color: '#ffffff',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
+            <Users size={14} />
+            <span>3</span>
+          </div>
+        ) : (
+          <button
+            onClick={() => toast('AI suggestions for this channel')}
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: 'none',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+            }}
+            aria-label="Channel options"
+          >
+            <Sparkles size={15} />
+          </button>
+        )}
       </header>
 
-      {(channelId === 'callcentre-team' || channelId === 'avanibot') && (
+      {(channelId === 'callcentre-team' || channelId === 'avanibot' || channelId === 'callcentre-agent') && (
         <NeedsInputCard channelId={channelId} />
       )}
 
       <div className="chan__messages" role="log" aria-label="Messages">
         <div className="chan__divider">
-          <span>{channelId === 'avanibot' ? 'Today' : `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`}</span>
+          <span>{channelId === 'avanibot' || channelId === 'callcentre-agent' ? 'Today' : `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`}</span>
         </div>
         {messages.map((m) => {
-          const isBot = m.author === 'AvaniBot'
+          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent'
           const avStyle = getAvatarStyle(m.initials, m.mine)
+          const isCheckDone = m.text.includes('✓ Task done · removed from your tasks')
+          const lines = m.text.split('\n')
+
           return (
             <div key={m.id} className={`msg ${m.mine ? 'msg--mine' : ''}`}>
               {!m.mine && (
@@ -142,7 +206,22 @@ export function PulseChannel() {
               <div className="msg__col">
                 <div className="msg__meta" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <strong>{m.mine ? 'You' : m.author}</strong>
-                  {isBot && (
+                  {m.badge && (
+                    <span
+                      style={{
+                        background: m.badge === 'BOT' ? '#8b5cf6' : m.badge === 'Nudge' ? '#3b82f6' : '#6366f1',
+                        color: '#ffffff',
+                        fontSize: '9.5px',
+                        fontWeight: 800,
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        letterSpacing: '0.4px',
+                      }}
+                    >
+                      {m.badge}
+                    </span>
+                  )}
+                  {isBot && !m.badge && (
                     <span
                       style={{
                         background: '#8b5cf6',
@@ -159,10 +238,37 @@ export function PulseChannel() {
                   )}
                   <small>{m.time}</small>
                 </div>
-                <div className="msg__bubble">{m.text}</div>
+                <div className="msg__bubble" style={{ whiteSpace: 'pre-wrap' }}>
+                  {lines.map((line, idx) => {
+                    if (line.includes('✓ Task done')) {
+                      return (
+                        <div key={idx} style={{ color: '#047857', fontWeight: 600, fontSize: '12px', marginTop: '3px' }}>
+                          {line}
+                        </div>
+                      )
+                    }
+                    return <div key={idx}>{line}</div>
+                  })}
+                </div>
               </div>
               {m.mine && (
-                <Avatar initials={m.initials || 'AR'} size="sm" background={avStyle.background} color={avStyle.color} />
+                <div
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    backgroundColor: '#0f6e56',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    flexShrink: 0,
+                  }}
+                >
+                  Y
+                </div>
               )}
             </div>
           )
@@ -186,7 +292,23 @@ export function PulseChannel() {
           <button type="button" onClick={() => toast('Emoji picker is not part of this demo')} aria-label="Emoji">
             <Smile size={16} />
           </button>
-          <button type="submit" className="chan__send" aria-label="Send message">
+          <button
+            type="submit"
+            className="chan__send"
+            aria-label="Send message"
+            style={{
+              backgroundColor: '#059669',
+              color: '#ffffff',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
             <Send size={15} />
           </button>
         </div>

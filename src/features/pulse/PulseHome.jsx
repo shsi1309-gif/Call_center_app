@@ -50,10 +50,6 @@ export function PulseHome() {
   const empty = !roles.length && !tasks.length && !channels.length && !dms.length
   const openChannel = (id) => navigate(`/pulse/${id}`)
   const dailyBrief = () => {
-    postBotMessage(
-      'avanibot',
-      'Daily brief: 2 callbacks due (next 4:30pm), 2 hot leads untouched for 24h, greeting QA is at 71% vs 85% target.',
-    )
     openChannel('avanibot')
   }
 
