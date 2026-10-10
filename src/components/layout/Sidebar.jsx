@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Calendar, History, LayoutDashboard, MessagesSquare, Phone, PhoneCall, PhoneIncoming, PhoneOutgoing } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 import './Sidebar.css'
@@ -11,6 +11,7 @@ const PLAN_LINKS = [
 
 export function Sidebar({ open, onNavigate }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const { startPractice } = useCall()
   const inPlan = pathname.startsWith('/plan')
 
@@ -46,8 +47,9 @@ export function Sidebar({ open, onNavigate }) {
         <button
           className="subnav__item"
           onClick={() => {
+            navigate('/plan/incoming')
             startPractice()
-            onNavigate()
+            onNavigate?.()
           }}
         >
           <PhoneCall size={15} />

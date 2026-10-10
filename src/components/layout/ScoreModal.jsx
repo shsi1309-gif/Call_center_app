@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { GraduationCap, X } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 import { useCall } from '../../context/CallContext'
 
 export function ScoreModal({ onClose }) {
   const toast = useToast()
+  const navigate = useNavigate()
   const { startPractice } = useCall()
 
   useEffect(() => {
@@ -17,6 +19,7 @@ export function ScoreModal({ onClose }) {
 
   const handlePractice = () => {
     onClose()
+    navigate('/plan/incoming')
     startPractice()
   }
 

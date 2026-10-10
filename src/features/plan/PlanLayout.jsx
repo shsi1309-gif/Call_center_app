@@ -22,7 +22,14 @@ export function PlanLayout() {
         </div>
         <span className="plan-banner__date">{today}</span>
       </div>
-      {call ? <CallPanel /> : <Outlet />}
+      {call?.phase === 'active' ? (
+        <CallPanel />
+      ) : (
+        <>
+          {call?.phase === 'ringing' && <CallPanel />}
+          <Outlet />
+        </>
+      )}
     </div>
   )
 }

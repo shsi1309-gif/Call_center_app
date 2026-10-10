@@ -5,14 +5,12 @@ import { formatTimer } from '../utils/format'
 const CallContext = createContext(null)
 
 const PRACTICE_CONTACT = {
-  name: 'Ritu S.',
-  initials: 'RS',
-  detail: '🎯 Intent 96 · calling from +91 98450 xxxxx',
+  name: 'Faizan A.',
+  initials: 'FA',
+  detail: '🎯 Intent 85 · calling from +91 98450 xxxxx',
   phone: '98450 61245',
-  product: 'Smart Luxe Mattress · ₹13,390',
-  crossSell: 'Mattress Protector · ₹1,999',
-  emi: 'Not yet discussed — surface it early, she asked about total cost',
-  closingChance: '88%',
+  product: 'Tranquo Massager Chair · ₹24,990',
+  closingChance: '85%',
 }
 
 export function CallProvider({ children }) {
@@ -55,19 +53,19 @@ export function CallProvider({ children }) {
     [begin, call, toast],
   )
 
-  const startPractice = useCallback(() => {
+  const startPractice = useCallback((contact = PRACTICE_CONTACT) => {
     if (call) {
       toast('Finish your current call first')
       return
     }
-    begin(PRACTICE_CONTACT, 'practice', 'ringing')
+    begin(contact, 'practice', 'ringing')
   }, [begin, call, toast])
 
   const accept = useCallback(() => {
     setCall((c) => (c ? { ...c, phase: 'active' } : c))
     setSeconds(0)
     setConsentContact({
-      name: call?.contact?.name || 'Ritu S.',
+      name: call?.contact?.name || 'Faizan A.',
       phone: call?.contact?.phone || '98450 61245',
       callType: 'Call centre',
       initialMode: 'wa',
