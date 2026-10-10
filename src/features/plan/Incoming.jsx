@@ -3,11 +3,13 @@ import { Grip, PhoneCall, PhoneMissed } from 'lucide-react'
 import { MISSED_CALLS } from '../../data/plan'
 import { useCall } from '../../context/CallContext'
 import { PhoneCallConsentModal } from '../../components/layout/PhoneCallConsentModal'
+import { DialerModal } from '../../components/layout/DialerModal'
 import { formatRupees } from '../../utils/format'
 
 export function Incoming() {
   const [calledBack, setCalledBack] = useState(new Set())
   const [consentContact, setConsentContact] = useState(null)
+  const [dialerOpen, setDialerOpen] = useState(false)
   const { startCall } = useCall()
   const total = MISSED_CALLS.reduce((sum, c) => sum + (c.expectedValue ?? 0), 0)
 
@@ -101,7 +103,7 @@ export function Incoming() {
 
       {/* Floating purple dialpad button */}
       <button
-        onClick={() => setConsentContact({ name: 'Dialer', phone: '98450 61245' })}
+        onClick={() => setDialerOpen(true)}
         aria-label="Open dialpad"
         style={{
           position: 'fixed',
@@ -123,6 +125,19 @@ export function Incoming() {
       >
         <Grip size={22} />
       </button>
+
+      <DialerModal
+        isOpen={dialerOpen}
+        onClose={() => setDialerOpen(false)}
+        onCallStarted={(num) =>
+          setConsentContact({
+            name: 'Manual Dial',
+            phone: num,
+            callType: 'Call centre',
+            initialMode: 'wa',
+          })
+        }
+      />
 
       {consentContact && (
         <PhoneCallConsentModal contact={consentContact} onClose={() => setConsentContact(null)} />

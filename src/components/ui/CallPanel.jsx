@@ -4,11 +4,13 @@ import { useCall } from '../../context/CallContext'
 import { formatTimer } from '../../utils/format'
 import { AIAssistPanel } from '../layout/AIAssistPanel'
 import { PhoneCallConsentModal } from '../layout/PhoneCallConsentModal'
+import { DialerModal } from '../layout/DialerModal'
 
 export function CallPanel() {
   const { call, seconds, muted, accept, hangUp, toggleMute } = useCall()
   const [onHold, setOnHold] = useState(false)
   const [consentOpen, setConsentOpen] = useState(false)
+  const [dialerOpen, setDialerOpen] = useState(false)
 
   if (!call) return null
 
@@ -263,7 +265,7 @@ export function CallPanel() {
 
       {/* Floating purple dialpad button */}
       <button
-        onClick={() => setConsentOpen(true)}
+        onClick={() => setDialerOpen(true)}
         aria-label="Open dialpad"
         style={{
           position: 'fixed',
@@ -285,6 +287,12 @@ export function CallPanel() {
       >
         <Grip size={22} />
       </button>
+
+      <DialerModal
+        isOpen={dialerOpen}
+        onClose={() => setDialerOpen(false)}
+        onCallStarted={() => setConsentOpen(true)}
+      />
 
       {/* Consent Modal triggered right after accept */}
       {consentOpen && (

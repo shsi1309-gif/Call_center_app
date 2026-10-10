@@ -5,6 +5,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { Pagination } from './Pagination'
 import { LeadsModal } from '../leads/LeadsModal'
 import { PhoneCallConsentModal } from '../../components/layout/PhoneCallConsentModal'
+import { DialerModal } from '../../components/layout/DialerModal'
 import { useCall } from '../../context/CallContext'
 import { formatRupees } from '../../utils/format'
 import { pageCount, paginate } from '../../utils/pagination'
@@ -23,6 +24,7 @@ export function CallsToMake() {
   const [expandedId, setExpandedId] = useState('ritu') // start with top lead expanded as in mock
   const [modalIndex, setModalIndex] = useState(null)
   const [consentContact, setConsentContact] = useState(null)
+  const [dialerOpen, setDialerOpen] = useState(false)
 
   const pages = pageCount(RANKED_LEADS.length, PAGE_SIZE)
   const rows = paginate(RANKED_LEADS, page, PAGE_SIZE)
@@ -151,7 +153,7 @@ export function CallsToMake() {
 
       {/* Floating purple dialpad button */}
       <button
-        onClick={() => setConsentContact({ name: 'Dialer', phone: '98450 61245' })}
+        onClick={() => setDialerOpen(true)}
         aria-label="Open dialpad"
         style={{
           position: 'fixed',
@@ -175,6 +177,18 @@ export function CallsToMake() {
       </button>
 
       {modalIndex !== null && <LeadsModal leads={RANKED_LEADS} startIndex={modalIndex} onClose={() => setModalIndex(null)} />}
+      <DialerModal
+        isOpen={dialerOpen}
+        onClose={() => setDialerOpen(false)}
+        onCallStarted={(num) =>
+          setConsentContact({
+            name: 'Manual Dial',
+            phone: num,
+            callType: 'Call centre',
+            initialMode: 'wa',
+          })
+        }
+      />
       {consentContact && (
         <PhoneCallConsentModal contact={consentContact} onClose={() => setConsentContact(null)} />
       )}

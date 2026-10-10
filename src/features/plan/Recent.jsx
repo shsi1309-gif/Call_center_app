@@ -3,12 +3,14 @@ import { ChevronRight, Grip, PhoneIncoming, PhoneMissed, PhoneOutgoing } from 'l
 import { RECENT_CALLS } from '../../data/plan'
 import { CallDetailModal } from './CallDetailModal'
 import { PhoneCallConsentModal } from '../../components/layout/PhoneCallConsentModal'
+import { DialerModal } from '../../components/layout/DialerModal'
 
 const KIND_ICON = { completed: PhoneIncoming, outgoing: PhoneOutgoing, missed: PhoneMissed }
 
 export function Recent() {
   const [selected, setSelected] = useState(null)
   const [consentContact, setConsentContact] = useState(null)
+  const [dialerOpen, setDialerOpen] = useState(false)
 
   return (
     <section className="plan-section" style={{ position: 'relative' }}>
@@ -60,7 +62,7 @@ export function Recent() {
 
       {/* Floating purple dialpad button */}
       <button
-        onClick={() => setConsentContact({ name: 'Dialer', phone: '98450 61245' })}
+        onClick={() => setDialerOpen(true)}
         aria-label="Open dialpad"
         style={{
           position: 'fixed',
@@ -84,6 +86,18 @@ export function Recent() {
       </button>
 
       {selected && <CallDetailModal call={selected} onClose={() => setSelected(null)} />}
+      <DialerModal
+        isOpen={dialerOpen}
+        onClose={() => setDialerOpen(false)}
+        onCallStarted={(num) =>
+          setConsentContact({
+            name: 'Manual Dial',
+            phone: num,
+            callType: 'Call centre',
+            initialMode: 'wa',
+          })
+        }
+      />
       {consentContact && (
         <PhoneCallConsentModal contact={consentContact} onClose={() => setConsentContact(null)} />
       )}
