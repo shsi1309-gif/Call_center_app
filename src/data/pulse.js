@@ -124,7 +124,13 @@ export const INITIAL_MESSAGES = {
   ]),
   'dm-priya': thread('dmp', [['Priya Krishnan', '9:55am', 'Can you cover my 3pm slot today?']]),
   'dm-raju': thread('dmr', [['Raju Kumar', 'Yesterday', 'Nice cross-sell on the Tranquo chair! 🔥']]),
-  avanibot: thread('ab', [['AvaniBot', '9:00am', 'Hi Arvind, ask me anything about what is happening in Pulse, or tap Daily Brief.']]),
+  avanibot: thread('ab', [
+    [
+      'AvaniBot',
+      '9:00am',
+      'Hey! I\'m AvaniBot ✨ Ask me things like "what are my action items from Sunita", or tap the ✨ icon inside any channel to search just that channel.',
+    ],
+  ]),
 }
 
 /** Channels whose counterpart is a bot, with the reply it gives to any message. */

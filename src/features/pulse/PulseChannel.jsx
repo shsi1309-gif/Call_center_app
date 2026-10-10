@@ -105,22 +105,59 @@ export function PulseChannel() {
         </button>
       </header>
 
-      {channelId === 'callcentre-team' && <NeedsInputCard channelId={channelId} />}
+      {(channelId === 'callcentre-team' || channelId === 'avanibot') && (
+        <NeedsInputCard channelId={channelId} />
+      )}
 
       <div className="chan__messages" role="log" aria-label="Messages">
         <div className="chan__divider">
-          <span>Today · Call Centre Team</span>
+          <span>{channelId === 'avanibot' ? 'Today' : `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`}</span>
         </div>
         {messages.map((m) => {
+          const isBot = m.author === 'AvaniBot'
           const avStyle = getAvatarStyle(m.initials, m.mine)
           return (
             <div key={m.id} className={`msg ${m.mine ? 'msg--mine' : ''}`}>
               {!m.mine && (
-                <Avatar initials={m.initials} size="sm" background={avStyle.background} color={avStyle.color} />
+                isBot ? (
+                  <div
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      background: '#f5f3ff',
+                      color: '#7c3aed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Sparkles size={14} />
+                  </div>
+                ) : (
+                  <Avatar initials={m.initials} size="sm" background={avStyle.background} color={avStyle.color} />
+                )
               )}
               <div className="msg__col">
-                <div className="msg__meta">
-                  <strong>{m.mine ? 'You' : m.author}</strong> <small>{m.time}</small>
+                <div className="msg__meta" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <strong>{m.mine ? 'You' : m.author}</strong>
+                  {isBot && (
+                    <span
+                      style={{
+                        background: '#8b5cf6',
+                        color: '#ffffff',
+                        fontSize: '9.5px',
+                        fontWeight: 800,
+                        padding: '1px 5px',
+                        borderRadius: '4px',
+                        letterSpacing: '0.4px',
+                      }}
+                    >
+                      BOT
+                    </span>
+                  )}
+                  <small>{m.time}</small>
                 </div>
                 <div className="msg__bubble">{m.text}</div>
               </div>

@@ -158,6 +158,8 @@ export function DashboardPage() {
                 onClick={() => {
                   if (id === 'callbacks') {
                     navigate('/pulse/callcentre-team')
+                  } else if (id === 'hot') {
+                    navigate('/pulse/avanibot')
                   } else if (id === 'outcome') {
                     openWrapup({ name: 'Mukunda', product: 'Ortho GRID · ₹8,490' }, '01:52')
                   } else {
