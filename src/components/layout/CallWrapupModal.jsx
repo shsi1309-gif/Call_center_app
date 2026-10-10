@@ -11,18 +11,27 @@ const OUTCOMES = [
 ]
 
 export function CallWrapupModal({
-  contact = { name: 'Mukunda', product: 'Ortho GRID · ₹8,490' },
-  duration = '01:52',
+  contact = { name: 'Faizan A.', product: 'Tranquo Massager Chair · ₹24,990' },
+  duration = '02:43',
   onClose,
   onSave,
 }) {
   const toast = useToast()
   const [selectedOutcome, setSelectedOutcome] = useState('interested')
-  const [summary, setSummary] = useState(
-    `Discussed ${contact.product || 'Ortho GRID · ₹8,490'}. Asked specifically about EMI options on the ${
-      contact.product?.split('·')[0]?.trim() || 'Ortho GRID'
+
+  const getInitialSummary = () => {
+    if (contact.name === 'Faizan A.') {
+      return `Discussed Tranquo Massager Chair · ₹24,990. Explicitly asked for the no-cost EMI plan — ready to commit if financing is confirmed. Call lasted ${duration}.`
+    }
+    if (contact.name === 'Mukunda' || contact.name?.includes('Mukunda')) {
+      return `Discussed Ortho GRID · ₹8,490. Asked specifically about EMI options on the Ortho GRID — budget is a live concern, not a blocker. Call lasted ${duration}.`
+    }
+    return `Discussed ${contact.product || 'Ortho GRID · ₹8,490'}. Asked specifically about EMI options on the ${
+      contact.product?.split('·')[0]?.trim() || 'product'
     } — budget is a live concern, not a blocker. Call lasted ${duration}.`
-  )
+  }
+
+  const [summary, setSummary] = useState(getInitialSummary)
 
   const handleSave = () => {
     toast(`Summary & outcome saved to CRM for ${contact.name}`)

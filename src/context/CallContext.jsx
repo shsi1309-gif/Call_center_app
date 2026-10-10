@@ -47,18 +47,14 @@ export function CallProvider({ children }) {
 
   const hangUp = useCallback(() => {
     if (!call) return
-    if (call.phase === 'ringing') {
-      toast('Practice call declined')
-      setCall(null)
-    } else {
-      const formatted = formatTimer(seconds)
-      toast(`${call.kind === 'practice' ? 'Practice call' : 'Call'} with ${call.contact.name} ended · ${formatted}`)
-      setWrapup({
-        contact: call.contact,
-        duration: formatted || '01:52',
-      })
-      setCall(null)
-    }
+    const formatted = formatTimer(seconds)
+    const effectiveDuration = !formatted || formatted === '00:00' ? '02:43' : formatted
+    toast(`${call.kind === 'practice' ? 'Practice call' : 'Call'} with ${call.contact.name} ended · ${effectiveDuration}`)
+    setWrapup({
+      contact: call.contact,
+      duration: effectiveDuration,
+    })
+    setCall(null)
   }, [call, seconds, toast])
 
   const openWrapup = useCallback((contact, duration = '01:52') => {
