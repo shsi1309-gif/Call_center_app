@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bell, Menu, Settings, UserCircle, LogOut, PanelLeft } from 'lucide-react'
-import { NOTIFICATIONS } from '../../data/notifications'
 import { useToast } from '../../context/ToastContext'
 import './TopBar.css'
 
-export function TopBar({ onToggleSidebar }) {
+export function TopBar({ onToggleSidebar, onOpenNotifications, hasUnreadNotifs = true }) {
   const [open, setOpen] = useState('none')
   const ref = useRef(null)
   const toast = useToast()
@@ -36,9 +35,17 @@ export function TopBar({ onToggleSidebar }) {
         <span className="topbar__name">On-Ground.ai</span>
       </div>
       <div className="topbar__right" ref={ref}>
-        <button className="bell" onClick={() => toggle('bell')} aria-label="Notifications" aria-expanded={open === 'bell'}>
+        <button
+          className="bell"
+          onClick={() => {
+            setOpen('none')
+            onOpenNotifications?.()
+          }}
+          aria-label="Notifications"
+          title="Notifications"
+        >
           <Bell size={17} />
-          <span className="bell__dot" />
+          {hasUnreadNotifs && <span className="bell__dot" />}
         </button>
         <div className="rank-pill" title="Your rank within RT Nagar: #3">
           <span className="rank-pill__ring">76</span>
@@ -51,18 +58,6 @@ export function TopBar({ onToggleSidebar }) {
         <button className="hamburger" onClick={() => toggle('menu')} aria-label="Menu" aria-expanded={open === 'menu'}>
           <Menu size={16} />
         </button>
-
-        {open === 'bell' && (
-          <div className="popover popover--bell" role="menu" aria-label="Notifications">
-            <div className="popover__title">Notifications</div>
-            {NOTIFICATIONS.map((n) => (
-              <div className="popover__row" key={n.id} role="menuitem">
-                <span>{n.text}</span>
-                <small>{n.time}</small>
-              </div>
-            ))}
-          </div>
-        )}
         {open === 'menu' && (
           <div className="popover" role="menu" aria-label="Profile menu">
             <div className="popover__head">
