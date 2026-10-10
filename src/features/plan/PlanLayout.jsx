@@ -3,7 +3,12 @@ import { Outlet } from 'react-router-dom'
 import './Plan.css'
 
 export function PlanLayout() {
-  const [today] = useState(() => new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' }))
+  const [today] = useState(() => {
+    const d = new Date()
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`
+  })
 
   return (
     <div>

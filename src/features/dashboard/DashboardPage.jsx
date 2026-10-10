@@ -41,23 +41,41 @@ export function DashboardPage() {
             <div className="dash-hero__store">The Sleep Company · Call Centre</div>
           </div>
           <div className="dash-hero__right">
-            <span className="chip chip--queue">
+            <Link to="/plan/incoming" className="chip chip--queue" style={{ textDecoration: 'none', cursor: 'pointer' }}>
               <i />
               On Queue
-            </span>
+            </Link>
             <button className="chip chip--range" onClick={() => setDateRangeOpen(true)}>
               <CalendarDays size={13} /> {dateRange} <ChevronDown size={13} />
             </button>
           </div>
         </div>
         <div className="kpis">
-          {KPIS.map((k) => (
-            <div className="kpi" key={k.id}>
-              <div className="kpi__value">{k.value}</div>
-              <div className="kpi__label">{k.label}</div>
-              <span className={`kpi__delta kpi__delta--${k.tone}`}>{k.delta}</span>
-            </div>
-          ))}
+          {KPIS.map((k) => {
+            const isQueue = k.id === 'queue'
+            const content = (
+              <>
+                <div className="kpi__value">{k.value}</div>
+                <div className="kpi__label">{k.label}</div>
+                <span className={`kpi__delta kpi__delta--${k.tone}`}>{k.delta}</span>
+              </>
+            )
+            return isQueue ? (
+              <Link
+                to="/plan/incoming"
+                className="kpi"
+                key={k.id}
+                style={{ textDecoration: 'none', cursor: 'pointer' }}
+                title="View queue in Planner"
+              >
+                {content}
+              </Link>
+            ) : (
+              <div className="kpi" key={k.id}>
+                {content}
+              </div>
+            )
+          })}
         </div>
       </section>
 
