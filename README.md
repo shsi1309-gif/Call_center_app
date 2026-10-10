@@ -99,6 +99,6 @@ src/
 
 ## AI tools used
 
-This project was produced with **Claude (Anthropic)** acting as a coding agent in a chat environment with a sandboxed shell and headless Chromium. It inspected the supplied PDF and mock, scaffolded the project, wrote the code and tests, and ran the browser checks above. I have reviewed it and can explain it.
+This project was produced with **Claude (Anthropic)** and **Anitgravity** acting as a coding agent in a chat environment with a sandboxed shell and headless Chromium. It inspected the supplied PDF and mock, scaffolded the project, wrote the code and tests, and ran the browser checks above. I have reviewed it and can explain it.
 
 > Author: if you also used other tools (for example Antigravity), add them here. Only list tools you actually used.
