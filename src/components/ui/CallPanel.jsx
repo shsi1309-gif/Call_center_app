@@ -3,23 +3,16 @@ import { Grip, Mic, MicOff, Pause, Play, Phone, PhoneOff } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 import { formatTimer } from '../../utils/format'
 import { AIAssistPanel } from '../layout/AIAssistPanel'
-import { PhoneCallConsentModal } from '../layout/PhoneCallConsentModal'
 import { DialerModal } from '../layout/DialerModal'
 
 export function CallPanel() {
-  const { call, seconds, muted, accept, hangUp, toggleMute } = useCall()
+  const { call, seconds, muted, accept, hangUp, toggleMute, startCall } = useCall()
   const [onHold, setOnHold] = useState(false)
-  const [consentOpen, setConsentOpen] = useState(false)
   const [dialerOpen, setDialerOpen] = useState(false)
 
   if (!call) return null
 
   const ringing = call.phase === 'ringing'
-
-  const handleAccept = () => {
-    accept()
-    setConsentOpen(true)
-  }
 
   if (ringing) {
     return (
@@ -78,7 +71,7 @@ export function CallPanel() {
               <PhoneOff size={20} />
             </button>
             <button
-              onClick={handleAccept}
+              onClick={accept}
               aria-label="Accept call"
               style={{
                 width: '46px',
@@ -147,7 +140,7 @@ export function CallPanel() {
             CALL IN PROGRESS
           </div>
           <h2 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 8px 0' }}>
-            {call.contact.name || 'Ritu S.'}
+            {call.contact.name || 'Faizan A.'}
           </h2>
           <div
             style={{
@@ -158,7 +151,7 @@ export function CallPanel() {
               marginBottom: '14px',
             }}
           >
-            {formatTimer(seconds) || '01:01'}
+            {formatTimer(seconds) || '00:33'}
           </div>
 
           {/* Sentiment Bar */}
@@ -291,18 +284,17 @@ export function CallPanel() {
       <DialerModal
         isOpen={dialerOpen}
         onClose={() => setDialerOpen(false)}
-        onCallStarted={() => setConsentOpen(true)}
+        onCallStarted={(num) =>
+          startCall(
+            {
+              name: 'Manual Dial',
+              phone: num,
+              callType: 'Call centre',
+            },
+            'outgoing',
+          )
+        }
       />
-
-      {/* Consent Modal triggered right after accept */}
-      {consentOpen && (
-        <PhoneCallConsentModal
-          contact={call.contact}
-          callType="Call centre"
-          initialMode="wa"
-          onClose={() => setConsentOpen(false)}
-        />
-      )}
     </>
   )
 }

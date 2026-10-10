@@ -4,7 +4,6 @@ import { RANKED_LEADS } from '../../data/leads'
 import { Avatar } from '../../components/ui/Avatar'
 import { Pagination } from './Pagination'
 import { LeadsModal } from '../leads/LeadsModal'
-import { PhoneCallConsentModal } from '../../components/layout/PhoneCallConsentModal'
 import { DialerModal } from '../../components/layout/DialerModal'
 import { useCall } from '../../context/CallContext'
 import { formatRupees } from '../../utils/format'
@@ -23,7 +22,6 @@ export function CallsToMake() {
   const [page, setPage] = useState(1)
   const [expandedId, setExpandedId] = useState('ritu') // start with top lead expanded as in mock
   const [modalIndex, setModalIndex] = useState(null)
-  const [consentContact, setConsentContact] = useState(null)
   const [dialerOpen, setDialerOpen] = useState(false)
 
   const pages = pageCount(RANKED_LEADS.length, PAGE_SIZE)
@@ -116,12 +114,6 @@ export function CallsToMake() {
                         },
                         'outgoing',
                       )
-                      setConsentContact({
-                        name: lead.name,
-                        phone: lead.phone || '98450 61245',
-                        callType: 'Call centre',
-                        initialMode: 'wa',
-                      })
                     }}
                     style={{
                       width: '100%',
@@ -181,17 +173,16 @@ export function CallsToMake() {
         isOpen={dialerOpen}
         onClose={() => setDialerOpen(false)}
         onCallStarted={(num) =>
-          setConsentContact({
-            name: 'Manual Dial',
-            phone: num,
-            callType: 'Call centre',
-            initialMode: 'wa',
-          })
+          startCall(
+            {
+              name: 'Manual Dial',
+              phone: num,
+              callType: 'Call centre',
+            },
+            'outgoing',
+          )
         }
       />
-      {consentContact && (
-        <PhoneCallConsentModal contact={consentContact} onClose={() => setConsentContact(null)} />
-      )}
     </section>
   )
 }

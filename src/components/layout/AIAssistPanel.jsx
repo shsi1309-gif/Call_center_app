@@ -1,21 +1,22 @@
 import { useState } from 'react'
-import { Bot, MessageSquare, Mic, User } from 'lucide-react'
+import { Building2, MessageSquare, Phone, Store, User } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
 const QUICK_ACTIONS = [
-  { label: '(Not interested)', variant: 'neutral' },
-  { label: 'Send price on WhatsApp', variant: 'purple' },
-  { label: 'Offer callback slot', variant: 'purple' },
-  { label: 'Explain warranty terms', variant: 'purple' },
-  { label: 'Escalate to manager', variant: 'purple' },
+  { label: 'Send price on WhatsApp' },
+  { label: 'Offer callback slot' },
+  { label: 'Explain warranty terms' },
+  { label: 'Escalate to manager' },
 ]
 
-export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
+export function AIAssistPanel({ contact = { name: 'Faizan A.' } }) {
   const toast = useToast()
 
   const handleAction = (label) => {
     toast(`Triggered: ${label}`)
   }
+
+  const isFaizan = contact.name === 'Faizan A.' || !contact.name || contact.name.includes('Faizan')
 
   return (
     <aside
@@ -24,14 +25,14 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
         borderRadius: '16px',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
         border: '1px solid #eef0f5',
-        padding: '16px',
+        padding: '16px 18px',
         display: 'flex',
         flexDirection: 'column',
         gap: '14px',
         fontFamily: 'inherit',
         color: '#1e293b',
         height: '100%',
-        maxHeight: '620px',
+        maxHeight: '640px',
         overflowY: 'auto',
         boxSizing: 'border-box',
       }}
@@ -39,34 +40,31 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
     >
       {/* Quick Action Pills */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-        {QUICK_ACTIONS.map((action) => {
-          const isNeutral = action.variant === 'neutral'
-          return (
-            <button
-              key={action.label}
-              onClick={() => handleAction(action.label)}
-              style={{
-                backgroundColor: isNeutral ? '#f8fafc' : '#f5f3ff',
-                color: isNeutral ? '#64748b' : '#6d28d9',
-                border: isNeutral ? '1px solid #e2e8f0' : '1px solid #ddd6fe',
-                borderRadius: '999px',
-                padding: '6px 14px',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = isNeutral ? '#f1f5f9' : '#ede9fe'
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = isNeutral ? '#f8fafc' : '#f5f3ff'
-              }}
-            >
-              {action.label}
-            </button>
-          )
-        })}
+        {QUICK_ACTIONS.map((action) => (
+          <button
+            key={action.label}
+            onClick={() => handleAction(action.label)}
+            style={{
+              backgroundColor: '#f5f3ff',
+              color: '#6d28d9',
+              border: '1px solid #ddd6fe',
+              borderRadius: '999px',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#ede9fe'
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#f5f3ff'
+            }}
+          >
+            {action.label}
+          </button>
+        ))}
       </div>
 
       {/* SUMMARY, DRAFTING AS YOU TALK */}
@@ -80,7 +78,7 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
             textTransform: 'uppercase',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
+            gap: '6px',
           }}
         >
           <span>📝</span>
@@ -88,23 +86,19 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
         </div>
         <div
           style={{
-            backgroundColor: '#fafafa',
+            backgroundColor: '#ffffff',
             border: '1.5px dashed #e2e8f0',
             borderRadius: '12px',
-            padding: '12px 14px',
-            minHeight: '38px',
+            padding: '14px',
+            minHeight: '28px',
             display: 'flex',
             alignItems: 'center',
           }}
-        >
-          <span style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>
-            Listening to call… key conversation notes and customer intent will appear here.
-          </span>
-        </div>
+        />
       </div>
 
       {/* CASE HISTORY */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <div
           style={{
             fontSize: '11px',
@@ -114,7 +108,7 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
             textTransform: 'uppercase',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
+            gap: '6px',
           }}
         >
           <span>🗂️</span>
@@ -151,14 +145,14 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
                 flexShrink: 0,
               }}
             >
-              87
+              82
             </div>
             <div>
               <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
-                Intent Score 91/100
+                Intent Score 85/100
               </div>
               <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                ICP fit 87%
+                ICP fit 82%
               </div>
             </div>
           </div>
@@ -169,92 +163,106 @@ export function AIAssistPanel({ contact = { name: 'Mukunda' } }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
               <span style={{ color: '#64748b', width: '90px' }}>Budget Fit</span>
               <div style={{ flex: 1, height: '6px', backgroundColor: '#e2e8f0', borderRadius: '999px', margin: '0 10px', overflow: 'hidden' }}>
-                <div style={{ width: '87%', height: '100%', backgroundColor: '#10b981', borderRadius: '999px' }} />
+                <div style={{ width: '82%', height: '100%', backgroundColor: '#0d9488', borderRadius: '999px' }} />
               </div>
-              <span style={{ color: '#059669', fontWeight: 700, width: '32px', textAlign: 'right' }}>87%</span>
+              <span style={{ color: '#0d9488', fontWeight: 700, width: '32px', textAlign: 'right' }}>82%</span>
             </div>
 
             {/* Need Match */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
               <span style={{ color: '#64748b', width: '90px' }}>Need Match</span>
               <div style={{ flex: 1, height: '6px', backgroundColor: '#e2e8f0', borderRadius: '999px', margin: '0 10px', overflow: 'hidden' }}>
-                <div style={{ width: '72%', height: '100%', backgroundColor: '#d97706', borderRadius: '999px' }} />
+                <div style={{ width: '78%', height: '100%', backgroundColor: '#0d9488', borderRadius: '999px' }} />
               </div>
-              <span style={{ color: '#d97706', fontWeight: 700, width: '32px', textAlign: 'right' }}>72%</span>
+              <span style={{ color: '#0d9488', fontWeight: 700, width: '32px', textAlign: 'right' }}>78%</span>
             </div>
 
             {/* Decision Stage */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
               <span style={{ color: '#64748b', width: '90px' }}>Decision Stage</span>
               <div style={{ flex: 1, height: '6px', backgroundColor: '#e2e8f0', borderRadius: '999px', margin: '0 10px', overflow: 'hidden' }}>
-                <div style={{ width: '60%', height: '100%', backgroundColor: '#8b5cf6', borderRadius: '999px' }} />
+                <div style={{ width: '70%', height: '100%', backgroundColor: '#b45309', borderRadius: '999px' }} />
               </div>
-              <span style={{ color: '#8b5cf6', fontWeight: 700, width: '32px', textAlign: 'right' }}>60%</span>
+              <span style={{ color: '#b45309', fontWeight: 700, width: '32px', textAlign: 'right' }}>70%</span>
             </div>
           </div>
         </div>
 
         {/* HOW THEY'VE INTERACTED WITH US */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             HOW THEY'VE INTERACTED WITH US
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
-            {/* Meta Ad */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px' }}>
+            {/* Store Visit */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#e0f2fe', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
-                <User size={13} />
+              <div style={{ width: '26px', height: '26px', borderRadius: '6px', backgroundColor: '#e2e8f0', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                <Store size={14} />
               </div>
               <div>
-                <div><strong style={{ color: '#0f172a' }}>Meta Ad</strong> <span style={{ color: '#94a3b8' }}>18 May</span></div>
-                <div style={{ color: '#64748b', lineHeight: 1.35 }}>Clicked our &quot;0% EMI on Ortho GRID&quot; retargeting ad — first touch</div>
+                <div><strong style={{ color: '#0f172a' }}>Store Visit</strong> <span style={{ color: '#94a3b8' }}>2 Jun</span></div>
+                <div style={{ color: '#64748b', lineHeight: 1.35 }}>Tried the chair in-store, asked detailed questions on massage programs</div>
               </div>
             </div>
 
-            {/* AI Agent */}
+            {/* Call */}
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#f3e8ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
-                <Bot size={13} />
+              <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#f1f5f9', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                <Phone size={13} />
               </div>
               <div>
-                <div><strong style={{ color: '#0f172a' }}>AI Agent</strong> <span style={{ color: '#94a3b8' }}>20 May</span></div>
-                <div style={{ color: '#64748b', lineHeight: 1.35 }}>WhatsApp opt-in — shared preferred size</div>
-              </div>
-            </div>
-
-            {/* Voice AI */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#f1f5f9', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
-                <Mic size={13} />
-              </div>
-              <div>
-                <div><strong style={{ color: '#0f172a' }}>Voice AI</strong> <span style={{ color: '#94a3b8' }}>22 May</span></div>
-                <div style={{ color: '#64748b', lineHeight: 1.35 }}>4m 12s qualifying call — asked if pillows come bundled</div>
-              </div>
-            </div>
-
-            {/* WhatsApp */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#dcfce7', color: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
-                <MessageSquare size={13} />
-              </div>
-              <div>
-                <div><strong style={{ color: '#0f172a' }}>WhatsApp</strong> <span style={{ color: '#94a3b8' }}>24 May</span></div>
-                <div style={{ color: '#64748b', lineHeight: 1.35 }}>Asked for a quote with pillows bundled in</div>
+                <div><strong style={{ color: '#0f172a' }}>Call</strong> <span style={{ color: '#94a3b8' }}>4 Jun</span></div>
+                <div style={{ color: '#64748b', lineHeight: 1.35 }}>6m 40s call — confirmed budget and asked about EMI</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* WHAT THEY LIKED / ARE CONCERNED ABOUT */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             WHAT THEY LIKED / ARE CONCERNED ABOUT
           </div>
-          <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.4 }}>
-            <div>👍 <strong>Liked:</strong> 100-night trial, zero motion transfer</div>
-            <div style={{ marginTop: '2px' }}>⚠️ <strong>Concerned:</strong> Price vs standard foam</div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Financing Card */}
+            <div
+              style={{
+                backgroundColor: '#f5f3ff',
+                border: '1px solid #e9d5ff',
+                borderRadius: '10px',
+                padding: '10px 12px',
+                fontSize: '12px',
+                lineHeight: 1.4,
+              }}
+            >
+              <div style={{ fontWeight: 800, color: '#6b21a8', fontSize: '11px', textTransform: 'uppercase', marginBottom: '3px' }}>
+                FINANCING RELATED
+              </div>
+              <div style={{ color: '#334155' }}>
+                Explicitly asked for the no-cost EMI plan — ready to commit if financing is confirmed
+              </div>
+            </div>
+
+            {/* Warranty Card */}
+            <div
+              style={{
+                backgroundColor: '#f5f3ff',
+                border: '1px solid #e9d5ff',
+                borderRadius: '10px',
+                padding: '10px 12px',
+                fontSize: '12px',
+                lineHeight: 1.4,
+              }}
+            >
+              <div style={{ fontWeight: 800, color: '#6b21a8', fontSize: '11px', textTransform: 'uppercase', marginBottom: '3px' }}>
+                WARRANTY RELATED
+              </div>
+              <div style={{ color: '#334155' }}>
+                Compared warranty terms with a competitor and preferred ours — reinforce this on the call
+              </div>
+            </div>
           </div>
         </div>
       </div>

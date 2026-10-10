@@ -2,13 +2,11 @@ import { useState } from 'react'
 import { Grip, PhoneCall, PhoneMissed } from 'lucide-react'
 import { MISSED_CALLS } from '../../data/plan'
 import { useCall } from '../../context/CallContext'
-import { PhoneCallConsentModal } from '../../components/layout/PhoneCallConsentModal'
 import { DialerModal } from '../../components/layout/DialerModal'
 import { formatRupees } from '../../utils/format'
 
 export function Incoming() {
   const [calledBack, setCalledBack] = useState(new Set())
-  const [consentContact, setConsentContact] = useState(null)
   const [dialerOpen, setDialerOpen] = useState(false)
   const { startCall } = useCall()
   const total = MISSED_CALLS.reduce((sum, c) => sum + (c.expectedValue ?? 0), 0)
@@ -71,19 +69,13 @@ export function Incoming() {
                       },
                       'callback',
                     )
-                    setConsentContact({
-                      name: c.name,
-                      phone: '98450 61245',
-                      callType: 'Call centre',
-                      initialMode: 'wa',
-                    })
                   }}
                   aria-label={`${done ? 'Called back' : 'Call back'} ${c.name}`}
                   style={{
                     background: done ? '#94a3b8' : '#0f6e56',
                     color: '#fff',
                     borderRadius: '8px',
-                    padding: '6px 12px',
+                    padding: '6px 14px',
                     fontSize: '12.5px',
                     fontWeight: 600,
                     display: 'inline-flex',
@@ -130,18 +122,16 @@ export function Incoming() {
         isOpen={dialerOpen}
         onClose={() => setDialerOpen(false)}
         onCallStarted={(num) =>
-          setConsentContact({
-            name: 'Manual Dial',
-            phone: num,
-            callType: 'Call centre',
-            initialMode: 'wa',
-          })
+          startCall(
+            {
+              name: 'Manual Dial',
+              phone: num,
+              callType: 'Call centre',
+            },
+            'outgoing',
+          )
         }
       />
-
-      {consentContact && (
-        <PhoneCallConsentModal contact={consentContact} onClose={() => setConsentContact(null)} />
-      )}
     </section>
   )
 }

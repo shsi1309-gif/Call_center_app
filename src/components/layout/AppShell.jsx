@@ -15,7 +15,7 @@ import { CallPanel } from '../ui/CallPanel'
 import { useCall } from '../../context/CallContext'
 
 export function AppShell() {
-  const { startCall, wrapup, closeWrapup } = useCall()
+  const { startCall, wrapup, closeWrapup, consentContact, setConsentContact } = useCall()
   const [navOpen, setNavOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [scoreOpen, setScoreOpen] = useState(false)
@@ -23,7 +23,6 @@ export function AppShell() {
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [dpdpSafeOpen, setDpdpSafeOpen] = useState(false)
-  const [consentContact, setConsentContact] = useState(null)
   const [avatarEmoji, setAvatarEmoji] = useState('🦸‍♂️')
   const [hasUnreadNotifs, setHasUnreadNotifs] = useState(true)
   const { pathname } = useLocation()
