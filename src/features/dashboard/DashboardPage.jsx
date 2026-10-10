@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CalendarDays, ChevronDown, ChevronRight, ClipboardList, Headset, PhoneCall, Users } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { CALLS_LAST_7, CSAT_LAST_7, EARNINGS, KPIS } from '../../data/dashboard'
 import { WAITING } from '../../data/plan'
 import { TASK_LEADS } from '../../data/leads'
@@ -24,6 +24,7 @@ function greeting(hour) {
 }
 
 export function DashboardPage() {
+  const navigate = useNavigate()
   const { openWrapup } = useCall()
   const [leadsOpen, setLeadsOpen] = useState(false)
   const [dateRangeOpen, setDateRangeOpen] = useState(false)
@@ -155,7 +156,9 @@ export function DashboardPage() {
                 className="task"
                 key={id}
                 onClick={() => {
-                  if (id === 'outcome') {
+                  if (id === 'callbacks') {
+                    navigate('/pulse/callcentre-team')
+                  } else if (id === 'outcome') {
                     openWrapup({ name: 'Mukunda', product: 'Ortho GRID · ₹8,490' }, '01:52')
                   } else {
                     setLeadsOpen(true)

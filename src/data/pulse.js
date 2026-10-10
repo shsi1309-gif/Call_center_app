@@ -47,14 +47,14 @@ function thread(id, rows) {
 export const INITIAL_MESSAGES = {
   'callcentre-team': [
     ...thread('cct', [
-      ['Sunita Rao', '2:08pm', '👥 STAKEHOLDERS: @You (Arvind R.), whole call centre shift'],
-      ['Sunita Rao', '2:09pm', '📋 ISSUE DEFINITION: Greeting-in-first-10s QA score is at 71% this week, below our 85% target.'],
+      ['Sunita Rao', '2:05pm', '👥 STAKEHOLDERS: @You (Arvind R.), whole call centre shift'],
+      ['Sunita Rao', '2:05pm', '📋 ISSUE DEFINITION: Greeting-in-first-10s QA score is at 71% this week, below our 85% target.'],
       [
         'Sunita Rao',
-        '2:09pm',
-        "🔄 SUGGESTED RESOLUTION: Let's push that up 💪 — open every call with the greeting script. I'll check back Friday.",
+        '2:05pm',
+        "➡️ SUGGESTED RESOLUTION: Let's push that up 💪 — open every call with the greeting script. I'll check back Friday.",
       ],
-      ['You', '2:13pm', 'On it! Will make sure I open every call with the greeting script 👍'],
+      ['You', '2:10pm', 'On it! Will make sure I open every call with the greeting script 🙌'],
       ['Sunita Rao', '2:14pm', 'Great attitude Arvind 🌟'],
     ]),
   ],
