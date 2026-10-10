@@ -1,0 +1,13 @@
+.call-panel { position: fixed; right: 20px; bottom: 20px; width: 320px; background: #0a1a14; color: #fff; border-radius: 16px; padding: 14px; z-index: 800; box-shadow: var(--shadow-pop); }
+.call-panel__top { display: flex; align-items: center; gap: 10px; }
+.call-panel__who { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.call-panel__who strong { font-size: var(--fs-md); }
+.call-panel__who span { font-size: var(--fs-xs); color: var(--green-300); }
+.call-panel__status { font-size: var(--fs-md); font-weight: 700; color: var(--green-400); }
+.call-panel__status.is-ringing { color: #ffd700; }
+.call-panel__actions { display: flex; gap: 8px; margin-top: 12px; }
+.call-panel__btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: var(--r-sm); background: rgba(255, 255, 255, 0.12); font-size: var(--fs-sm); font-weight: 700; color: #fff; }
+.call-panel__btn[aria-pressed='true'] { background: rgba(255, 255, 255, 0.3); }
+.call-panel__btn--accept { background: var(--green-500); }
+.call-panel__btn--decline { background: var(--red); }
+@media (max-width: 768px) { .call-panel { left: 12px; right: 12px; width: auto; bottom: 12px; } }
