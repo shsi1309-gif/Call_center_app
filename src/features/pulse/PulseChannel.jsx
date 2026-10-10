@@ -174,6 +174,8 @@ export function PulseChannel() {
   const getAvatarStyle = (initials, mine) => {
     if (mine) return { background: '#0f6e56', color: '#ffffff' }
     if (initials === 'SR') return { background: '#fed7aa', color: '#7c2d12' }
+    if (initials === 'PK') return { background: '#fce7f3', color: '#9d174d' }
+    if (initials === 'RK') return { background: '#dcfce7', color: '#166534' }
     return { background: '#ede7fb', color: '#5b21b6' }
   }
 
@@ -183,6 +185,8 @@ export function PulseChannel() {
     if (channelId === 'callcentre-team') return 'Today · Call Centre Team'
     if (channelId === 'manage-shipment') return 'Today · Manage Shipment'
     if (channelId === 'quotation-tickets') return 'Today · Quotation Tickets'
+    if (channelId === 'dm-raju') return 'Yesterday'
+    if (channelId === 'dm-sunita' || channelId === 'dm-priya') return 'Today'
     if (channelId === 'avanibot' || channelId === 'callcentre-agent' || channelId === 'cross-sell-agent' || channelId === 'sop-agent') return 'Today'
     return `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`
   }

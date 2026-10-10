@@ -221,12 +221,36 @@ export const INITIAL_MESSAGES = {
   'new-hire-onboarding': thread('nh', [
     ['HR Team', '8:30am', '🎉 Welcome to the team! Your first-week checklist is pinned in the shared drive.'],
   ]),
-  'dm-sunita': thread('dms', [
-    ['Sunita Rao', '12:40pm', '🌟 Great work with Mukunda, keep it up'],
-    ['You', '12:42pm', 'Thank you! Sending the quote now.'],
-  ]),
-  'dm-priya': thread('dmp', [['Priya Krishnan', '9:55am', 'Can you cover my 3pm slot today?']]),
-  'dm-raju': thread('dmr', [['Raju Kumar', 'Yesterday', 'Nice cross-sell on the Tranquo chair! 🔥']]),
+  'dm-sunita': [
+    {
+      id: 'dms-1',
+      author: 'Sunita Rao',
+      initials: 'SR',
+      time: '12:40pm',
+      text: '🌟 Great work with Mukunda — keep it up',
+      mine: false,
+    },
+  ],
+  'dm-priya': [
+    {
+      id: 'dmp-1',
+      author: 'Priya Krishnan',
+      initials: 'PK',
+      time: '9:55am',
+      text: 'Can you cover my 3pm slot today?',
+      mine: false,
+    },
+  ],
+  'dm-raju': [
+    {
+      id: 'dmr-1',
+      author: 'Raju Kumar',
+      initials: 'RK',
+      time: 'Yesterday',
+      text: 'Nice cross-sell on the Tranquo chair! 🔥',
+      mine: false,
+    },
+  ],
   avanibot: [
     {
       id: 'ab-1',
