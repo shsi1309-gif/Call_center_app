@@ -1,8 +1,8 @@
 import { Phone, Shield } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 
-export function DemoBar() {
-  const { startPractice, startCall } = useCall()
+export function DemoBar({ onOpenConsent }) {
+  const { startPractice } = useCall()
 
   return (
     <div
@@ -56,7 +56,7 @@ export function DemoBar() {
         <Phone size={12} /> In-app call
       </button>
       <button
-        onClick={() => startCall({ name: 'Faizan A.', initials: 'FA', detail: '+91 97400 33811' }, 'outgoing')}
+        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245' })}
         style={{
           display: 'flex',
           alignItems: 'center',

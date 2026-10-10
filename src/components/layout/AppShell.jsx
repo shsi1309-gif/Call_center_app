@@ -6,6 +6,7 @@ import { NotificationsOverlay } from './NotificationsOverlay'
 import { RankModal } from './RankModal'
 import { AvatarView } from './AvatarView'
 import { SettingsView } from './SettingsView'
+import { PhoneCallConsentModal } from './PhoneCallConsentModal'
 import { DemoBar } from './DemoBar'
 import { CallPanel } from '../ui/CallPanel'
 
@@ -15,6 +16,7 @@ export function AppShell() {
   const [rankOpen, setRankOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [consentContact, setConsentContact] = useState(null)
   const [avatarEmoji, setAvatarEmoji] = useState('🦸‍♂️')
   const [hasUnreadNotifs, setHasUnreadNotifs] = useState(true)
   const { pathname } = useLocation()
@@ -68,8 +70,14 @@ export function AppShell() {
         </main>
       </div>
       {rankOpen && <RankModal onClose={() => setRankOpen(false)} />}
+      {consentContact && (
+        <PhoneCallConsentModal
+          contact={consentContact}
+          onClose={() => setConsentContact(null)}
+        />
+      )}
       <CallPanel />
-      <DemoBar />
+      <DemoBar onOpenConsent={(c) => setConsentContact(c)} />
     </div>
   )
 }
