@@ -162,18 +162,28 @@ export const INITIAL_MESSAGES = {
     ['You', '10:12am', 'Yes, I can arrange delivery on Monday. Shall I send the quote?'],
     ['Faizan A. (WhatsApp)', '10:15am', 'Please do, thanks!'],
   ]),
-  'all-stores': thread('all', [
-    ['Rashmi Sehgal', '10:22am', 'New Ortho Grid campaign from 1 June! Hero offer is 0% EMI for 12 months.'],
-    ['Mukunda Dwarkanath', '10:30am', 'Store training deck is in the shared drive. Please go through it this week.'],
-  ]),
-  'avani-coaching': thread('av', [
-    [
-      'AvaniBot',
-      '9:01am',
-      'Your warranty score dropped 12% this week. Mention the 10-year warranty once the customer shows price interest.',
-    ],
-    ['AvaniBot', '9:02am', 'Want a 2-minute practice call on this? Use Practise a call in the sidebar.'],
-  ]),
+  'all-stores': [
+    {
+      id: 'all-1',
+      author: 'Manager Helper',
+      initials: 'MH',
+      time: '10:22am',
+      badge: 'BOT',
+      text: 'New Ortho Grid campaign live from 1 June — ask customers about the bundled EMI offer!',
+      mine: false,
+    },
+  ],
+  'avani-coaching': [
+    {
+      id: 'av-1',
+      author: 'Avani',
+      initials: 'AB',
+      time: '9:01am',
+      badge: 'BOT',
+      text: "Your average handle time is up 8% this week — try confirming the customer's need in your first question instead of after the pitch.",
+      mine: false,
+    },
+  ],
   'manage-shipment': thread('ship', [
     ['Dispatch Bot', '10:05am', '📦 Ortho Grid Pro, order #4821: ready for delivery ✓'],
     ['Dispatch Bot', '10:40am', '📦 Smart Luxe, order #4825: packed, pickup at 2pm'],

@@ -180,7 +180,7 @@ export function PulseHome() {
           <button
             className="kudos"
             onClick={() => {
-              setKudosOpen(true)
+              openChannel('kudos')
               clearKudosNew()
             }}
           >

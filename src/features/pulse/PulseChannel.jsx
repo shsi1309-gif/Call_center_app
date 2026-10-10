@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ChevronRight, MessageCircle, Phone, PhoneCall, Send, Smile, Sparkles, Users } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Info, MessageCircle, Phone, PhoneCall, Send, Smile, Sparkles, Users } from 'lucide-react'
 import { AUTO_REPLIES, CHANNELS, DMS, ROLE_AGENTS, TASK_AGENTS } from '../../data/pulse'
 import { usePulse } from '../../context/PulseContext'
 import { useToast } from '../../context/ToastContext'
@@ -10,6 +10,14 @@ import { NeedsInputCard } from './NeedsInputCard'
 import './Pulse.css'
 
 function resolveChannel(id) {
+  if (id === 'kudos') {
+    return {
+      title: 'kudos',
+      sub: 'Team recognition, sent by your leaders',
+      rawName: 'kudos',
+      isKudos: true,
+    }
+  }
   const ch = CHANNELS.find((c) => c.id === id)
   if (ch) return { title: `#${ch.name}`, sub: `${ch.members} members · ${ch.topic}`, rawName: ch.name }
   const agent = [...ROLE_AGENTS, ...TASK_AGENTS].find((a) => a.id === id)
@@ -87,6 +95,45 @@ const CUSTOMER_THREADS = [
   },
 ]
 
+const KUDOS_LIST = [
+  {
+    id: 'k1',
+    name: 'Sunita Rao (Manager)',
+    initials: 'SR',
+    avatarBg: '#fef3c7',
+    avatarColor: '#78350f',
+    time: '12:40pm · Today',
+    icon: '🏆',
+    borderColor: '#fef08a',
+    cardBg: '#fffdf5',
+    text: '"Great work with Mukunda — closed that warranty objection beautifully. Keep it up!"',
+  },
+  {
+    id: 'k2',
+    name: 'Raju Kumar',
+    initials: 'RK',
+    avatarBg: '#dcfce7',
+    avatarColor: '#166534',
+    time: 'Yesterday',
+    icon: '🔥',
+    borderColor: '#fecdd3',
+    cardBg: '#fff5f5',
+    text: '"Nice cross-sell on the Tranquo chair! Impressed by how you read the customer."',
+  },
+  {
+    id: 'k3',
+    name: 'Sunita Rao (Manager)',
+    initials: 'SR',
+    avatarBg: '#fef3c7',
+    avatarColor: '#78350f',
+    time: '2 days ago',
+    icon: '💪',
+    borderColor: '#bbf7d0',
+    cardBg: '#f0fdf4',
+    text: '"Top SOP score this week — 72/100 on Mukunda\'s conversation. Store leader!"',
+  },
+]
+
 export function PulseChannel() {
   const { channelId = '' } = useParams()
   const navigate = useNavigate()
@@ -125,6 +172,169 @@ export function PulseChannel() {
     if (mine) return { background: '#0f6e56', color: '#ffffff' }
     if (initials === 'SR') return { background: '#fed7aa', color: '#7c2d12' }
     return { background: '#ede7fb', color: '#5b21b6' }
+  }
+
+  const getDividerText = () => {
+    if (channelId === 'all-stores') return 'Today · All Stores'
+    if (channelId === 'avani-coaching') return 'Today · Avani AI Coaching'
+    if (channelId === 'callcentre-team') return 'Today · Call Centre Team'
+    if (channelId === 'avanibot' || channelId === 'callcentre-agent' || channelId === 'cross-sell-agent' || channelId === 'sop-agent') return 'Today'
+    return `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`
+  }
+
+  // ===== Render Kudos View (Image 1) =====
+  if (info.isKudos) {
+    return (
+      <div className="chan" style={{ backgroundColor: '#f8fafc', minHeight: '100%' }}>
+        <header
+          style={{
+            background: '#d97706',
+            padding: '12px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#ffffff',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => navigate('/pulse')}
+              aria-label="Back to Pulse"
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 700 }}>
+                <span>🏆</span>
+                <span>kudos</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#fef3c7' }}>
+                Team recognition, sent by your leaders
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Info Banner */}
+        <div style={{ padding: '14px 16px 0' }}>
+          <div
+            style={{
+              backgroundColor: '#fef9c3',
+              border: '1px solid #fef08a',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: '#854d0e',
+              fontSize: '13px',
+              fontWeight: 500,
+            }}
+          >
+            <Info size={16} style={{ flexShrink: 0, color: '#d97706' }} />
+            <span>You receive kudos — leaders send them to celebrate your wins 🎉</span>
+          </div>
+        </div>
+
+        {/* Incoming Kudos Section */}
+        <div style={{ padding: '16px' }}>
+          <div
+            style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6b7280',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              marginBottom: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span>📬</span>
+            <span>INCOMING KUDOS</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {KUDOS_LIST.map((kudo) => (
+              <div
+                key={kudo.id}
+                style={{
+                  backgroundColor: kudo.cardBg,
+                  borderRadius: '16px',
+                  padding: '14px 18px',
+                  border: `1.5px solid ${kudo.borderColor}`,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        backgroundColor: kudo.avatarBg,
+                        color: kudo.avatarColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                      }}
+                    >
+                      {kudo.initials}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '14px', color: '#111827' }}>
+                        {kudo.name}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                        {kudo.time}
+                      </div>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '18px' }}>{kudo.icon}</span>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '13.5px',
+                    lineHeight: '1.5',
+                    color: '#1f2937',
+                    marginTop: '10px',
+                  }}
+                >
+                  {kudo.text}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              textAlign: 'center',
+              fontSize: '12.5px',
+              color: '#9ca3af',
+              marginTop: '28px',
+            }}
+          >
+            Your all-time kudos: 12 🎉
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // ===== Render Customer Discussions View (Image 5) =====
@@ -430,23 +640,6 @@ export function PulseChannel() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {info.metricPill && (
-            <div
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.18)',
-                color: '#ffffff',
-                padding: '4px 12px',
-                borderRadius: '999px',
-                fontSize: '12px',
-                fontWeight: 600,
-                display: 'none',
-              }}
-              className="pulse-metric-pill"
-            >
-              {info.metricPill}
-            </div>
-          )}
-
           {info.isRoleAgent || info.isTaskAgent ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {info.metricPill && (
@@ -507,10 +700,10 @@ export function PulseChannel() {
 
       <div className="chan__messages" role="log" aria-label="Messages">
         <div className="chan__divider">
-          <span>{channelId === 'avanibot' || channelId === 'callcentre-agent' || channelId === 'cross-sell-agent' || channelId === 'sop-agent' ? 'Today' : `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`}</span>
+          <span>{getDividerText()}</span>
         </div>
         {messages.map((m) => {
-          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent'
+          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent' || m.author === 'Manager Helper' || m.author === 'Avani'
           const avStyle = getAvatarStyle(m.initials, m.mine)
           const lines = m.text.split('\n')
 
@@ -601,7 +794,7 @@ export function PulseChannel() {
                     flexShrink: 0,
                   }}
                 >
-                  Y
+                  AR
                 </div>
               )}
             </div>
