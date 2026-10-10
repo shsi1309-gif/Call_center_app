@@ -3,7 +3,15 @@ import { Bell, Menu, Settings, UserCircle, LogOut, PanelLeft } from 'lucide-reac
 import { useToast } from '../../context/ToastContext'
 import './TopBar.css'
 
-export function TopBar({ onToggleSidebar, onOpenNotifications, hasUnreadNotifs = true }) {
+export function TopBar({
+  onToggleSidebar,
+  onOpenNotifications,
+  onOpenRank,
+  onOpenAvatar,
+  onOpenSettings,
+  hasUnreadNotifs = true,
+  avatarEmoji = '🦸‍♂️',
+}) {
   const [open, setOpen] = useState('none')
   const ref = useRef(null)
   const toast = useToast()
@@ -22,7 +30,9 @@ export function TopBar({ onToggleSidebar, onOpenNotifications, hasUnreadNotifs =
   const toggle = (p) => setOpen((cur) => (cur === p ? 'none' : p))
   const menuAction = (label) => {
     setOpen('none')
-    toast(`${label} is not part of this demo`)
+    if (label === 'Avatar') onOpenAvatar?.()
+    else if (label === 'Settings') onOpenSettings?.()
+    else toast(`${label} is not part of this demo`)
   }
 
   return (
@@ -47,12 +57,19 @@ export function TopBar({ onToggleSidebar, onOpenNotifications, hasUnreadNotifs =
           <Bell size={17} />
           {hasUnreadNotifs && <span className="bell__dot" />}
         </button>
-        <div className="rank-pill" title="Your rank within RT Nagar: #3">
+        <div
+          className="rank-pill"
+          title="Your rank within RT Nagar: #3"
+          onClick={onOpenRank}
+          style={{ cursor: 'pointer' }}
+          role="button"
+          tabIndex={0}
+        >
           <span className="rank-pill__ring">76</span>
           <span>⭐#3</span>
         </div>
         <button className="ar-badge" onClick={() => toggle('menu')} aria-label="Open profile menu">
-          <span>🦸‍♂️</span>
+          <span>{avatarEmoji}</span>
           <small>AR</small>
         </button>
         <button className="hamburger" onClick={() => toggle('menu')} aria-label="Menu" aria-expanded={open === 'menu'}>
@@ -61,7 +78,7 @@ export function TopBar({ onToggleSidebar, onOpenNotifications, hasUnreadNotifs =
         {open === 'menu' && (
           <div className="popover" role="menu" aria-label="Profile menu">
             <div className="popover__head">
-              <span className="popover__av">🦸‍♂️</span>
+              <span className="popover__av">{avatarEmoji}</span>
               <div>
                 <strong>Arvind Rajan</strong>
                 <small>Koramangala · The Sleep Company</small>

@@ -6,6 +6,7 @@ import { WAITING } from '../../data/plan'
 import { TASK_LEADS } from '../../data/leads'
 import { formatRupees } from '../../utils/format'
 import { LeadsModal } from '../leads/LeadsModal'
+import { DateRangeModal } from '../../components/layout/DateRangeModal'
 import { BarTrendChart } from './BarTrendChart'
 import './Dashboard.css'
 
@@ -23,6 +24,8 @@ function greeting(hour) {
 
 export function DashboardPage() {
   const [leadsOpen, setLeadsOpen] = useState(false)
+  const [dateRangeOpen, setDateRangeOpen] = useState(false)
+  const [dateRange, setDateRange] = useState('This Week')
   const [hello] = useState(() => greeting(new Date().getHours()))
   const earningsPct = Math.round(((EARNINGS.amount - EARNINGS.min) / (EARNINGS.max - EARNINGS.min)) * 100)
 
@@ -40,8 +43,8 @@ export function DashboardPage() {
               <i />
               On Queue
             </span>
-            <button className="chip chip--range">
-              <CalendarDays size={13} /> This Week <ChevronDown size={13} />
+            <button className="chip chip--range" onClick={() => setDateRangeOpen(true)}>
+              <CalendarDays size={13} /> {dateRange} <ChevronDown size={13} />
             </button>
           </div>
         </div>
@@ -155,6 +158,13 @@ export function DashboardPage() {
       </div>
 
       {leadsOpen && <LeadsModal leads={TASK_LEADS} onClose={() => setLeadsOpen(false)} />}
+      {dateRangeOpen && (
+        <DateRangeModal
+          currentRange={dateRange}
+          onApply={(newRange) => setDateRange(newRange)}
+          onClose={() => setDateRangeOpen(false)}
+        />
+      )}
     </div>
   )
 }
