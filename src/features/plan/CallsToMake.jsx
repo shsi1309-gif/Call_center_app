@@ -20,7 +20,7 @@ const AVATAR_TONES = [
 export function CallsToMake() {
   const { startCall } = useCall()
   const [page, setPage] = useState(1)
-  const [expandedId, setExpandedId] = useState('ritu') // start with top lead expanded as in mock
+  const [expandedId, setExpandedId] = useState(null)
   const [modalIndex, setModalIndex] = useState(null)
   const [dialerOpen, setDialerOpen] = useState(false)
 
