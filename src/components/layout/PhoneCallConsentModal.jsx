@@ -12,12 +12,12 @@ const SCRIPTS = {
 export function PhoneCallConsentModal({
   contact = { name: 'Faizan A.', phone: '98450 61245' },
   callType = 'Phone call',
-  initialMode = 'voice',
+  initialMode = 'wa',
   onClose,
   onCallStarted,
 }) {
   const [lang, setLang] = useState('English')
-  const [mode, setMode] = useState(initialMode || contact.initialMode || 'voice') // 'wa' | 'voice'
+  const [mode, setMode] = useState(contact?.initialMode || initialMode || 'wa') // 'wa' | 'voice'
   const [phone, setPhone] = useState(contact.phone?.replace('+91', '').trim() || '98450 61245')
   const [under18, setUnder18] = useState(false)
   const [offers, setOffers] = useState(false)
