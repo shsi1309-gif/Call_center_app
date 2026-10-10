@@ -34,7 +34,10 @@ export function CallWrapupModal({
   const [summary, setSummary] = useState(getInitialSummary)
 
   const handleSave = () => {
-    toast(`Summary & outcome saved to CRM for ${contact.name}`)
+    toast({
+      title: `Nice work! Saved to CRM — ${contact.name || 'Faizan A.'}`,
+      subtitle: `🎯 Estimated chance of closing: ${contact.closingChance || '88%'}`,
+    })
     if (onSave) onSave({ outcome: selectedOutcome, summary })
     if (onClose) onClose()
   }
