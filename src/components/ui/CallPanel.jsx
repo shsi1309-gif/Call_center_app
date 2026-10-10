@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mic, MicOff, Pause, Play, Phone, PhoneOff } from 'lucide-react'
+import { Grip, Mic, MicOff, Pause, Play, Phone, PhoneOff } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 import { formatTimer } from '../../utils/format'
 import { AIAssistPanel } from '../layout/AIAssistPanel'
@@ -260,6 +260,31 @@ export function CallPanel() {
         {/* Right Live AI Assist Panel */}
         <AIAssistPanel contact={call.contact} />
       </div>
+
+      {/* Floating purple dialpad button */}
+      <button
+        onClick={() => setConsentOpen(true)}
+        aria-label="Open dialpad"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          background: '#4f46e5',
+          color: '#fff',
+          border: 'none',
+          boxShadow: '0 4px 14px rgba(79,70,229,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 360,
+        }}
+      >
+        <Grip size={22} />
+      </button>
 
       {/* Consent Modal triggered right after accept */}
       {consentOpen && (

@@ -5,6 +5,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { Pagination } from './Pagination'
 import { LeadsModal } from '../leads/LeadsModal'
 import { PhoneCallConsentModal } from '../../components/layout/PhoneCallConsentModal'
+import { useCall } from '../../context/CallContext'
 import { formatRupees } from '../../utils/format'
 import { pageCount, paginate } from '../../utils/pagination'
 
@@ -17,6 +18,7 @@ const AVATAR_TONES = [
 ]
 
 export function CallsToMake() {
+  const { startCall } = useCall()
   const [page, setPage] = useState(1)
   const [expandedId, setExpandedId] = useState('ritu') // start with top lead expanded as in mock
   const [modalIndex, setModalIndex] = useState(null)
@@ -98,7 +100,27 @@ export function CallsToMake() {
 
                   {/* Full-width Place Call button */}
                   <button
-                    onClick={() => setConsentContact(lead)}
+                    onClick={() => {
+                      startCall(
+                        {
+                          name: lead.name,
+                          initials: lead.initials,
+                          detail: `+91 ${lead.phone || '98450 61245'} · ${lead.interest}`,
+                          phone: lead.phone || '98450 61245',
+                          callType: 'Call centre',
+                          product: lead.interest,
+                          crossSell: lead.crossSell,
+                          emi: lead.emi,
+                        },
+                        'outgoing',
+                      )
+                      setConsentContact({
+                        name: lead.name,
+                        phone: lead.phone || '98450 61245',
+                        callType: 'Call centre',
+                        initialMode: 'wa',
+                      })
+                    }}
                     style={{
                       width: '100%',
                       marginTop: '14px',

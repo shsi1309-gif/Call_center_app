@@ -71,7 +71,7 @@ export function AppShell() {
             />
           )}
           {settingsOpen && <SettingsView onClose={() => setSettingsOpen(false)} />}
-          <CallPanel />
+          {!pathname.startsWith('/plan') && <CallPanel />}
           <Outlet />
         </main>
       </div>

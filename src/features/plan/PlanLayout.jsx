@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useCall } from '../../context/CallContext'
+import { CallPanel } from '../../components/ui/CallPanel'
 import './Plan.css'
 
 export function PlanLayout() {
+  const { call } = useCall()
   const [today] = useState(() => {
     const d = new Date()
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -19,7 +22,7 @@ export function PlanLayout() {
         </div>
         <span className="plan-banner__date">{today}</span>
       </div>
-      <Outlet />
+      {call ? <CallPanel /> : <Outlet />}
     </div>
   )
 }
