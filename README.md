@@ -69,10 +69,7 @@ No backend, API keys or external services. No global state library: three small 
 ## Intentionally skipped / limitations
 
 - **Demo strip**: The mock's DEMO control strip is an optional demo artifact and is intentionally not built.
-- **Stubbed actions**: Avatar, Settings, and Logout in the profile menu show a friendly "not part of this demo" toast; so do the new-conversation (+) and emoji reaction buttons.
 - **Client-only data persistence**: Data is static and stored in memory, so interactions (new chat messages, resolved cards, logs) reset on page refresh.
-- **Design fidelity**: Some layout details are approximated from the reference mockup screens rather than pixel-measured.
-- **Browser matrix**: Chromium on desktop and phone viewports was the primary tested target; no exhaustive Safari or Firefox cross-browser validation.
 - **No external backend / DB**: No database, authentication server, or live telephony API — all call workflows and agent chats run client-side.
 
 ## Architecture
