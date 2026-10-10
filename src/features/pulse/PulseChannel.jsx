@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ChevronRight, Info, MessageCircle, Phone, PhoneCall, Send, Smile, Sparkles, Users } from 'lucide-react'
 import { AUTO_REPLIES, CHANNELS, DMS, ROLE_AGENTS, TASK_AGENTS } from '../../data/pulse'
+import { LEADS } from '../../data/leads'
 import { usePulse } from '../../context/PulseContext'
 import { useToast } from '../../context/ToastContext'
 import { useCall } from '../../context/CallContext'
 import { Avatar } from '../../components/ui/Avatar'
+import { LeadsModal } from '../leads/LeadsModal'
 import { NeedsInputCard } from './NeedsInputCard'
 import './Pulse.css'
 
@@ -142,6 +144,7 @@ export function PulseChannel() {
   const { messagesFor, sendMessage, postBotMessage, markRead } = usePulse()
   const [draft, setDraft] = useState('')
   const [error, setError] = useState('')
+  const [activeLeadModal, setActiveLeadModal] = useState(null)
   const endRef = useRef(null)
   const info = resolveChannel(channelId)
   const messages = messagesFor(channelId)
@@ -178,6 +181,8 @@ export function PulseChannel() {
     if (channelId === 'all-stores') return 'Today · All Stores'
     if (channelId === 'avani-coaching') return 'Today · Avani AI Coaching'
     if (channelId === 'callcentre-team') return 'Today · Call Centre Team'
+    if (channelId === 'manage-shipment') return 'Today · Manage Shipment'
+    if (channelId === 'quotation-tickets') return 'Today · Quotation Tickets'
     if (channelId === 'avanibot' || channelId === 'callcentre-agent' || channelId === 'cross-sell-agent' || channelId === 'sop-agent') return 'Today'
     return `Today · ${info.rawName || info.title.replace(/^#\s?/, '')}`
   }
@@ -703,9 +708,9 @@ export function PulseChannel() {
           <span>{getDividerText()}</span>
         </div>
         {messages.map((m) => {
-          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent' || m.author === 'Manager Helper' || m.author === 'Avani'
+          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent' || m.author === 'Manager Helper' || m.author === 'Avani' || m.author === 'Shipping Agent' || m.author === 'Ticket Desk Agent'
           const avStyle = getAvatarStyle(m.initials, m.mine)
-          const lines = m.text.split('\n')
+          const lines = (m.text || '').split('\n')
 
           return (
             <div key={m.id} className={`msg ${m.mine ? 'msg--mine' : ''}`}>
@@ -722,9 +727,10 @@ export function PulseChannel() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
+                      fontSize: '14px',
                     }}
                   >
-                    <Sparkles size={14} />
+                    {m.isShippingCard ? '📦' : m.isQuotationCard ? '🎫' : <Sparkles size={14} />}
                   </div>
                 ) : (
                   <Avatar initials={m.initials} size="sm" background={avStyle.background} color={avStyle.color} />
@@ -765,18 +771,144 @@ export function PulseChannel() {
                   )}
                   <small>{m.time}</small>
                 </div>
-                <div className="msg__bubble" style={{ whiteSpace: 'pre-wrap' }}>
-                  {lines.map((line, idx) => {
-                    if (line.includes('✓ Task done')) {
-                      return (
-                        <div key={idx} style={{ color: '#047857', fontWeight: 600, fontSize: '12px', marginTop: '3px' }}>
-                          {line}
-                        </div>
-                      )
-                    }
-                    return <div key={idx}>{line}</div>
-                  })}
-                </div>
+
+                {/* Rich Card: Shipping Notifications */}
+                {m.isShippingCard ? (
+                  <div
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '14px',
+                      border: '1px solid #e2e8f0',
+                      padding: '14px 16px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      maxWidth: '340px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        alignSelf: 'flex-start',
+                        backgroundColor: '#dcfce7',
+                        color: '#166534',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                      }}
+                    >
+                      {m.status}
+                    </span>
+                    <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#111827' }}>
+                      📦 {m.title}
+                    </div>
+                    <div style={{ fontSize: '12.5px', color: '#4b5563', lineHeight: '1.4' }}>
+                      <div>Model: <strong style={{ color: '#111827' }}>{m.model}</strong></div>
+                      <div>Tracking: <strong style={{ color: '#111827' }}>{m.tracking}</strong></div>
+                      <div>Destination: <strong style={{ color: '#111827' }}>{m.destination}</strong></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <button
+                        onClick={() => toast(`Tracking: ${m.tracking} · Out for delivery to ${m.destination}`)}
+                        style={{
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          padding: '6px 14px',
+                          fontSize: '12.5px',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        View details
+                      </button>
+                      <button
+                        onClick={() => toast(`Customer notified on WhatsApp for shipment ${m.tracking}`)}
+                        style={{
+                          backgroundColor: '#0f6e56',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '6px 14px',
+                          fontSize: '12.5px',
+                          fontWeight: 600,
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Notify customer
+                      </button>
+                    </div>
+                  </div>
+                ) : m.isQuotationCard ? (
+                  /* Rich Card: Quotation Approval */
+                  <div
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '14px',
+                      border: '1px solid #e2e8f0',
+                      padding: '14px 16px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      maxWidth: '340px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        alignSelf: 'flex-start',
+                        backgroundColor: '#dcfce7',
+                        color: '#166534',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                      }}
+                    >
+                      {m.status}
+                    </span>
+                    <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#111827' }}>
+                      📝 {m.title}
+                    </div>
+                    <div style={{ fontSize: '12.5px', color: '#4b5563', lineHeight: '1.4' }}>
+                      <div>Product: <strong style={{ color: '#111827' }}>{m.product}</strong></div>
+                      <div>Value: <strong style={{ color: '#111827' }}>{m.value}</strong></div>
+                      <div>Raised by: <strong style={{ color: '#111827' }}>{m.raisedBy}</strong></div>
+                    </div>
+                    <div style={{ marginTop: '4px' }}>
+                      <button
+                        onClick={() => setActiveLeadModal({ leads: LEADS, index: 1 })}
+                        style={{
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          padding: '6px 14px',
+                          fontSize: '12.5px',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        View lead
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="msg__bubble" style={{ whiteSpace: 'pre-wrap' }}>
+                    {lines.map((line, idx) => {
+                      if (line.includes('✓ Task done')) {
+                        return (
+                          <div key={idx} style={{ color: '#047857', fontWeight: 600, fontSize: '12px', marginTop: '3px' }}>
+                            {line}
+                          </div>
+                        )
+                      }
+                      return <div key={idx}>{line}</div>
+                    })}
+                  </div>
+                )}
               </div>
               {m.mine && (
                 <div
@@ -845,6 +977,15 @@ export function PulseChannel() {
           </p>
         )}
       </form>
+
+      {/* Leads Modal when viewing lead from quotation-tickets */}
+      {activeLeadModal && (
+        <LeadsModal
+          leads={activeLeadModal.leads}
+          startIndex={activeLeadModal.index}
+          onClose={() => setActiveLeadModal(null)}
+        />
+      )}
     </div>
   )
 }
