@@ -35,6 +35,17 @@ npm run lint       # oxlint
 
 No backend, API keys or external services. No global state library: three small React contexts only.
 
+## Pages and Sidebar Navigation
+
+- **Dashboard**: Central command hub displaying shift greeting, live KPI cards, today's queue progress, monthly earnings progress bar, prioritized quick tasks, and 7-day call volume & CSAT trend charts.
+- **Plan**: Outbound and inbound call execution center with dedicated workflows for lead calling, missed call recovery, and call auditing:
+  - **Calls to make**: Prioritized list of prospective leads ranked by attractiveness score, featuring expandable lead insights (next steps, openers, phone) and quick actions for direct calling, WhatsApp outreach, or full lead detail reviews.
+  - **Incoming**: Queue of missed customer calls ranked by estimated deal value, showing total revenue at stake and providing instant one-click call-back actions.
+  - **Recent**: Detailed log of past incoming, outgoing, and missed calls with timestamps and durations; clicking any entry opens a comprehensive SOP compliance score and call review dialog.
+  - **Practise a call**: Interactive call simulator enabling agents to rehearse conversations with realistic ringing states, live timer controls, mute/end actions, and call wrap-up workflows.
+- **Calendar**: Interactive monthly schedule featuring date-by-date event dots, selected day agendas, upcoming customer appointments, and quick invite sharing.
+- **Pulse**: Team communication and AI assistance platform featuring real-time channel chats, direct messages, automated bot workflows (AvaniBot & custom role/task agents), kudos recognition, and pinned actionable items ("Needs your input").
+
 ## What is implemented
 
 **Must-build**
@@ -54,16 +65,6 @@ No backend, API keys or external services. No global state library: three small 
 - Call back (Incoming, Recent, Leads modal, Calls to make) and **Practise a call** (ringing → accept/decline → timer, mute, end) through a floating call panel.
 - Phone-width layout: sidebar becomes a slide-in drawer, grids collapse, modals become bottom sheets.
 - Recharts charts.
-
-## Intentionally skipped / limitations
-- The mock's DEMO strip and floating dial pad are optional demo tools and are not built.
-- Avatar, Settings and Logout in the profile menu show a "not part of this demo" toast; so do the new-conversation (+) and emoji buttons.
-- Data is static and in memory, so changes (messages, answered card) reset on page refresh.
-- Some mock details are approximated from the PDF screenshots and my own screenshots rather than pixel-measured, notably spacing in the channel view and the exact lead sample data. I did not do an automated pixel-diff.
-- Chrome on a laptop was the only browser tested; no Safari/Firefox checks.
-- There is no static type checking. Data shapes are documented by the sample data in `src/data`.
-- `oxlint` reports 3 dev-only Fast Refresh notes because the context hooks live next to their providers.
-- No deployment: there is no live link yet.
 
 ## Architecture
 
