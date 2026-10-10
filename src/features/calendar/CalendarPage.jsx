@@ -35,7 +35,7 @@ function UpcomingEventCard({ ev, onShare }) {
 }
 
 export function CalendarPage() {
-  const { showToast } = useToast()
+  const toast = useToast()
   // Mock October 2026 as standard base date
   const [cursor, setCursor] = useState({ year: 2026, month: 9 }) // 0-indexed: 9 = October
   const [selected, setSelected] = useState('2026-10-10')
@@ -66,7 +66,7 @@ export function CalendarPage() {
   }
 
   const handleShareSuccess = (event) => {
-    showToast(`Invite shared for ${event.title}`)
+    toast(`Invite shared for ${event.title}`)
   }
 
   return (

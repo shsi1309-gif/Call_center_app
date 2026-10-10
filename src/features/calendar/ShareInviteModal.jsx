@@ -34,10 +34,15 @@ export function ShareInviteModal({ isOpen, onClose, event, onShareSuccess }) {
   }
 
   const handleDone = () => {
-    if (onShareSuccess) {
-      onShareSuccess(event, selectedIds)
+    try {
+      if (onShareSuccess) {
+        onShareSuccess(event, selectedIds)
+      }
+    } catch {
+      // ignore
+    } finally {
+      onClose?.()
     }
-    onClose()
   }
 
   return (
