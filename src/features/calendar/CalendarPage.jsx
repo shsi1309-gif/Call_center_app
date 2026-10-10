@@ -114,6 +114,7 @@ export function CalendarPage() {
             cell ? (
               <button
                 key={cell.iso}
+                type="button"
                 role="gridcell"
                 className={`cal__day ${cell.iso === selected ? 'is-selected' : ''}`}
                 aria-pressed={cell.iso === selected}

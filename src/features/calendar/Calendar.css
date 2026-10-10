@@ -123,27 +123,45 @@
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   transition: all 0.15s ease;
+  color: #1f2937;
+  padding: 0;
+  overflow: hidden;
 }
 
 .cal__day:hover {
-  border-color: #cbd5e1;
-  background: #fafafa;
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.cal__day:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .cal__day-num {
   font-size: 16px;
   font-weight: 700;
   color: #1f2937;
+  display: block;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
 }
 
 .cal__day.is-selected {
-  border: 2px solid #2563eb;
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+  border: 2px solid #2563eb !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18) !important;
 }
 
 .cal__day.is-selected .cal__day-num {
-  color: #2563eb;
+  color: #2563eb !important;
+  font-weight: 800 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .cal__dot {
@@ -155,6 +173,7 @@
   height: 5px;
   border-radius: 50%;
   background: #ef4444;
+  pointer-events: none;
 }
 
 .cal__day-blank {
