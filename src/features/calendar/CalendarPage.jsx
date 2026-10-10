@@ -48,16 +48,9 @@ export function CalendarPage() {
     return map
   }, [])
 
-  // Dynamic events based on selected date
+  // Dynamic events based on selected date: only show events if this date has events
   const displayEvents = useMemo(() => {
-    const onSelected = eventsByDate.get(selected) ?? []
-    const future = EVENTS.filter((e) => e.date > selected).sort((a, b) => a.date.localeCompare(b.date))
-    const combined = [...onSelected, ...future]
-    if (combined.length > 0) {
-      return combined.slice(0, 3)
-    }
-    // Fallback to all sorted events if nothing found from selected onward
-    return [...EVENTS].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3)
+    return eventsByDate.get(selected) ?? []
   }, [selected, eventsByDate])
 
   const goToday = () => {
