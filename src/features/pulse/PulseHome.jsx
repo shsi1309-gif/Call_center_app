@@ -35,6 +35,36 @@ function Group({ label, hint, children }) {
   )
 }
 
+export function PulseLogoIcon({ size = 24 }) {
+  return (
+    <span
+      className="pulse__logo"
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: '7px',
+        backgroundColor: '#ffffff',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 4px)',
+        gridTemplateRows: 'repeat(2, 4px)',
+        gap: '2.5px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)',
+        flexShrink: 0,
+      }}
+      aria-hidden="true"
+    >
+      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
+      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#f59e0b' }} />
+      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#8b5cf6' }} />
+      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
+      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#ec4899' }} />
+    </span>
+  )
+}
+
 export function PulseHome() {
   const navigate = useNavigate()
   const toast = useToast()
@@ -56,9 +86,7 @@ export function PulseHome() {
   return (
     <div className="pulse">
       <header className="pulse__head">
-        <span className="pulse__logo">
-          <MessageCircle size={14} />
-        </span>
+        <PulseLogoIcon size={24} />
         <div>
           <h1>Pulse</h1>
           <small>The Sleep Company · Koramangala</small>
