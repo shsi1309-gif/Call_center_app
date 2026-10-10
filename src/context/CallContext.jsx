@@ -43,16 +43,51 @@ export function CallProvider({ children }) {
     setCall((c) => (c ? { ...c, phase: 'active' } : c))
     setSeconds(0)
   }, [])
+  const [wrapup, setWrapup] = useState(null)
+
   const hangUp = useCallback(() => {
     if (!call) return
-    if (call.phase === 'ringing') toast('Practice call declined')
-    else toast(`${call.kind === 'practice' ? 'Practice call' : 'Call'} with ${call.contact.name} ended · ${formatTimer(seconds)}`)
-    setCall(null)
+    if (call.phase === 'ringing') {
+      toast('Practice call declined')
+      setCall(null)
+    } else {
+      const formatted = formatTimer(seconds)
+      toast(`${call.kind === 'practice' ? 'Practice call' : 'Call'} with ${call.contact.name} ended · ${formatted}`)
+      setWrapup({
+        contact: call.contact,
+        duration: formatted || '01:52',
+      })
+      setCall(null)
+    }
   }, [call, seconds, toast])
+
+  const openWrapup = useCallback((contact, duration = '01:52') => {
+    setWrapup({
+      contact: contact || { name: 'Mukunda', product: 'Ortho GRID · ₹8,490' },
+      duration,
+    })
+  }, [])
+
+  const closeWrapup = useCallback(() => {
+    setWrapup(null)
+  }, [])
+
   const toggleMute = useCallback(() => setMuted((m) => !m), [])
   const value = useMemo(
-    () => ({ call, seconds, muted, startCall, startPractice, accept, hangUp, toggleMute }),
-    [call, seconds, muted, startCall, startPractice, accept, hangUp, toggleMute],
+    () => ({
+      call,
+      seconds,
+      muted,
+      wrapup,
+      startCall,
+      startPractice,
+      accept,
+      hangUp,
+      toggleMute,
+      openWrapup,
+      closeWrapup,
+    }),
+    [call, seconds, muted, wrapup, startCall, startPractice, accept, hangUp, toggleMute, openWrapup, closeWrapup],
   )
   return <CallContext.Provider value={value}>{children}</CallContext.Provider>
 }

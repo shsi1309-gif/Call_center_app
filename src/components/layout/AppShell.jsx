@@ -7,10 +7,13 @@ import { RankModal } from './RankModal'
 import { AvatarView } from './AvatarView'
 import { SettingsView } from './SettingsView'
 import { PhoneCallConsentModal } from './PhoneCallConsentModal'
+import { CallWrapupModal } from './CallWrapupModal'
 import { DemoBar } from './DemoBar'
 import { CallPanel } from '../ui/CallPanel'
+import { useCall } from '../../context/CallContext'
 
 export function AppShell() {
+  const { wrapup, closeWrapup } = useCall()
   const [navOpen, setNavOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [rankOpen, setRankOpen] = useState(false)
@@ -74,6 +77,13 @@ export function AppShell() {
         <PhoneCallConsentModal
           contact={consentContact}
           onClose={() => setConsentContact(null)}
+        />
+      )}
+      {wrapup && (
+        <CallWrapupModal
+          contact={wrapup.contact}
+          duration={wrapup.duration}
+          onClose={closeWrapup}
         />
       )}
       <CallPanel />

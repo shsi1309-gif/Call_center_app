@@ -8,6 +8,7 @@ import { formatRupees } from '../../utils/format'
 import { LeadsModal } from '../leads/LeadsModal'
 import { DateRangeModal } from '../../components/layout/DateRangeModal'
 import { BarTrendChart } from './BarTrendChart'
+import { useCall } from '../../context/CallContext'
 import './Dashboard.css'
 
 const TASKS = [
@@ -23,6 +24,7 @@ function greeting(hour) {
 }
 
 export function DashboardPage() {
+  const { openWrapup } = useCall()
   const [leadsOpen, setLeadsOpen] = useState(false)
   const [dateRangeOpen, setDateRangeOpen] = useState(false)
   const [dateRange, setDateRange] = useState('This Week')
@@ -131,7 +133,17 @@ export function DashboardPage() {
               <ClipboardList size={14} /> My Tasks <span className="tasks__count">{TASKS.length}</span>
             </h2>
             {TASKS.map(({ id, icon: Icon, tone, bold, rest }) => (
-              <button className="task" key={id} onClick={() => setLeadsOpen(true)}>
+              <button
+                className="task"
+                key={id}
+                onClick={() => {
+                  if (id === 'outcome') {
+                    openWrapup({ name: 'Mukunda', product: 'Ortho GRID · ₹8,490' }, '01:52')
+                  } else {
+                    setLeadsOpen(true)
+                  }
+                }}
+              >
                 <span className={`task__icon task__icon--${tone}`}>
                   <Icon size={16} />
                 </span>

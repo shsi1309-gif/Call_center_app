@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquare, Mic, Send, ShieldCheck, X } from 'lucide-react'
+import { Calendar, Check, CheckCircle2, MessageSquare, Mic, Send, ShieldCheck, ThumbsUp, X } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 import { useCall } from '../../context/CallContext'
 
@@ -9,24 +9,33 @@ const SCRIPTS = {
   ಕನ್ನಡ: 'ಇದನ್ನು ರೆಕಾರ್ಡ್ ಮಾಡಬಹುದೇ? ನಿಮ್ಮ ಸೇವೆ ಮತ್ತು ಫಾಲೋ-ಅಪ್‌ಗಾಗಿ ಮಾತ್ರ. ನೀವು ಬೇಡವೆನ್ನಬಹುದು ಅಥವಾ ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಅಳಿಸಲು ಕೇಳಬಹುದು.',
 }
 
-export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '98450 61245' }, onClose }) {
+export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '98450 61245' }, onClose, onCallStarted }) {
   const [lang, setLang] = useState('English')
-  const [mode, setMode] = useState('wa') // 'wa' | 'voice'
+  const [mode, setMode] = useState('voice') // 'wa' | 'voice'
   const [phone, setPhone] = useState(contact.phone?.replace('+91', '').trim() || '98450 61245')
   const [under18, setUnder18] = useState(false)
+  const [offers, setOffers] = useState(false)
   const [sent, setSent] = useState(false)
   const toast = useToast()
   const { startCall } = useCall()
 
-  const handleSend = () => {
+  const handleSendWa = () => {
     setSent(true)
     toast(`Consent request sent on WhatsApp${under18 ? ' to parent' : ''}. Waiting for tap.`)
   }
 
-  const handleAgreeVoice = () => {
-    toast('Consent recorded: CNS-2026-10492 · said out loud')
+  const handleAgree = (method) => {
+    toast(`Consent CNS-2026-10492: recording on · ${method === 'wa' ? 'WhatsApp' : 'said out loud'}`)
     onClose()
     startCall({ name: contact.name, initials: contact.name.slice(0, 2).toUpperCase(), detail: contact.phone }, 'outgoing')
+    onCallStarted?.()
+  }
+
+  const handleRefuse = () => {
+    toast('Not recording. Carry on.')
+    onClose()
+    startCall({ name: contact.name, initials: contact.name.slice(0, 2).toUpperCase(), detail: contact.phone }, 'outgoing')
+    onCallStarted?.()
   }
 
   return (
@@ -220,7 +229,154 @@ export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '9
             </button>
           </div>
 
-          {mode === 'wa' ? (
+          {mode === 'voice' ? (
+            <div>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '6px' }}>
+                <button
+                  onClick={() => handleAgree('voice')}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '12px 8px',
+                    borderRadius: '12px',
+                    background: '#0f6e56',
+                    color: '#fff',
+                    border: 'none',
+                    fontSize: '13.5px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Check size={16} /> {under18 ? 'Parent said yes' : 'They said yes'}
+                </button>
+                <button
+                  onClick={handleRefuse}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '12px 8px',
+                    borderRadius: '12px',
+                    background: '#fff',
+                    color: '#0f172a',
+                    border: '1px solid #cfd6e4',
+                    fontSize: '13.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <X size={16} /> They said no
+                </button>
+              </div>
+              <div style={{ fontSize: '11.5px', color: '#64748b', marginBottom: '10px' }}>
+                Their spoken yes is saved as a short clip, as proof.
+              </div>
+
+              {/* Offers on WhatsApp toggle */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '9px 12px',
+                  marginBottom: '6px',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#1a1a1a' }}>Offers on WhatsApp too?</div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b' }}>Ask separately. Off unless they say yes.</div>
+                </div>
+                <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px' }}>
+                  <input
+                    type="checkbox"
+                    checked={offers}
+                    onChange={(e) => setOffers(e.target.checked)}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
+                  <span
+                    style={{
+                      position: 'absolute',
+                      cursor: 'pointer',
+                      inset: 0,
+                      background: offers ? '#0f6e56' : '#cbd5e1',
+                      borderRadius: '20px',
+                      transition: '.2s',
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: 'absolute',
+                        height: '14px',
+                        width: '14px',
+                        left: offers ? '19px' : '3px',
+                        bottom: '3px',
+                        background: '#fff',
+                        borderRadius: '50%',
+                        transition: '.2s',
+                      }}
+                    />
+                  </span>
+                </label>
+              </div>
+
+              {/* Under 18 toggle */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '9px 12px',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#1a1a1a' }}>Under 18?</div>
+                  <div style={{ fontSize: '11.5px', color: '#64748b' }}>A parent must say yes.</div>
+                </div>
+                <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px' }}>
+                  <input
+                    type="checkbox"
+                    checked={under18}
+                    onChange={(e) => setUnder18(e.target.checked)}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
+                  <span
+                    style={{
+                      position: 'absolute',
+                      cursor: 'pointer',
+                      inset: 0,
+                      background: under18 ? '#0f6e56' : '#cbd5e1',
+                      borderRadius: '20px',
+                      transition: '.2s',
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: 'absolute',
+                        height: '14px',
+                        width: '14px',
+                        left: under18 ? '19px' : '3px',
+                        bottom: '3px',
+                        background: '#fff',
+                        borderRadius: '50%',
+                        transition: '.2s',
+                      }}
+                    />
+                  </span>
+                </label>
+              </div>
+            </div>
+          ) : (
             <div>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                 <span
@@ -251,7 +407,7 @@ export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '9
                   }}
                 />
                 <button
-                  onClick={handleSend}
+                  onClick={handleSendWa}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -282,14 +438,14 @@ export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '9
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
                   borderRadius: '10px',
-                  padding: '10px 14px',
+                  padding: '9px 12px',
                 }}
               >
                 <div>
                   <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#1a1a1a' }}>Under 18?</div>
                   <div style={{ fontSize: '11.5px', color: '#64748b' }}>Send it to a parent's number instead.</div>
                 </div>
-                <label style={{ position: 'relative', display: 'inline-block', width: '38px', height: '22px' }}>
+                <label style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px' }}>
                   <input
                     type="checkbox"
                     checked={under18}
@@ -302,15 +458,15 @@ export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '9
                       cursor: 'pointer',
                       inset: 0,
                       background: under18 ? '#0f6e56' : '#cbd5e1',
-                      borderRadius: '22px',
+                      borderRadius: '20px',
                       transition: '.2s',
                     }}
                   >
                     <span
                       style={{
                         position: 'absolute',
-                        height: '16px',
-                        width: '16px',
+                        height: '14px',
+                        width: '14px',
                         left: under18 ? '19px' : '3px',
                         bottom: '3px',
                         background: '#fff',
@@ -321,27 +477,6 @@ export function PhoneCallConsentModal({ contact = { name: 'Faizan A.', phone: '9
                   </span>
                 </label>
               </div>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-              <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '12px' }}>
-                Customer verbally confirmed recording consent during this call.
-              </div>
-              <button
-                onClick={handleAgreeVoice}
-                style={{
-                  background: '#0f6e56',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 20px',
-                  fontSize: '13.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                ✓ Consent Given (Record Call)
-              </button>
             </div>
           )}
         </div>
