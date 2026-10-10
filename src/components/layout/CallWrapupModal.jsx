@@ -48,15 +48,32 @@ export function CallWrapupModal({
   }
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Call wrap-up summary">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backdropFilter: 'blur(3px)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        animation: 'fadeIn 0.15s ease-out',
+      }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Call wrap-up summary"
+    >
       <div
-        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
         style={{
           background: '#ffffff',
-          borderRadius: '20px',
+          borderRadius: '24px',
           maxWidth: '460px',
-          width: '92%',
-          padding: '20px 24px',
+          width: '100%',
+          padding: '22px 24px',
           boxShadow: '0 20px 50px rgba(0, 0, 0, 0.22)',
           position: 'relative',
           color: '#1e293b',
