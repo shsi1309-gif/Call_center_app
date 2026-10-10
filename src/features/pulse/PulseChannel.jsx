@@ -22,7 +22,12 @@ function resolveChannel(id) {
     }
   }
   const ch = CHANNELS.find((c) => c.id === id)
-  if (ch) return { title: `#${ch.name}`, sub: `${ch.members} members · ${ch.topic}`, rawName: ch.name }
+  if (ch) {
+    if (id === 'new-hire-onboarding') {
+      return { title: `#${ch.name}`, sub: '', rawName: 'new-hire-onboarding' }
+    }
+    return { title: `#${ch.name}`, sub: `${ch.members} members · ${ch.topic}`, rawName: ch.name }
+  }
   const agent = [...ROLE_AGENTS, ...TASK_AGENTS].find((a) => a.id === id)
   if (agent) {
     const isRole = ROLE_AGENTS.some((r) => r.id === id)
@@ -188,6 +193,7 @@ export function PulseChannel() {
     if (channelId === 'callcentre-team') return 'Today · Call Centre Team'
     if (channelId === 'manage-shipment') return 'Today · Manage Shipment'
     if (channelId === 'quotation-tickets') return 'Today · Quotation Tickets'
+    if (channelId === 'new-hire-onboarding') return 'Today · New Hire Onboarding'
     if (channelId === 'dm-raju') return 'Yesterday'
     if (channelId === 'dm-sunita' || channelId === 'dm-priya') return 'Today'
     if (channelId === 'avanibot' || channelId === 'callcentre-agent' || channelId === 'cross-sell-agent' || channelId === 'sop-agent') return 'Today'
@@ -715,7 +721,7 @@ export function PulseChannel() {
           <span>{getDividerText()}</span>
         </div>
         {messages.map((m) => {
-          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent' || m.author === 'Manager Helper' || m.author === 'Avani' || m.author === 'Shipping Agent' || m.author === 'Ticket Desk Agent'
+          const isBot = m.author === 'AvaniBot' || m.author === 'callcentre-agent' || m.author === 'Manager Helper' || m.author === 'Avani' || m.author === 'Shipping Agent' || m.author === 'Ticket Desk Agent' || m.author === 'Onboarding Agent' || m.badge === 'BOT'
           const avStyle = getAvatarStyle(m.initials, m.mine)
           const lines = (m.text || '').split('\n')
 
@@ -728,8 +734,8 @@ export function PulseChannel() {
                       width: '28px',
                       height: '28px',
                       borderRadius: '50%',
-                      background: '#f5f3ff',
-                      color: '#7c3aed',
+                      background: m.isOnboardingCard ? '#f0fdf4' : '#f5f3ff',
+                      color: m.isOnboardingCard ? '#166534' : '#7c3aed',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -737,7 +743,7 @@ export function PulseChannel() {
                       fontSize: '14px',
                     }}
                   >
-                    {m.isShippingCard ? '📦' : m.isQuotationCard ? '🎫' : <Sparkles size={14} />}
+                    {m.isShippingCard ? '📦' : m.isQuotationCard ? '🎫' : m.isOnboardingCard ? '👋' : <Sparkles size={14} />}
                   </div>
                 ) : (
                   <Avatar initials={m.initials} size="sm" background={avStyle.background} color={avStyle.color} />
@@ -907,6 +913,48 @@ export function PulseChannel() {
                         }}
                       >
                         View lead
+                      </button>
+                    </div>
+                  </div>
+                ) : m.isOnboardingCard ? (
+                  /* Rich Card: Onboarding */
+                  <div
+                    style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '14px',
+                      border: '1px solid #e2e8f0',
+                      padding: '14px 16px',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      maxWidth: '340px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#111827' }}>
+                      🎉 {m.title}
+                    </div>
+                    <div style={{ fontSize: '12.5px', color: '#4b5563', lineHeight: '1.4' }}>
+                      <div>SOP training: <strong style={{ color: '#111827' }}>{m.training}</strong></div>
+                      <div style={{ fontWeight: 700, color: '#111827' }}>{m.trainingTime}</div>
+                      <div style={{ marginTop: '4px' }}>Buddy manager: <strong style={{ color: '#111827' }}>{m.buddyManager}</strong></div>
+                    </div>
+                    <div style={{ marginTop: '4px' }}>
+                      <button
+                        onClick={() => toast('SOP training onboarding started')}
+                        style={{
+                          backgroundColor: '#0f6e56',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '6px 14px',
+                          fontSize: '12.5px',
+                          fontWeight: 600,
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s',
+                        }}
+                      >
+                        Get started
                       </button>
                     </div>
                   </div>

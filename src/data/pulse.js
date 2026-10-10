@@ -218,9 +218,22 @@ export const INITIAL_MESSAGES = {
       mine: false,
     },
   ],
-  'new-hire-onboarding': thread('nh', [
-    ['HR Team', '8:30am', '🎉 Welcome to the team! Your first-week checklist is pinned in the shared drive.'],
-  ]),
+  'new-hire-onboarding': [
+    {
+      id: 'nh-1',
+      author: 'Onboarding Agent',
+      initials: '👋',
+      time: '8:30am',
+      badge: 'BOT',
+      isOnboardingCard: true,
+      title: 'Welcome to the team!',
+      training: 'Starts today,',
+      trainingTime: '3:00pm',
+      buddyManager: 'Sunita Rao',
+      text: '🎉 Welcome to the team!\nSOP training: Starts today,\n3:00pm\nBuddy manager: Sunita Rao',
+      mine: false,
+    },
+  ],
   'dm-sunita': [
     {
       id: 'dms-1',
