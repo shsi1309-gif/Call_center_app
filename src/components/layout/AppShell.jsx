@@ -71,6 +71,7 @@ export function AppShell() {
             />
           )}
           {settingsOpen && <SettingsView onClose={() => setSettingsOpen(false)} />}
+          <CallPanel />
           <Outlet />
         </main>
       </div>
@@ -91,7 +92,6 @@ export function AppShell() {
         />
       )}
       {dpdpSafeOpen && <DpdpSafeModal onClose={() => setDpdpSafeOpen(false)} />}
-      <CallPanel />
       <DemoBar
         onOpenConsent={(c) => setConsentContact(c)}
         onOpenDpdpSafe={() => setDpdpSafeOpen(true)}

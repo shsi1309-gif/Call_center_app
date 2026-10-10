@@ -4,7 +4,16 @@ import { formatTimer } from '../utils/format'
 
 const CallContext = createContext(null)
 
-const PRACTICE_CONTACT = { name: 'Priya Iyer', initials: 'PI', detail: 'Practice call · billing dispute scenario' }
+const PRACTICE_CONTACT = {
+  name: 'Ritu S.',
+  initials: 'RS',
+  detail: '🎯 Intent 96 · calling from +91 98450 xxxxx',
+  phone: '98450 61245',
+  product: 'Smart Luxe Mattress · ₹13,390',
+  crossSell: 'Mattress Protector · ₹1,999',
+  emi: 'Not yet discussed — surface it early, she asked about total cost',
+  closingChance: '88%',
+}
 
 export function CallProvider({ children }) {
   const toast = useToast()
