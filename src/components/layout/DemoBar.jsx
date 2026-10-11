@@ -1,7 +1,7 @@
-import { Bot, Phone, Shield, Users } from 'lucide-react'
+import { Bot, Phone, Radio, Shield, Users } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 
-export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
+export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
   const { startCall } = useCall()
 
   const launchAiCall = () => {
@@ -50,6 +50,8 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
         boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
         border: '1px solid #e5e5ea',
         zIndex: 350,
+        maxWidth: '96vw',
+        overflowX: 'auto',
       }}
       role="toolbar"
       aria-label="Demo tools"
@@ -63,10 +65,34 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
           padding: '3px 8px',
           borderRadius: '99px',
           letterSpacing: '0.04em',
+          whiteSpace: 'nowrap',
         }}
       >
-        LIVE CALL DEMO
+        CALL ENGINE
       </span>
+
+      {/* Real Multi-Device Two-Way Calling Room */}
+      <button
+        onClick={() => onOpenRoomCall?.()}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '5px 12px',
+          borderRadius: '99px',
+          background: '#faf5ff',
+          border: '1.5px solid #d8b4fe',
+          fontSize: '12px',
+          fontWeight: 700,
+          color: '#6b21a8',
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 2px 6px rgba(147, 51, 234, 0.15)',
+        }}
+        title="Live audio call between 2 real devices (phones, tabs, or laptops)"
+      >
+        <Radio size={14} color="#9333ea" /> 📱 Multi-Device Call
+      </button>
 
       {/* 1-Click AI-to-Human Calling */}
       <button
@@ -83,11 +109,11 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
           fontWeight: 700,
           color: '#065f46',
           cursor: 'pointer',
-          transition: 'transform 0.1s ease',
+          whiteSpace: 'nowrap',
         }}
         title="Live AI-to-Human Voice Call with Speech Synthesis & Live Waveform"
       >
-        <Bot size={14} color="#059669" /> AI-to-Human Call
+        <Bot size={14} color="#059669" /> AI Call
       </button>
 
       {/* 1-Click Human-to-Human WebRTC Calling */}
@@ -105,11 +131,11 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
           fontWeight: 700,
           color: '#1e40af',
           cursor: 'pointer',
-          transition: 'transform 0.1s ease',
+          whiteSpace: 'nowrap',
         }}
         title="Live Human-to-Human WebRTC VoIP with Mic Audio Visualizer"
       >
-        <Users size={14} color="#2563eb" /> Human-to-Human Call
+        <Users size={14} color="#2563eb" /> Single-Device VoIP
       </button>
 
       {/* Consent Modal Trigger */}
@@ -127,6 +153,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
           fontWeight: 600,
           color: '#475569',
           cursor: 'pointer',
+          whiteSpace: 'nowrap',
         }}
       >
         <Phone size={12} /> DPDP Consent
@@ -147,6 +174,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
           border: 'none',
           cursor: 'pointer',
           padding: 0,
+          flexShrink: 0,
         }}
         aria-label="DPDP safety rules"
         title="How this app keeps you DPDP-safe"

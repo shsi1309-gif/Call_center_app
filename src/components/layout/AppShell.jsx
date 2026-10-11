@@ -11,6 +11,7 @@ import { PhoneCallConsentModal } from './PhoneCallConsentModal'
 import { CallWrapupModal } from './CallWrapupModal'
 import { DpdpSafeModal } from './DpdpSafeModal'
 import { DemoBar } from './DemoBar'
+import { WebRtcRoomModal } from './WebRtcRoomModal'
 import { CallPanel } from '../ui/CallPanel'
 import { useCall } from '../../context/CallContext'
 
@@ -25,6 +26,23 @@ export function AppShell() {
   const [dpdpSafeOpen, setDpdpSafeOpen] = useState(false)
   const [avatarEmoji, setAvatarEmoji] = useState('🦸‍♂️')
   const [hasUnreadNotifs, setHasUnreadNotifs] = useState(true)
+
+  // Multi-device WebRTC Room calling state
+  const [roomModalOpen, setRoomModalOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return Boolean(params.get('join') || params.get('room'))
+    }
+    return false
+  })
+  const [roomInitialId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return params.get('join') || params.get('room') || ''
+    }
+    return ''
+  })
+
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -95,6 +113,13 @@ export function AppShell() {
         />
       )}
       {dpdpSafeOpen && <DpdpSafeModal onClose={() => setDpdpSafeOpen(false)} />}
+      {roomModalOpen && (
+        <WebRtcRoomModal
+          isOpen={roomModalOpen}
+          onClose={() => setRoomModalOpen(false)}
+          initialRoomId={roomInitialId}
+        />
+      )}
       <DemoBar
         onOpenConsent={(c) => {
           startCall(
@@ -110,6 +135,7 @@ export function AppShell() {
           setConsentContact(c)
         }}
         onOpenDpdpSafe={() => setDpdpSafeOpen(true)}
+        onOpenRoomCall={() => setRoomModalOpen(true)}
       />
     </div>
   )

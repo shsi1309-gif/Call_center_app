@@ -84,3 +84,14 @@ describe('callAudioEngine', () => {
     expect(levels[0]).toBeGreaterThan(0)
   })
 })
+
+describe('webrtcRoomService', () => {
+  it('instantiates room service and registers events', async () => {
+    const { webrtcRoom } = await import('./webrtcRoomService')
+    expect(webrtcRoom).toBeDefined()
+    expect(typeof webrtcRoom.createRoom).toBe('function')
+    expect(typeof webrtcRoom.joinRoom).toBe('function')
+    expect(typeof webrtcRoom.toggleMute).toBe('function')
+    expect(webrtcRoom.isConnected).toBe(false)
+  })
+})
