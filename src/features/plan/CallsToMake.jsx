@@ -98,43 +98,83 @@ export function CallsToMake() {
                     </div>
                   </div>
 
-                  {/* Full-width Place Call button */}
-                  <button
-                    onClick={() => {
-                      startCall(
-                        {
-                          name: lead.name,
-                          initials: lead.initials,
-                          detail: `+91 ${lead.phone || '98450 61245'} · ${lead.interest}`,
-                          phone: lead.phone || '98450 61245',
-                          callType: 'Call centre',
-                          product: lead.interest,
-                          crossSell: lead.crossSell,
-                          emi: lead.emi,
-                        },
-                        'outgoing',
-                      )
-                    }}
-                    style={{
-                      width: '100%',
-                      marginTop: '14px',
-                      padding: '12px',
-                      border: 'none',
-                      borderRadius: '10px',
-                      fontSize: '14.5px',
-                      fontWeight: 700,
-                      color: '#fff',
-                      background: '#0f6e56',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 2px 6px rgba(15,110,86,0.25)',
-                    }}
-                  >
-                    <Phone size={16} /> Place call
-                  </button>
+                  {/* Dual Action Call buttons: AI-to-Human or Live WebRTC */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '14px' }}>
+                    <button
+                      onClick={() => {
+                        startCall(
+                          {
+                            name: lead.name,
+                            initials: lead.initials,
+                            detail: `+91 ${lead.phone || '98450 61245'} · ${lead.interest}`,
+                            phone: lead.phone || '98450 61245',
+                            callType: 'Call centre',
+                            product: lead.interest,
+                            crossSell: lead.crossSell,
+                            emi: lead.emi,
+                            callMode: 'ai-to-human',
+                          },
+                          'outgoing',
+                          { mode: 'ai-to-human', openConsent: false },
+                        )
+                      }}
+                      style={{
+                        padding: '12px 8px',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontSize: '13.5px',
+                        fontWeight: 700,
+                        color: '#fff',
+                        background: '#0f6e56',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 6px rgba(15,110,86,0.25)',
+                      }}
+                      title="Call with AI Voice Agent using Speech Synthesis & Real Waveform"
+                    >
+                      <Phone size={15} /> 🤖 AI Call
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        startCall(
+                          {
+                            name: `${lead.name} (Direct)`,
+                            initials: lead.initials,
+                            detail: `+91 ${lead.phone || '98450 61245'} · Live WebRTC VoIP`,
+                            phone: lead.phone || '98450 61245',
+                            callType: 'Phone call',
+                            product: lead.interest,
+                            crossSell: lead.crossSell,
+                            emi: lead.emi,
+                            callMode: 'human-to-human',
+                          },
+                          'outgoing',
+                          { mode: 'human-to-human', openConsent: false },
+                        )
+                      }}
+                      style={{
+                        padding: '12px 8px',
+                        border: '1px solid #0f6e56',
+                        borderRadius: '10px',
+                        fontSize: '13.5px',
+                        fontWeight: 700,
+                        color: '#0f6e56',
+                        background: '#e1f5ee',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                      }}
+                      title="Direct Human-to-Human WebRTC audio call"
+                    >
+                      <Phone size={15} /> 👥 Live VoIP
+                    </button>
+                  </div>
                 </div>
               )}
             </li>

@@ -10,13 +10,15 @@ const KEYS = [
 ]
 
 export function DialerModal({ isOpen, onClose, onCallStarted }) {
-  const { startCall } = useCall()
+  const { startCall, playDtmf } = useCall()
   const [digits, setDigits] = useState('')
+  const [mode, setMode] = useState('ai-to-human')
 
   if (!isOpen) return null
 
   const handleKeyClick = (key) => {
     setDigits((prev) => prev + key)
+    playDtmf?.(key)
   }
 
   const handleBackspace = () => {
@@ -33,8 +35,10 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
         detail: `+91 ${dialNumber}`,
         phone: dialNumber,
         callType: 'Call centre',
+        callMode: mode,
       },
       'outgoing',
+      { mode },
     )
     onCallStarted?.(dialNumber)
   }
@@ -124,6 +128,44 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
         ) : (
           <div style={{ height: '12px' }} />
         )}
+
+        {/* Mode Selector */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', width: '100%' }}>
+          <button
+            type="button"
+            onClick={() => setMode('ai-to-human')}
+            style={{
+              flex: 1,
+              padding: '6px 8px',
+              borderRadius: '8px',
+              border: mode === 'ai-to-human' ? '1.5px solid #0f6e56' : '1px solid #e2e8f0',
+              background: mode === 'ai-to-human' ? '#e1f5ee' : '#f8fafc',
+              color: mode === 'ai-to-human' ? '#0f6e56' : '#64748b',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            🤖 AI-to-Human
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('human-to-human')}
+            style={{
+              flex: 1,
+              padding: '6px 8px',
+              borderRadius: '8px',
+              border: mode === 'human-to-human' ? '1.5px solid #0f6e56' : '1px solid #e2e8f0',
+              background: mode === 'human-to-human' ? '#e1f5ee' : '#f8fafc',
+              color: mode === 'human-to-human' ? '#0f6e56' : '#64748b',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            👥 Live VoIP
+          </button>
+        </div>
 
         {/* 3x4 Grid of oval keys */}
         <div

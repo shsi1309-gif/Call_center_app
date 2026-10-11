@@ -1,7 +1,39 @@
-import { Phone, Shield } from 'lucide-react'
+import { Bot, Phone, Shield, Users } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 
 export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
+  const { startCall } = useCall()
+
+  const launchAiCall = () => {
+    startCall(
+      {
+        name: 'Faizan A.',
+        initials: 'FA',
+        phone: '98450 61245',
+        detail: '+91 98450 61245 · Tranquo Massager Chair',
+        callType: 'Call centre',
+        callMode: 'ai-to-human',
+      },
+      'outgoing',
+      { mode: 'ai-to-human', openConsent: false },
+    )
+  }
+
+  const launchHumanCall = () => {
+    startCall(
+      {
+        name: 'Faizan A. (Customer)',
+        initials: 'FA',
+        phone: '98450 61245',
+        detail: '+91 98450 61245 · WebRTC Peer Audio',
+        callType: 'Phone call',
+        callMode: 'human-to-human',
+      },
+      'outgoing',
+      { mode: 'human-to-human', openConsent: false },
+    )
+  }
+
   return (
     <div
       style={{
@@ -9,13 +41,13 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
         bottom: '12px',
         left: '50%',
         transform: 'translateX(-50%)',
-        background: '#fff',
+        background: '#ffffff',
         borderRadius: '99px',
-        padding: '4px 10px',
+        padding: '5px 12px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.12)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
         border: '1px solid #e5e5ea',
         zIndex: 350,
       }}
@@ -24,58 +56,88 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
     >
       <span
         style={{
-          background: '#f59e0b',
+          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
           color: '#fff',
           fontSize: '10.5px',
           fontWeight: 800,
-          padding: '2px 8px',
+          padding: '3px 8px',
           borderRadius: '99px',
           letterSpacing: '0.04em',
         }}
       >
-        DEMO
+        LIVE CALL DEMO
       </span>
+
+      {/* 1-Click AI-to-Human Calling */}
+      <button
+        onClick={launchAiCall}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '5px 12px',
+          borderRadius: '99px',
+          background: '#ecfdf5',
+          border: '1px solid #a7f3d0',
+          fontSize: '12px',
+          fontWeight: 700,
+          color: '#065f46',
+          cursor: 'pointer',
+          transition: 'transform 0.1s ease',
+        }}
+        title="Live AI-to-Human Voice Call with Speech Synthesis & Live Waveform"
+      >
+        <Bot size={14} color="#059669" /> AI-to-Human Call
+      </button>
+
+      {/* 1-Click Human-to-Human WebRTC Calling */}
+      <button
+        onClick={launchHumanCall}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '5px 12px',
+          borderRadius: '99px',
+          background: '#eff6ff',
+          border: '1px solid #bfdbfe',
+          fontSize: '12px',
+          fontWeight: 700,
+          color: '#1e40af',
+          cursor: 'pointer',
+          transition: 'transform 0.1s ease',
+        }}
+        title="Live Human-to-Human WebRTC VoIP with Mic Audio Visualizer"
+      >
+        <Users size={14} color="#2563eb" /> Human-to-Human Call
+      </button>
+
+      {/* Consent Modal Trigger */}
       <button
         onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245', callType: 'Call centre', initialMode: 'wa' })}
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '5px',
+          gap: '4px',
           padding: '4px 10px',
           borderRadius: '99px',
-          background: '#f0f0f3',
+          background: '#f1f5f9',
           border: 'none',
-          fontSize: '12px',
+          fontSize: '11.5px',
           fontWeight: 600,
-          color: '#1a1a1a',
+          color: '#475569',
           cursor: 'pointer',
         }}
       >
-        <Phone size={12} /> In-app call
+        <Phone size={12} /> DPDP Consent
       </button>
-      <button
-        onClick={() => onOpenConsent?.({ name: 'Faizan A.', phone: '98450 61245', callType: 'Phone call', initialMode: 'voice' })}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px',
-          padding: '4px 10px',
-          borderRadius: '99px',
-          background: '#f0f0f3',
-          border: 'none',
-          fontSize: '12px',
-          fontWeight: 600,
-          color: '#1a1a1a',
-          cursor: 'pointer',
-        }}
-      >
-        <Phone size={12} /> Phone call
-      </button>
+
+      {/* DPDP Safety */}
       <button
         onClick={() => onOpenDpdpSafe?.()}
         style={{
-          width: '24px',
-          height: '24px',
+          width: '26px',
+          height: '26px',
           borderRadius: '50%',
           background: '#e1f5ee',
           color: '#0f6e56',
@@ -89,7 +151,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe }) {
         aria-label="DPDP safety rules"
         title="How this app keeps you DPDP-safe"
       >
-        <Shield size={12} />
+        <Shield size={13} />
       </button>
     </div>
   )

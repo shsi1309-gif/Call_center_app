@@ -59,7 +59,12 @@ No backend, API keys or external services. No global state library: three small 
 - **Pulse channel:** every agent, channel and DM has a seeded conversation. Back button, header, pinned "Needs your input" card (in #callcentre-team), reply box, left/right chat bubbles with times. AvaniBot and the agent channels give a canned local reply to anything you send; human channels do not.
 - **Leads modal:** reusable; ICP score bar, lead intent score, collapsible ICP breakdown / How we got here / buying signals, tips, Previous/Next that change the real lead, first/last handled, close button, backdrop click and Escape.
 
-**Bonus**
+**Bonus & Working Calling Engine**
+- **Live Calling Feature**: Real client-side calling system supporting both **AI-to-Human Voice Agent** and **Human-to-Human WebRTC Audio**.
+  - **Web Audio API Signaling**: Dual-tone multi-frequency (DTMF) dialpad sounds, realistic ringback cadence, connect/disconnect chimes, and an ambient polyphonic hold music synthesizer.
+  - **Speech Synthesis (TTS) & Voice Input**: AI customer speaks out loud using browser Speech Synthesis, with real-time sentiment tracking and interactive voice prompts.
+  - **Audio Waveform Canvas**: 60fps real-time frequency visualizer connected to microphone analysis (`AnalyserNode`).
+  - **Live AI Assist & SOP Checklist**: Auto-drafts meeting notes in real time and checks off SOP compliance items as the conversation proceeds.
 - Sending messages in a channel (appears immediately, input clears, empty messages rejected with an accessible error).
 - "Needs your input": **Confirmed** posts a reply and resolves the card; **Reschedule** offers times and resolves with the chosen one; typing a free-text answer also works.
 - Call back (Incoming, Recent, Leads modal, Calls to make) and **Practise a call** (ringing → accept/decline → timer, mute, end) through a floating call panel.
@@ -68,16 +73,15 @@ No backend, API keys or external services. No global state library: three small 
 
 ## Intentionally skipped / limitations
 
-- **Demo strip**: The mock's DEMO control strip is an optional demo artifact and is intentionally not built.
 - **Client-only data persistence**: Data is static and stored in memory, so interactions (new chat messages, resolved cards, logs) reset on page refresh.
-- **No external backend / DB**: No database, authentication server, or live telephony API — all call workflows and agent chats run client-side.
+- **No external backend / DB**: No external database or telephony server required — all telephony signaling, speech synthesis, and agent chats run 100% client-side via standard Web APIs.
 
 ## Architecture
 
 ```
 src/
-  components/layout/   AppShell, Sidebar, TopBar (shared across routes)
-  components/ui/       Modal (a11y dialog), Avatar, CallPanel
+  components/layout/   AppShell, Sidebar, TopBar, AIAssistPanel, DemoBar, DialerModal
+  components/ui/       Modal (a11y dialog), Avatar, CallPanel, AudioVisualizer
   context/             ToastContext, CallContext, PulseContext
   data/                sample data (leads, plan, calendar, pulse, dashboard)
   features/
@@ -87,17 +91,17 @@ src/
     pulse/             PulseHome, PulseChannel, NeedsInputCard, KudosModal
     leads/             LeadsModal, CollapsibleSection
   styles/              tokens.css, global.css (feature CSS sits beside its components)
-  utils/               pagination, calendar maths, formatting (+ unit tests)
+  utils/               callAudioEngine, callConversation, pagination, calendar maths, formatting (+ unit tests)
 ```
 
 **Sample data** lives only in `src/data` and is imported by feature components; components never hard-code records.
-**State:** local `useState` for UI state (page, expanded row, selected date, modal index). Three small contexts hold genuinely cross-screen state: toasts, the active call, and Pulse messages / pinned-card status (so a conversation survives navigating away and back). Pure logic (paging, month shifting, grid building) is in `src/utils` so it is unit-tested.
+**State:** local `useState` for UI state (page, expanded row, selected date, modal index). Three small contexts hold genuinely cross-screen state: toasts, the active call, and Pulse messages / pinned-card status (so a conversation survives navigating away and back). Pure logic (paging, month shifting, grid building, calling engine) is in `src/utils` so it is unit-tested.
 **Accessibility:** semantic landmarks, labelled buttons, `aria-expanded` on disclosures, dialogs with `aria-modal`, focus moved in and restored, Escape to close, visible focus rings, live regions for toasts, page labels and form errors.
 
 ## Testing performed
 
-- `npm test`: 9 Vitest tests pass (pagination bounds, month rollover Dec→Jan and Jan→Dec, multi-month jumps, October 2026 weekday alignment, leap-year February, formatting).
-- `npm run build` succeeds; `npm run lint` reports 0 errors and 3 warnings (dev-only Fast Refresh notes, see above).
+- `npm test`: 13 Vitest tests pass (calling engine, conversation intent matcher, visualizer level generator, pagination bounds, month rollover Dec↔Jan, multi-month jumps, weekday alignment, formatting).
+- `npm run build` succeeds cleanly; `npm run lint` reports 0 errors.
 - Two Playwright scripts, run against the dev server in Chromium, `e2e/smoke.py` and `e2e/pulse.py`. In my final run, all 52 smoke checks and all 26 Pulse checks passed and no console errors or warnings were recorded.
   - **Smoke:** sidebar routes, dashboard charts, Leads modal (open, next/previous, first/last disabled, collapsibles, Escape, backdrop), Calls to make (expand, pages 1–3), Incoming total and Call back, Recent review dialog, Practise a call, calendar (alignment, dots, selection, Dec→Jan, Today), Pulse search, channel navigation, message send and empty validation, both pinned-card paths, and no horizontal overflow at 390px on seven routes.
   - **Pulse:** all 16 conversations have real seeded content, the divider names the right channel, unread badges clear when a channel is opened (others untouched), home previews follow the latest message, the Kudos NEW badge clears, bot replies appear only in bot/agent channels.

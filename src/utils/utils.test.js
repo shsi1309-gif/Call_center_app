@@ -51,3 +51,36 @@ describe('format', () => {
     expect(nowTime(new Date(2026, 9, 9, 0, 7))).toBe('12:07am')
   })
 })
+
+describe('callConversation', () => {
+  it('matches EMI keywords to EMI response and high sentiment', async () => {
+    const { matchAiResponse } = await import('./callConversation')
+    const resp = matchAiResponse('ai-to-human', 'Can you tell me about the EMI options?')
+    expect(resp.customerReply).toContain('0% interest no-cost EMI')
+    expect(resp.sentiment).toBeGreaterThanOrEqual(90)
+    expect(resp.sopPoint).toBe('EMI / Financing Mention')
+  })
+
+  it('matches discount keyword to festive offer', async () => {
+    const { matchAiResponse } = await import('./callConversation')
+    const resp = matchAiResponse('ai-to-human', 'Is there any discount or festive deal?')
+    expect(resp.customerReply).toContain('festive offer')
+    expect(resp.sentiment).toBeGreaterThanOrEqual(85)
+  })
+
+  it('matches warranty keyword to 3-year warranty info', async () => {
+    const { matchAiResponse } = await import('./callConversation')
+    const resp = matchAiResponse('ai-to-human', 'What is the warranty coverage?')
+    expect(resp.customerReply).toContain('3-year')
+  })
+})
+
+describe('callAudioEngine', () => {
+  it('generates real-time visualizer levels array', async () => {
+    const { callAudio } = await import('./callAudioEngine')
+    const levels = callAudio.getVisualizerLevels('customer')
+    expect(levels).toBeInstanceOf(Array)
+    expect(levels.length).toBeGreaterThan(0)
+    expect(levels[0]).toBeGreaterThan(0)
+  })
+})
