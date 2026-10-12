@@ -62,12 +62,12 @@ export const CONVERSATION_SCENARIOS = {
   },
 
   'human-to-human': {
-    leadName: 'Faizan A. (Customer)',
+    leadName: 'Shivam Singh (Customer)',
     product: 'Smart Luxe Mattress · ₹34,990',
     initialGreeting:
-      'Connecting WebRTC Peer Audio... Two-way audio channel established with Faizan (+91 98450 61245). Microphones live.',
+      'Connecting WebRTC softphone... Two-way carrier-grade audio channel established with Shivam (+91 63611 67314). Microphones live.',
     quickPrompts: [
-      { id: 'greet', label: '👋 Standard Greeting', text: 'Hello Faizan, thank you for taking my call!' },
+      { id: 'greet', label: '👋 Standard Greeting', text: 'Hello Shivam, thank you for taking my call!' },
       { id: 'pitch', label: '🛏️ Recommend Smart Luxe', text: 'Based on your search, the Smart Luxe with Patented Grid is ideal for back support.' },
       { id: 'hold', label: '⏸️ Put on Hold', text: 'Please give me one moment while I check warehouse inventory.' },
       { id: 'transfer', label: '🔄 Transfer to Manager', text: 'Transferring call to Store Supervisor Rohit Kumar...' },
@@ -104,6 +104,28 @@ export const CONVERSATION_SCENARIOS = {
     ],
     defaultReply:
       'Sounds great, Arvind. If you can send me the final quote and trial terms on WhatsApp, I will discuss with my family and confirm tonight.',
+  },
+
+  'real-phone': {
+    leadName: 'Shivam Singh (PSTN Cellular)',
+    product: 'Tranquo Smart Massager · ₹24,990',
+    initialGreeting:
+      'Ringing mobile carrier phone +91 63611 67314 via Vapi Telecom Gateway. Handset connected.',
+    quickPrompts: [
+      { id: 'greet', label: '👋 Standard Greeting', text: 'Hello Shivam, calling from The Sleep Company call centre.' },
+      { id: 'pitch', label: '🪑 Explain Massager', text: 'Our Tranquo chair has 8-zone body mapping rollers.' },
+      { id: 'emi', label: '💳 0% EMI Offer', text: 'You can get this on zero down-payment ₹2,082/mo EMI.' },
+    ],
+    responses: [
+      {
+        keywords: ['hello', 'hi', 'sleep company'],
+        customerReply: 'Yes hello, this is Shivam speaking. Tell me more.',
+        sentiment: 85,
+        sentimentLabel: 'Connected',
+        sopPoint: 'Opening & Intent Confirm',
+      },
+    ],
+    defaultReply: 'Great to speak with you! Let me send the complete catalog and warranty details to +91 63611 67314 on WhatsApp.',
   },
 }
 

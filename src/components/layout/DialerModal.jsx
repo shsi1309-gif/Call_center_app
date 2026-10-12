@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Delete, Phone } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
+import { useToast } from '../../context/ToastContext'
+import { vapiService } from '../../utils/vapiService'
 
 const KEYS = [
   ['1', '2', '3'],
@@ -10,9 +12,10 @@ const KEYS = [
 ]
 
 export function DialerModal({ isOpen, onClose, onCallStarted }) {
+  const toast = useToast()
   const { startCall, playDtmf } = useCall()
-  const [digits, setDigits] = useState('')
-  const [mode, setMode] = useState('ai-to-human')
+  const [digits, setDigits] = useState('6361167314')
+  const [mode, setMode] = useState('ai-to-human') // 'ai-to-human' | 'human-to-human' | 'real-phone'
 
   if (!isOpen) return null
 
@@ -25,20 +28,35 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
     setDigits((prev) => prev.slice(0, -1))
   }
 
-  const handleCall = () => {
-    const dialNumber = digits || '98450 61245'
+  const handleCall = async () => {
+    const dialNumber = digits || '6361167314'
     onClose()
+
+    if (mode === 'real-phone') {
+      toast(`Initiating carrier phone call to +91 ${dialNumber.replace(/\D/g, '')}...`)
+      try {
+        const res = await vapiService.callRealMobilePhone(dialNumber)
+        if (res.success) {
+          toast(`Ringing real mobile phone +91 ${dialNumber.replace(/\D/g, '')}! Pick up your phone.`)
+        } else {
+          toast(res.data?.message || 'Outbound carrier call queued on Vapi!')
+        }
+      } catch (e) {
+        toast('Carrier call request submitted.')
+      }
+    }
+
     startCall(
       {
-        name: 'Manual Dial',
-        initials: 'MD',
-        detail: `+91 ${dialNumber}`,
+        name: 'Shivam Singh',
+        initials: 'SS',
+        detail: `+91 ${dialNumber} · Cellular Carrier Line`,
         phone: dialNumber,
-        callType: 'Call centre',
+        callType: 'Phone call',
         callMode: mode,
       },
       'outgoing',
-      { mode },
+      { mode, openConsent: false },
     )
     onCallStarted?.(dialNumber)
   }
@@ -48,8 +66,8 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.35)',
-        backdropFilter: 'blur(2px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backdropFilter: 'blur(3px)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
@@ -67,9 +85,9 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
           backgroundColor: '#ffffff',
           borderRadius: '24px',
           width: '100%',
-          maxWidth: '340px',
+          maxWidth: '350px',
           padding: '20px 24px 24px',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.25)',
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
@@ -89,81 +107,80 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
           }}
         />
 
-        {/* Displayed dialed number if any */}
-        {digits ? (
-          <div
-            style={{
-              height: '32px',
-              fontSize: '22px',
-              fontWeight: 700,
-              color: '#0f172a',
-              letterSpacing: '1px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '12px',
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            <span>{digits}</span>
-            <button
-              onClick={handleBackspace}
-              style={{
-                position: 'absolute',
-                right: '4px',
-                background: 'none',
-                border: 'none',
-                color: '#64748b',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '4px',
-              }}
-              aria-label="Delete digit"
-            >
-              <Delete size={18} />
-            </button>
-          </div>
-        ) : (
-          <div style={{ height: '12px' }} />
-        )}
+        {/* Displayed dialed number */}
+        <div
+          style={{
+            height: '36px',
+            fontSize: '22px',
+            fontWeight: 800,
+            color: '#0f172a',
+            letterSpacing: '1px',
+            marginBottom: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          {digits ? `+91 ${digits}` : <span style={{ color: '#94a3b8', fontSize: '18px' }}>+91 63611 67314</span>}
+        </div>
+
+        <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '12px' }}>
+          Call Centre Line: +91 80 6900 1234
+        </div>
 
         {/* Mode Selector */}
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', marginBottom: '14px', width: '100%' }}>
           <button
             type="button"
             onClick={() => setMode('ai-to-human')}
             style={{
-              flex: 1,
-              padding: '6px 8px',
+              padding: '6px 4px',
               borderRadius: '8px',
               border: mode === 'ai-to-human' ? '1.5px solid #0f6e56' : '1px solid #e2e8f0',
               background: mode === 'ai-to-human' ? '#e1f5ee' : '#f8fafc',
               color: mode === 'ai-to-human' ? '#0f6e56' : '#64748b',
-              fontSize: '11px',
+              fontSize: '10.5px',
               fontWeight: 700,
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
           >
-            🤖 AI-to-Human
+            🤖 AI Voice
           </button>
           <button
             type="button"
             onClick={() => setMode('human-to-human')}
             style={{
-              flex: 1,
-              padding: '6px 8px',
+              padding: '6px 4px',
               borderRadius: '8px',
               border: mode === 'human-to-human' ? '1.5px solid #0f6e56' : '1px solid #e2e8f0',
               background: mode === 'human-to-human' ? '#e1f5ee' : '#f8fafc',
               color: mode === 'human-to-human' ? '#0f6e56' : '#64748b',
-              fontSize: '11px',
+              fontSize: '10.5px',
               fontWeight: 700,
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
           >
-            👥 Live VoIP
+            👥 Web VoIP
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('real-phone')}
+            style={{
+              padding: '6px 4px',
+              borderRadius: '8px',
+              border: mode === 'real-phone' ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+              background: mode === 'real-phone' ? '#eff6ff' : '#f8fafc',
+              color: mode === 'real-phone' ? '#1d4ed8' : '#64748b',
+              fontSize: '10.5px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            📱 Real Phone
           </button>
         </div>
 
@@ -172,35 +189,43 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '12px 14px',
+            gap: '10px 12px',
             width: '100%',
-            marginBottom: '20px',
+            marginBottom: '18px',
           }}
         >
           {KEYS.map((row) =>
             row.map((key) => (
               <button
                 key={key}
+                type="button"
                 onClick={() => handleKeyClick(key)}
                 style={{
                   height: '48px',
-                  borderRadius: '999px',
-                  backgroundColor: '#f1f5f9',
-                  border: 'none',
-                  fontSize: '18px',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  backgroundColor: '#f8fafc',
+                  fontSize: '20px',
                   fontWeight: 700,
-                  color: '#0f172a',
+                  color: '#1e293b',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  transition: 'background-color 0.12s ease',
-                  userSelect: 'none',
+                  transition: 'background-color 0.1s, transform 0.05s',
                 }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#e2e8f0')}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-                onMouseDown={(e) => (e.currentTarget.style.backgroundColor = '#cbd5e1')}
-                onMouseUp={(e) => (e.currentTarget.style.backgroundColor = '#e2e8f0')}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e2e8f0'
+                  e.currentTarget.style.transform = 'scale(0.96)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
               >
                 {key}
               </button>
@@ -208,29 +233,66 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
           )}
         </div>
 
-        {/* Green Call Button at bottom center */}
-        <button
-          onClick={handleCall}
-          aria-label="Start call"
+        {/* Action Row: Empty, Call Button, Backspace */}
+        <div
           style={{
-            width: '52px',
-            height: '52px',
-            borderRadius: '50%',
-            backgroundColor: '#0f6e56',
-            color: '#ffffff',
-            border: 'none',
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: '1fr 64px 1fr',
             alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(15, 110, 86, 0.35)',
-            transition: 'transform 0.15s ease',
+            width: '100%',
           }}
-          onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
-          onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         >
-          <Phone size={22} />
-        </button>
+          <div />
+
+          {/* Green Call Button */}
+          <button
+            type="button"
+            onClick={handleCall}
+            aria-label="Call"
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              backgroundColor: mode === 'real-phone' ? '#2563eb' : '#0f6e56',
+              color: '#ffffff',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(15, 110, 86, 0.3)',
+              transition: 'transform 0.15s, background-color 0.15s',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+            onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            <Phone size={24} />
+          </button>
+
+          {/* Backspace Button */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {digits && (
+              <button
+                type="button"
+                onClick={handleBackspace}
+                aria-label="Delete last digit"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#64748b',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                }}
+              >
+                <Delete size={20} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

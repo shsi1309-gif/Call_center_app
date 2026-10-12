@@ -115,6 +115,33 @@ class VapiService {
     }
   }
 
+  // Dial real mobile phone over carrier cellular PSTN network
+  async callRealMobilePhone(phoneNumber) {
+    const config = getTelephonyConfig()
+    const rawDigits = (phoneNumber || '6361167314').replace(/\D/g, '')
+    const e164Number = rawDigits.startsWith('91') ? `+${rawDigits}` : `+91${rawDigits}`
+
+    try {
+      const response = await fetch('https://api.vapi.ai/call/phone', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.vapiPrivateKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phoneNumberId: config.vapiPhoneNumberId || 'b24991ea-c7f2-4608-bb3d-8dfc113192d0',
+          assistantId: config.vapiAssistantId,
+          customer: { number: e164Number },
+        }),
+      })
+      const result = await response.json()
+      return { success: response.ok, data: result }
+    } catch (err) {
+      console.error('Outbound phone call error:', err)
+      return { success: false, error: err.message }
+    }
+  }
+
   stop() {
     if (this.vapiInstance && this.isActive) {
       try {

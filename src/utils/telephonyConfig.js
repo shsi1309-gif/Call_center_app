@@ -5,8 +5,9 @@ const DEFAULT_CONFIG = {
   vapiPublicKey: 'affb096d-8be5-4554-a320-f2920f64e166',
   vapiPrivateKey: '904b623d-6f8c-46ed-a416-03d6b7f6e849',
   vapiAssistantId: '94354921-6e0a-4533-a7b0-68acfbadf50f',
-  vapiPhoneNumberId: '',
+  vapiPhoneNumberId: 'b24991ea-c7f2-4608-bb3d-8dfc113192d0',
   callCentreNumber: '+91 80 6900 1234',
+  defaultCustomerPhone: '+91 63611 67314',
 }
 
 export function getTelephonyConfig() {

@@ -43,7 +43,7 @@ export function AppShell() {
       const p = params.get('customerPhone') || params.get('phone')
       if (p) return p.startsWith('+') ? p : `+91 ${p}`
     }
-    return '+91 98450 61245'
+    return '+91 63611 67314'
   })
 
   const { pathname } = useLocation()
@@ -133,10 +133,10 @@ export function AppShell() {
         onOpenConsent={(c) => {
           startCall(
             {
-              name: c.name || 'Faizan A.',
-              initials: (c.name || 'FA').slice(0, 2).toUpperCase(),
-              detail: c.phone || '+91 98450 61245',
-              phone: c.phone || '98450 61245',
+              name: c.name || 'Shivam Singh',
+              initials: (c.name || 'SS').slice(0, 2).toUpperCase(),
+              detail: c.phone || '+91 63611 67314',
+              phone: c.phone || '63611 67314',
               callType: c.callType || 'Call centre',
             },
             'outgoing',

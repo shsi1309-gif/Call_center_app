@@ -9,10 +9,10 @@ import { CONVERSATION_SCENARIOS, matchAiResponse } from '../utils/callConversati
 const CallContext = createContext(null)
 
 const PRACTICE_CONTACT = {
-  name: 'Faizan A.',
+  name: 'Faizan A. (Shivam)',
   initials: 'FA',
-  detail: '🎯 Intent 85 · calling from +91 98450 xxxxx',
-  phone: '98450 61245',
+  detail: '🎯 Intent 85 · calling from +91 63611 67314',
+  phone: '63611 67314',
   product: 'Tranquo Massager Chair · ₹24,990',
   closingChance: '85%',
   callMode: 'ai-to-human',
@@ -239,7 +239,7 @@ export function CallProvider({ children }) {
       enableMicrophone()
 
       if (mode === 'ai-to-human') {
-        // Try connecting to real Vapi AI Voice agent first
+        // Connect to real Vapi AI Voice agent
         vapiService
           .start()
           .then(() => {
@@ -255,9 +255,19 @@ export function CallProvider({ children }) {
               () => setSpeakingSource('none'),
             )
           })
+      } else if (mode === 'real-phone') {
+        // Real carrier PSTN phone call to actual mobile device
+        const phone = contact?.phone || '6361167314'
+        vapiService.callRealMobilePhone(phone).then((res) => {
+          if (res.success) {
+            console.log('Outbound carrier call ringing mobile device:', phone)
+          } else {
+            console.warn('Carrier call queued/status:', res)
+          }
+        })
       } else {
         // Human-to-Human: dial phone number via WebRTC softphone
-        const phone = contact?.phone || '98450 61245'
+        const phone = contact?.phone || '63611 67314'
         phoneCallService.dialPhoneNumber(phone, 'On-Ground Agent')
       }
     },
@@ -292,8 +302,8 @@ export function CallProvider({ children }) {
 
       if (options.openConsent !== false) {
         setConsentContact({
-          name: contact.name || 'Faizan A.',
-          phone: contact.phone || '98450 61245',
+          name: contact.name || 'Shivam Singh',
+          phone: contact.phone || '63611 67314',
           callType: contact.callType || 'Call centre',
           initialMode: 'wa',
         })
@@ -320,8 +330,8 @@ export function CallProvider({ children }) {
     setSeconds(0)
     initCallConversation(mode, call?.contact)
     setConsentContact({
-      name: call?.contact?.name || 'Faizan A.',
-      phone: call?.contact?.phone || '98450 61245',
+      name: call?.contact?.name || 'Shivam Singh',
+      phone: call?.contact?.phone || '63611 67314',
       callType: 'Call centre',
       initialMode: 'wa',
     })

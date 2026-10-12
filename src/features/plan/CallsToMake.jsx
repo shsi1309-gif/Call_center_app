@@ -106,8 +106,8 @@ export function CallsToMake() {
                           {
                             name: lead.name,
                             initials: lead.initials,
-                            detail: `+91 ${lead.phone || '98450 61245'} · ${lead.interest}`,
-                            phone: lead.phone || '98450 61245',
+                            detail: `+91 ${lead.phone || '63611 67314'} · ${lead.interest}`,
+                            phone: lead.phone || '63611 67314',
                             callType: 'Call centre',
                             product: lead.interest,
                             crossSell: lead.crossSell,
@@ -144,8 +144,8 @@ export function CallsToMake() {
                           {
                             name: `${lead.name} (Direct)`,
                             initials: lead.initials,
-                            detail: `+91 ${lead.phone || '98450 61245'} · Live WebRTC VoIP`,
-                            phone: lead.phone || '98450 61245',
+                            detail: `+91 ${lead.phone || '63611 67314'} · Live WebRTC VoIP`,
+                            phone: lead.phone || '63611 67314',
                             callType: 'Phone call',
                             product: lead.interest,
                             crossSell: lead.crossSell,

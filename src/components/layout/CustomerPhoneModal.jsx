@@ -13,7 +13,7 @@ import { phoneCallService, formatPhoneNumber } from '../../utils/phoneCallServic
 import { formatTimer } from '../../utils/format'
 import { useToast } from '../../context/ToastContext'
 
-export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 98450 61245' }) {
+export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 63611 67314' }) {
   const toast = useToast()
   const [phone] = useState(initialPhone)
   const [isRegistered, setIsRegistered] = useState(false)
