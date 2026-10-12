@@ -28,6 +28,7 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 63611 
   const remoteAudioRef = useRef(null)
 
   const helplineNumber = getTelephonyConfig().callCentreNumber || '+91 80 9578 1284'
+  const helphoneNumber = helplineNumber
 
   // Timer for active call
   useEffect(() => {

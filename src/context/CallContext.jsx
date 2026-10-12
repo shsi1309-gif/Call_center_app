@@ -159,32 +159,8 @@ export function CallProvider({ children }) {
       setTranscript((prev) => [...prev, userTurn])
       setSpeakingSource('agent')
 
-      // If Vapi is handling the conversation, Vapi will respond naturally via its audio stream.
-      // If Vapi is not active, synthesize response via client AI engine:
-      if (!isVapiActive) {
-        setTimeout(() => {
-          const resp = matchAiResponse(callMode, trimmed)
-          const customerTurn = {
-            id: `c-${Date.now()}`,
-            sender: callMode === 'human-to-human' ? 'Faizan (Peer)' : 'Faizan (AI Customer)',
-            text: resp.customerReply,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            sentiment: resp.sentiment,
-            sopPoint: resp.sopPoint,
-          }
-
-          setTranscript((prev) => [...prev, customerTurn])
-          setSentiment({
-            score: resp.sentiment,
-            label: resp.sentimentLabel,
-          })
-          // Set speaking indicator without browser robotic speech synthesis
-          setSpeakingSource('customer')
-          setTimeout(() => setSpeakingSource('none'), 3000)
-        }, 500)
-      }
     },
-    [callMode, isVapiActive],
+    [],
   )
 
   // Request real microphone input

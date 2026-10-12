@@ -289,17 +289,23 @@ export function CallPanel() {
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <Volume2 size={13} />
-                {speakingSource === 'customer'
-                  ? '🔊 Customer Speaking (Speech Synthesis Active)'
-                  : speakingSource === 'agent'
-                    ? '🎙️ Agent Speaking (Voice Active)'
-                    : onHold
-                      ? '⏸️ Hold Music Synthesizer Active'
-                      : muted
-                        ? '🔇 Microphone Muted'
-                        : '🟢 Real-time Web Audio Channel'}
+                {onHold
+                  ? '⏸️ Hold Active'
+                  : muted
+                    ? '🔇 Microphone Muted'
+                    : callMode === 'ai-to-human'
+                      ? (speakingSource === 'customer' || speakingSource === 'agent'
+                          ? '🤖 Vapi AI Voice Speaking'
+                          : isMicActive
+                            ? '🎙️ Live Microphone (Speaking to Vapi AI)'
+                            : '🟢 Vapi AI Assistant Connected')
+                      : (isMicActive
+                          ? '🎙️ Live Two-Way Voice Active'
+                          : '🟢 Connected')}
               </span>
-              <span style={{ color: '#34d399', fontSize: '10.5px' }}>Web Audio API 48kHz</span>
+              <span style={{ color: '#34d399', fontSize: '10.5px' }}>
+                {callMode === 'ai-to-human' ? 'Vapi AI WebRTC' : 'P2P WebRTC Audio'}
+              </span>
             </div>
 
             <AudioVisualizer speakingSource={speakingSource} isMuted={muted} isOnHold={onHold} />

@@ -98,16 +98,18 @@ export function CallsToMake() {
                     </div>
                   </div>
 
-                  {/* Dual Action Call buttons: AI-to-Human or Live WebRTC */}
+                  {/* Dual Action Call buttons: Vapi AI Assistant or Direct WebRTC VoIP */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '14px' }}>
                     <button
                       onClick={() => {
+                        const rawPhone = lead.phone || '+91 63611 67314'
+                        const formattedPhone = rawPhone.startsWith('+') ? rawPhone : `+91 ${rawPhone}`
                         startCall(
                           {
                             name: lead.name,
                             initials: lead.initials,
-                            detail: `+91 ${lead.phone || '63611 67314'} · ${lead.interest}`,
-                            phone: lead.phone || '63611 67314',
+                            detail: `${formattedPhone} · ${lead.interest}`,
+                            phone: rawPhone,
                             callType: 'Call centre',
                             product: lead.interest,
                             crossSell: lead.crossSell,
@@ -133,19 +135,21 @@ export function CallsToMake() {
                         gap: '6px',
                         boxShadow: '0 2px 6px rgba(15,110,86,0.25)',
                       }}
-                      title="Call with AI Voice Agent using Speech Synthesis & Real Waveform"
+                      title="Connect directly to Vapi AI Customer Assistant"
                     >
-                      <Phone size={15} /> 🤖 AI Call
+                      <Phone size={15} /> 🤖 Vapi AI Call
                     </button>
 
                     <button
                       onClick={() => {
+                        const rawPhone = lead.phone || '+91 63611 67314'
+                        const formattedPhone = rawPhone.startsWith('+') ? rawPhone : `+91 ${rawPhone}`
                         startCall(
                           {
                             name: `${lead.name} (Direct)`,
                             initials: lead.initials,
-                            detail: `+91 ${lead.phone || '63611 67314'} · Live WebRTC VoIP`,
-                            phone: lead.phone || '63611 67314',
+                            detail: `${formattedPhone} · Live WebRTC VoIP`,
+                            phone: rawPhone,
                             callType: 'Phone call',
                             product: lead.interest,
                             crossSell: lead.crossSell,
@@ -170,9 +174,9 @@ export function CallsToMake() {
                         justifyContent: 'center',
                         gap: '6px',
                       }}
-                      title="Direct Human-to-Human WebRTC audio call"
+                      title="Direct two-way WebRTC audio call"
                     >
-                      <Phone size={15} /> 👥 Live VoIP
+                      <Phone size={15} /> 👥 Direct Call
                     </button>
                   </div>
                 </div>
