@@ -1,4 +1,3 @@
-import Vapi from '@vapi-ai/web'
 import { getTelephonyConfig } from './telephonyConfig'
 
 class VapiService {
@@ -42,17 +41,19 @@ class VapiService {
     }
   }
 
-  getVapi() {
+  async getVapi() {
     const config = getTelephonyConfig()
     const publicKey = config.vapiPublicKey || 'affb096d-8be5-4554-a320-f2920f64e166'
 
     if (!this.vapiInstance) {
       try {
-        const VapiConstructor = Vapi.default || Vapi
+        const mod = await import('@vapi-ai/web')
+        const VapiConstructor = mod.default?.default || mod.default || mod
         this.vapiInstance = new VapiConstructor(publicKey)
         this.setupEventListeners(this.vapiInstance)
       } catch (err) {
         console.error('Failed to instantiate Vapi client:', err)
+        throw err
       }
     }
     return this.vapiInstance
@@ -97,14 +98,13 @@ class VapiService {
   async start(overrideAssistantId) {
     const config = getTelephonyConfig()
     const assistantId = overrideAssistantId || config.vapiAssistantId || '94354921-6e0a-4533-a7b0-68acfbadf50f'
-    const vapi = this.getVapi()
+    const vapi = await this.getVapi()
     if (!vapi) {
       throw new Error('Vapi client is not available')
     }
 
     try {
       this.currentAssistantId = assistantId
-      // Start call with Vapi Assistant
       const res = await vapi.start(assistantId)
       this.isActive = true
       return res

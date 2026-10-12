@@ -1,7 +1,15 @@
 // Call Centre Web-to-Phone Telephony Service
 // Routes WebRTC calls strictly by E.164 phone numbers (the way a call centre works, not peer IDs).
-import Peer from 'peerjs'
 import { getTelephonyConfig } from './telephonyConfig'
+
+let PeerClass = null
+async function getPeerClass() {
+  if (!PeerClass) {
+    const mod = await import('peerjs')
+    PeerClass = mod.default?.default || mod.default || mod
+  }
+  return PeerClass
+}
 
 export function sanitizePhoneNumber(phone) {
   if (!phone) return ''
@@ -148,6 +156,7 @@ class PhoneCallService {
     }
 
     try {
+      const Peer = await getPeerClass()
       this.customerPeer = new Peer(peerPhoneId, {
         config: {
           iceServers: [
@@ -234,6 +243,7 @@ class PhoneCallService {
     }
 
     try {
+      const Peer = await getPeerClass()
       this.agentPeer = new Peer(agentPhoneId, {
         config: {
           iceServers: [
