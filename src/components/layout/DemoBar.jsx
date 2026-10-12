@@ -111,9 +111,9 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}
-        title="Live AI-to-Human Voice Call with Vapi WebRTC & Live Waveform"
+        title="Live AI Voice Call with Vapi WebRTC Assistant"
       >
-        <Bot size={14} color="#059669" /> 🤖 AI Call Shivam
+        <Bot size={14} color="#059669" /> 🤖 AI Voice Call (Vapi)
       </button>
 
       {/* 1-Click Human-to-Human WebRTC Calling */}

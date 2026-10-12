@@ -178,14 +178,9 @@ export function CallProvider({ children }) {
             score: resp.sentiment,
             label: resp.sentimentLabel,
           })
+          // Set speaking indicator without browser robotic speech synthesis
           setSpeakingSource('customer')
-
-          // Speak customer response out loud with browser SpeechSynthesis
-          callAudio.speak(
-            resp.customerReply,
-            () => setSpeakingSource('customer'),
-            () => setSpeakingSource('none'),
-          )
+          setTimeout(() => setSpeakingSource('none'), 3000)
         }, 500)
       }
     },
@@ -246,14 +241,7 @@ export function CallProvider({ children }) {
             setIsVapiActive(true)
           })
           .catch((err) => {
-            console.warn('Vapi direct voice session fallback:', err)
-            // Seamless client audio fallback
-            setSpeakingSource('agent')
-            callAudio.speak(
-              scenario.initialGreeting,
-              () => setSpeakingSource('agent'),
-              () => setSpeakingSource('none'),
-            )
+            console.warn('Vapi direct voice session notice:', err)
           })
       } else if (mode === 'real-phone') {
         // Real carrier PSTN phone call to actual mobile device

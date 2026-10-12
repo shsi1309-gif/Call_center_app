@@ -372,36 +372,8 @@ class CallAudioEngine {
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.rate = 1.05
     utterance.pitch = 1.0
-    utterance.volume = 1.0
-
-    // Pick natural voice if available
-    const voices = window.speechSynthesis.getVoices()
-    const preferredVoice = voices.find(
-      (v) =>
-        (v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Karen'))) ||
-        v.lang === 'en-IN' ||
-        v.lang === 'en-US',
-    )
-    if (preferredVoice) {
-      utterance.voice = preferredVoice
-    }
-
-    utterance.onstart = () => {
-      this.isSpeaking = true
-      onStart?.()
-    }
-
-    utterance.onend = () => {
-      this.isSpeaking = false
-      onEnd?.()
-    }
-
-    utterance.onerror = () => {
-      this.isSpeaking = false
-      onEnd?.()
-    }
-
-    window.speechSynthesis.speak(utterance)
+    // Browser synthetic speech disabled per user request (use Vapi WebRTC for voice AI instead)
+    onEnd?.()
   }
 
   stopSpeech() {

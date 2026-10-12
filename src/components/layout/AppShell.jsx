@@ -209,13 +209,13 @@ export function AppShell() {
           </div>
           <div>
             <div style={{ fontSize: '11px', fontWeight: 800, color: '#4ade80', letterSpacing: '0.05em' }}>
-              📞 INCOMING CALL · HELPLINE +91 80 9578 1284
+              📞 INCOMING CALL · +91 80 9578 1284
             </div>
             <div style={{ fontSize: '16px', fontWeight: 800 }}>
               {incomingTransfer.customerName || 'Shivam Singh'} ({incomingTransfer.customerPhone || '+91 63611 67314'})
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-              {incomingTransfer.reason || 'IVR Option 2: Transferred to Human Customer Expert'}
+              Direct Caller · Tap Accept Call to connect live two-way audio
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px', marginLeft: '12px', flexShrink: 0 }}>
