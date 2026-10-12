@@ -16,19 +16,28 @@ import { getTelephonyConfig } from '../../utils/telephonyConfig'
 import { formatTimer } from '../../utils/format'
 import { useToast } from '../../context/ToastContext'
 
-export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 63611 67314' }) {
+export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 63611 67314', initialCallData = null }) {
   const toast = useToast()
   const [phone] = useState(initialPhone)
   const [isRegistered, setIsRegistered] = useState(false)
   // 'idle' | 'calling-agent' | 'ringing' | 'connected'
-  const [callState, setCallState] = useState('idle')
-  const [incomingCallData, setIncomingCallData] = useState(null)
+  const [callState, setCallState] = useState(() => (initialCallData ? 'ringing' : 'idle'))
+  const [incomingCallData, setIncomingCallData] = useState(initialCallData)
   const [seconds, setSeconds] = useState(0)
   const [copied, setCopied] = useState(false)
   const remoteAudioRef = useRef(null)
 
   const helplineNumber = getTelephonyConfig().callCentreNumber || '+91 80 9578 1284'
   const helphoneNumber = helplineNumber
+
+  // React to incoming call data passed from parent
+  useEffect(() => {
+    if (initialCallData) {
+      setIncomingCallData(initialCallData)
+      setCallState('ringing')
+      callAudio.startRingback()
+    }
+  }, [initialCallData])
 
   // Timer for active call
   useEffect(() => {

@@ -179,7 +179,10 @@ class PhoneCallService {
 
   // Register this browser/device to receive calls at a specific phone number
   async registerCustomerPhone(phoneNumber) {
-    const digits = sanitizePhoneNumber(phoneNumber) || '9845061245'
+    const digits = sanitizePhoneNumber(phoneNumber) || '6361167314'
+    if (this.customerPeer && !this.customerPeer.destroyed && sanitizePhoneNumber(this.registeredPhone) === digits) {
+      return true
+    }
     this.registeredPhone = phoneNumber
     const peerPhoneId = `tel-in-${digits}`
 
@@ -262,15 +265,22 @@ class PhoneCallService {
 
     await this.getLocalMicrophoneStream()
 
+    const incomingPayload = {
+      callerPhone: config.callCentreNumber,
+      callerName,
+      targetPhone: phoneNumber,
+    }
+
     // Broadcast incoming call event across tabs/devices
     if (this.broadcastChannel) {
       this.broadcastChannel.postMessage({
         type: 'INCOMING_PHONE_CALL',
-        callerPhone: config.callCentreNumber,
-        callerName,
-        targetPhone: phoneNumber,
+        ...incomingPayload,
       })
     }
+
+    // Emit locally so handset immediately rings on this same page/screen
+    this.emit('incomingCall', incomingPayload)
 
     if (this.agentPeer) {
       try {

@@ -59,17 +59,31 @@ export function AppShell() {
   }, [pathname])
 
   const [incomingTransfer, setIncomingTransfer] = useState(null)
+  const [incomingCustomerCall, setIncomingCustomerCall] = useState(null)
 
+  // Register customer handset line on page load and listen for calls
   useEffect(() => {
+    phoneCallService.registerCustomerPhone(initialCustomerPhone)
+
     const handleTransfer = (data) => {
       setIncomingTransfer(data)
       callAudio.startRingback()
     }
+
+    const handleIncomingCall = (data) => {
+      setIncomingCustomerCall(data)
+      setCustomerPhoneOpen(true)
+      callAudio.startRingback()
+    }
+
     phoneCallService.on('incomingIvrTransfer', handleTransfer)
+    phoneCallService.on('incomingCall', handleIncomingCall)
+
     return () => {
       phoneCallService.off('incomingIvrTransfer', handleTransfer)
+      phoneCallService.off('incomingCall', handleIncomingCall)
     }
-  }, [])
+  }, [initialCustomerPhone])
 
   const handleAcceptTransfer = () => {
     if (!incomingTransfer) return
@@ -159,8 +173,12 @@ export function AppShell() {
       {customerPhoneOpen && (
         <CustomerPhoneModal
           isOpen={customerPhoneOpen}
-          onClose={() => setCustomerPhoneOpen(false)}
+          onClose={() => {
+            setCustomerPhoneOpen(false)
+            setIncomingCustomerCall(null)
+          }}
           initialPhone={initialCustomerPhone}
+          initialCallData={incomingCustomerCall}
         />
       )}
       {telephonyOpen && (

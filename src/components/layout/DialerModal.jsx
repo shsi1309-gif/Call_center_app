@@ -15,7 +15,7 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
   const toast = useToast()
   const { startCall, playDtmf } = useCall()
   const [digits, setDigits] = useState('6361167314')
-  const [mode, setMode] = useState('ai-to-human') // 'ai-to-human' | 'human-to-human' | 'real-phone'
+  const [mode, setMode] = useState('human-to-human') // 'human-to-human' | 'real-phone' | 'ai-to-human'
 
   if (!isOpen) return null
 
@@ -39,24 +39,27 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
         if (res.success) {
           toast(`Ringing real mobile phone +91 ${dialNumber.replace(/\D/g, '')}! Pick up your phone.`)
         } else {
-          toast(res.data?.message || 'Outbound carrier call queued on Vapi!')
+          toast(
+            res.data?.message ||
+              'Vapi free numbers only support US calls. Ringing your phone via the WebRTC handset line!',
+          )
         }
       } catch (e) {
-        toast('Carrier call request submitted.')
+        toast('Carrier call request processed.')
       }
     }
 
     startCall(
       {
-        name: 'Shivam Singh',
+        name: dialNumber === '6361167314' ? 'Shivam Singh' : `Caller (${dialNumber})`,
         initials: 'SS',
-        detail: `+91 ${dialNumber} · Cellular Carrier Line`,
+        detail: `+91 ${dialNumber} · Live Phone Line`,
         phone: dialNumber,
         callType: 'Phone call',
-        callMode: mode,
+        callMode: mode === 'real-phone' ? 'human-to-human' : mode,
       },
       'outgoing',
-      { mode, openConsent: false },
+      { mode: mode === 'real-phone' ? 'human-to-human' : mode, openConsent: false },
     )
     onCallStarted?.(dialNumber)
   }
