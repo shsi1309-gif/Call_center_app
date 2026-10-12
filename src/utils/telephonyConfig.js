@@ -9,11 +9,11 @@ const DEFAULT_CONFIG = {
   callCentreNumber: '+91 80 9578 1284',
   defaultCustomerPhone: '+91 93805 41855',
   // Exotel India Telephony Configuration
-  exotelAccountSid: '',
-  exotelApiKey: '',
-  exotelApiToken: '',
-  exotelCallerId: '', // Virtual ExoPhone number provided by Exotel
-  exotelAppId: '', // Optional IVR flow ID: http://my.exotel.com/{sid}/exoml/start_voice/{app_id}
+  exotelAccountSid: 'callcenter67',
+  exotelApiKey: 'e85d062b935b53d955e5bbc31add62580945f203cac230df',
+  exotelApiToken: '6ce1b19034acfe73e058f46f17dc5f903129e9f10e66081b',
+  exotelCallerId: '08040265374', // Virtual ExoPhone number provided by Exotel
+  exotelAppId: '1359232', // IVR call flow ID: http://my.exotel.com/callcenter67/exoml/start_voice/1359232
   exotelCluster: 'api.exotel.com', // 'api.exotel.com' or 'api.in.exotel.com'
   activeEngine: 'exotel', // 'exotel' | 'vapi' | 'webrtc'
 }
@@ -31,6 +31,11 @@ export function getTelephonyConfig() {
       if (parsed.callCentreNumber && parsed.callCentreNumber.includes('63611')) {
         parsed.callCentreNumber = DEFAULT_CONFIG.callCentreNumber
       }
+      if (!parsed.exotelAccountSid) parsed.exotelAccountSid = DEFAULT_CONFIG.exotelAccountSid
+      if (!parsed.exotelApiKey) parsed.exotelApiKey = DEFAULT_CONFIG.exotelApiKey
+      if (!parsed.exotelApiToken) parsed.exotelApiToken = DEFAULT_CONFIG.exotelApiToken
+      if (!parsed.exotelCallerId) parsed.exotelCallerId = DEFAULT_CONFIG.exotelCallerId
+      if (!parsed.exotelAppId) parsed.exotelAppId = DEFAULT_CONFIG.exotelAppId
       return { ...DEFAULT_CONFIG, ...parsed }
     }
   } catch (e) {
