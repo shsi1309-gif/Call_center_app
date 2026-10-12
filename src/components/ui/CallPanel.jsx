@@ -1,15 +1,12 @@
 import { useState } from 'react'
 import {
-  Grip,
   Mic,
   MicOff,
   Pause,
-  Play,
   Phone,
   PhoneOff,
   Bot,
   Users,
-  Send,
   Radio,
   Volume2,
 } from 'lucide-react'
@@ -18,7 +15,6 @@ import { formatTimer } from '../../utils/format'
 import { AIAssistPanel } from '../layout/AIAssistPanel'
 import { DialerModal } from '../layout/DialerModal'
 import { AudioVisualizer } from './AudioVisualizer'
-import { CONVERSATION_SCENARIOS } from '../../utils/callConversation'
 
 export function CallPanel() {
   const {
@@ -34,19 +30,14 @@ export function CallPanel() {
     hangUp,
     toggleMute,
     toggleHold,
-    sendUtterance,
     switchCallMode,
-    enableMicrophone,
-    startCall,
   } = useCall()
 
   const [dialerOpen, setDialerOpen] = useState(false)
-  const [customText, setCustomText] = useState('')
 
   if (!call) return null
 
   const ringing = call.phase === 'ringing'
-  const scenario = CONVERSATION_SCENARIOS[callMode] || CONVERSATION_SCENARIOS['ai-to-human']
 
   if (ringing) {
     return (
@@ -137,13 +128,6 @@ export function CallPanel() {
         </div>
       </div>
     )
-  }
-
-  const handleCustomSubmit = (e) => {
-    e.preventDefault()
-    if (!customText.trim()) return
-    sendUtterance(customText)
-    setCustomText('')
   }
 
   return (
@@ -358,102 +342,61 @@ export function CallPanel() {
             </span>
           </div>
 
-          {/* Quick Voice Interactive Triggers */}
-          <div style={{ marginBottom: '16px' }}>
+          {/* Real Audio Stream Status & Live Mic Info */}
+          <div
+            style={{
+              marginBottom: '16px',
+              padding: '12px 14px',
+              background: 'rgba(0, 0, 0, 0.18)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}
+          >
             <div
               style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                color: 'rgba(255, 255, 255, 0.8)',
-                marginBottom: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                color: 'rgba(255, 255, 255, 0.9)',
               }}
             >
-              <span>Instant Voice Prompts (AI Responds Out Loud)</span>
-              {!isMicActive && (
-                <button
-                  onClick={enableMicrophone}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '2px 8px',
-                    color: '#fff',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  🎤 Enable Live Mic
-                </button>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {scenario.quickPrompts.map((qp) => (
-                <button
-                  key={qp.id}
-                  onClick={() => sendUtterance(qp.text)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.16)',
-                    color: '#ffffff',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '8px',
-                    padding: '6px 10px',
-                    fontSize: '11.5px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.28)')}
-                  onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.16)')}
-                >
-                  {qp.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Custom Speech Utterance Input */}
-            <form onSubmit={handleCustomSubmit} style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-              <input
-                type="text"
-                placeholder={callMode === 'ai-to-human' ? 'Speak or type to AI customer...' : 'Talk to peer over WebRTC...'}
-                value={customText}
-                onChange={(e) => setCustomText(e.target.value)}
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Mic size={14} color={muted ? '#f87171' : '#34d399'} />
+                {muted
+                  ? 'Microphone Muted'
+                  : isMicActive
+                    ? 'Live Microphone Active — Speak Naturally'
+                    : 'Audio Stream Active'}
+              </span>
+              <span
                 style={{
-                  flex: 1,
-                  background: 'rgba(0, 0, 0, 0.25)',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
-                  borderRadius: '8px',
-                  padding: '7px 12px',
-                  color: '#ffffff',
-                  fontSize: '12.5px',
-                  outline: 'none',
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  background: '#10b981',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0 14px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  padding: '2px 8px',
+                  borderRadius: '99px',
+                  fontSize: '10.5px',
+                  color: '#e2e8f0',
                 }}
               >
-                <Send size={13} /> Speak
-              </button>
-            </form>
+                {callMode === 'ai-to-human' ? 'Vapi Voice WebRTC' : 'P2P WebRTC Audio'}
+              </span>
+            </div>
+
+            <div
+              style={{
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.75)',
+                lineHeight: 1.4,
+              }}
+            >
+              {callMode === 'ai-to-human'
+                ? 'Your voice is streamed directly to the AI Assistant. Real-time transcription, sentiment analysis, and SOP notes generate automatically as you speak.'
+                : `Connected to customer phone line (${call?.contact?.phone || '+91 98450 61245'}). Two-way live voice streaming with noise suppression active.`}
+            </div>
           </div>
 
           {/* Call Action Controls: Mute, Hold, Hang Up, Dialpad */}

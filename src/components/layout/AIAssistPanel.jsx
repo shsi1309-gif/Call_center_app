@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Building2, CheckCircle2, Circle, MessageSquare, Phone, Store, User, Sparkles } from 'lucide-react'
+import { CheckCircle2, Circle, Sparkles } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 import { useCall } from '../../context/CallContext'
 
@@ -10,9 +10,9 @@ const QUICK_ACTIONS = [
   { label: 'Escalate to manager', utterance: 'Let me conference in our store manager Rohit for an additional VIP perk.' },
 ]
 
-export function AIAssistPanel({ contact = { name: 'Faizan A.' } }) {
+export function AIAssistPanel() {
   const toast = useToast()
-  const { transcript, sentiment, callMode, sendUtterance } = useCall()
+  const { transcript, sendUtterance } = useCall()
   const [activeTab, setActiveTab] = useState('summary') // 'summary' | 'transcript'
 
   const handleAction = (action) => {
@@ -24,7 +24,7 @@ export function AIAssistPanel({ contact = { name: 'Faizan A.' } }) {
 
   // Derive dynamic drafted summary and SOP items from real transcript
   const { draftNotes, sopChecks } = useMemo(() => {
-    const notes = []
+    const notesSet = new Set()
     const checks = {
       opening: false,
       product: false,
@@ -37,26 +37,27 @@ export function AIAssistPanel({ contact = { name: 'Faizan A.' } }) {
       const lower = (t.text || '').toLowerCase()
       if (lower.includes('hello') || lower.includes('good time') || lower.includes('enquiry')) {
         checks.opening = true
-        notes.push('Opened call and confirmed intent')
+        notesSet.add('Opened call and confirmed intent')
       }
       if (lower.includes('chair') || lower.includes('mattress') || lower.includes('roller') || lower.includes('massage')) {
         checks.product = true
-        notes.push('Discussed product specifications & back pain relief')
+        notesSet.add('Discussed product specifications & back pain relief')
       }
       if (lower.includes('emi') || lower.includes('per month') || lower.includes('finance') || lower.includes('2,082')) {
         checks.emi = true
-        notes.push('Presented 0% no-cost EMI plan (₹2,082/mo)')
+        notesSet.add('Presented 0% no-cost EMI plan (₹2,082/mo)')
       }
       if (lower.includes('warranty') || lower.includes('guarantee') || lower.includes('service')) {
         checks.warranty = true
-        notes.push('Shared 3-year comprehensive warranty & 24h doorstep service')
+        notesSet.add('Shared 3-year comprehensive warranty & 24h doorstep service')
       }
       if (lower.includes('book') || lower.includes('order') || lower.includes('discount') || lower.includes('festive') || lower.includes('whatsapp')) {
         checks.closing = true
-        notes.push('Offered festive rate & locked in delivery slot')
+        notesSet.add('Offered festive rate & locked in delivery slot')
       }
     })
 
+    const notes = Array.from(notesSet)
     return {
       draftNotes: notes.length > 0 ? notes : ['Listening to caller... notes draft in real time as key topics arise.'],
       sopChecks: checks,

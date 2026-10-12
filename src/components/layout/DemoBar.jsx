@@ -1,7 +1,7 @@
-import { Bot, Phone, Radio, Shield, Users } from 'lucide-react'
+import { Bot, Phone, Settings, Smartphone, Users } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 
-export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
+export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, onOpenTelephony }) {
   const { startCall } = useCall()
 
   const launchAiCall = () => {
@@ -25,7 +25,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
         name: 'Faizan A. (Customer)',
         initials: 'FA',
         phone: '98450 61245',
-        detail: '+91 98450 61245 · WebRTC Peer Audio',
+        detail: '+91 98450 61245 · WebRTC VoIP Line',
         callType: 'Phone call',
         callMode: 'human-to-human',
       },
@@ -58,7 +58,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
     >
       <span
         style={{
-          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          background: 'linear-gradient(135deg, #059669, #047857)',
           color: '#fff',
           fontSize: '10.5px',
           fontWeight: 800,
@@ -68,30 +68,30 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
           whiteSpace: 'nowrap',
         }}
       >
-        CALL ENGINE
+        TELEPHONY ACTIVE
       </span>
 
-      {/* Real Multi-Device Two-Way Calling Room */}
+      {/* Customer Phone Receiver */}
       <button
-        onClick={() => onOpenRoomCall?.()}
+        onClick={() => onOpenCustomerPhone?.()}
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
           padding: '5px 12px',
           borderRadius: '99px',
-          background: '#faf5ff',
-          border: '1.5px solid #d8b4fe',
+          background: '#f0fdf4',
+          border: '1.5px solid #86efac',
           fontSize: '12px',
           fontWeight: 700,
-          color: '#6b21a8',
+          color: '#15803d',
           cursor: 'pointer',
           whiteSpace: 'nowrap',
-          boxShadow: '0 2px 6px rgba(147, 51, 234, 0.15)',
+          boxShadow: '0 2px 6px rgba(34, 197, 94, 0.15)',
         }}
-        title="Live audio call between 2 real devices (phones, tabs, or laptops)"
+        title="Open Customer Phone Simulator to test two-way calls to +91 98450 61245"
       >
-        <Radio size={14} color="#9333ea" /> 📱 Multi-Device Call
+        <Smartphone size={14} color="#16a34a" /> 📱 Customer Phone (+91 98450 61245)
       </button>
 
       {/* 1-Click AI-to-Human Calling */}
@@ -111,9 +111,9 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}
-        title="Live AI-to-Human Voice Call with Speech Synthesis & Live Waveform"
+        title="Live AI-to-Human Voice Call with Vapi WebRTC & Live Waveform"
       >
-        <Bot size={14} color="#059669" /> AI Call
+        <Bot size={14} color="#059669" /> 🤖 AI Voice Call
       </button>
 
       {/* 1-Click Human-to-Human WebRTC Calling */}
@@ -133,9 +133,31 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}
-        title="Live Human-to-Human WebRTC VoIP with Mic Audio Visualizer"
+        title="Dial Customer Phone Number via WebRTC VoIP"
       >
-        <Users size={14} color="#2563eb" /> Single-Device VoIP
+        <Users size={14} color="#2563eb" /> 👥 Dial Phone Number
+      </button>
+
+      {/* Telephony Settings */}
+      <button
+        onClick={() => onOpenTelephony?.()}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          padding: '4px 10px',
+          borderRadius: '99px',
+          background: '#faf5ff',
+          border: '1px solid #e9d5ff',
+          fontSize: '11.5px',
+          fontWeight: 600,
+          color: '#7e22ce',
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+        }}
+        title="View or update Vapi credentials and Telephony Gateway"
+      >
+        <Settings size={13} /> Vapi Config
       </button>
 
       {/* Consent Modal Trigger */}
@@ -179,7 +201,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenRoomCall }) {
         aria-label="DPDP safety rules"
         title="How this app keeps you DPDP-safe"
       >
-        <Shield size={13} />
+        <ShieldCheck size={14} />
       </button>
     </div>
   )

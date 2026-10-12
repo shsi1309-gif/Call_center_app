@@ -11,7 +11,8 @@ import { PhoneCallConsentModal } from './PhoneCallConsentModal'
 import { CallWrapupModal } from './CallWrapupModal'
 import { DpdpSafeModal } from './DpdpSafeModal'
 import { DemoBar } from './DemoBar'
-import { WebRtcRoomModal } from './WebRtcRoomModal'
+import { CustomerPhoneModal } from './CustomerPhoneModal'
+import { TelephonySettingsModal } from './TelephonySettingsModal'
 import { CallPanel } from '../ui/CallPanel'
 import { useCall } from '../../context/CallContext'
 
@@ -24,23 +25,25 @@ export function AppShell() {
   const [avatarOpen, setAvatarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [dpdpSafeOpen, setDpdpSafeOpen] = useState(false)
+  const [telephonyOpen, setTelephonyOpen] = useState(false)
   const [avatarEmoji, setAvatarEmoji] = useState('🦸‍♂️')
   const [hasUnreadNotifs, setHasUnreadNotifs] = useState(true)
 
-  // Multi-device WebRTC Room calling state
-  const [roomModalOpen, setRoomModalOpen] = useState(() => {
+  // Customer Phone receiver line (auto-opens if URL has customerPhone param)
+  const [customerPhoneOpen, setCustomerPhoneOpen] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      return Boolean(params.get('join') || params.get('room'))
+      return Boolean(params.get('customerPhone') || params.get('phone') || params.get('join') || params.get('room'))
     }
     return false
   })
-  const [roomInitialId] = useState(() => {
+  const [initialCustomerPhone] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      return params.get('join') || params.get('room') || ''
+      const p = params.get('customerPhone') || params.get('phone')
+      if (p) return p.startsWith('+') ? p : `+91 ${p}`
     }
-    return ''
+    return '+91 98450 61245'
   })
 
   const { pathname } = useLocation()
@@ -113,11 +116,17 @@ export function AppShell() {
         />
       )}
       {dpdpSafeOpen && <DpdpSafeModal onClose={() => setDpdpSafeOpen(false)} />}
-      {roomModalOpen && (
-        <WebRtcRoomModal
-          isOpen={roomModalOpen}
-          onClose={() => setRoomModalOpen(false)}
-          initialRoomId={roomInitialId}
+      {customerPhoneOpen && (
+        <CustomerPhoneModal
+          isOpen={customerPhoneOpen}
+          onClose={() => setCustomerPhoneOpen(false)}
+          initialPhone={initialCustomerPhone}
+        />
+      )}
+      {telephonyOpen && (
+        <TelephonySettingsModal
+          isOpen={telephonyOpen}
+          onClose={() => setTelephonyOpen(false)}
         />
       )}
       <DemoBar
@@ -135,7 +144,8 @@ export function AppShell() {
           setConsentContact(c)
         }}
         onOpenDpdpSafe={() => setDpdpSafeOpen(true)}
-        onOpenRoomCall={() => setRoomModalOpen(true)}
+        onOpenCustomerPhone={() => setCustomerPhoneOpen(true)}
+        onOpenTelephony={() => setTelephonyOpen(true)}
       />
     </div>
   )

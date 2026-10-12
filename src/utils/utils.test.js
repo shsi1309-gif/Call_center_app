@@ -85,13 +85,19 @@ describe('callAudioEngine', () => {
   })
 })
 
-describe('webrtcRoomService', () => {
-  it('instantiates room service and registers events', async () => {
-    const { webrtcRoom } = await import('./webrtcRoomService')
-    expect(webrtcRoom).toBeDefined()
-    expect(typeof webrtcRoom.createRoom).toBe('function')
-    expect(typeof webrtcRoom.joinRoom).toBe('function')
-    expect(typeof webrtcRoom.toggleMute).toBe('function')
-    expect(webrtcRoom.isConnected).toBe(false)
+describe('phoneCallService & telephony', () => {
+  it('sanitizes and formats E.164 phone numbers for call centre dialing', async () => {
+    const { sanitizePhoneNumber, formatPhoneNumber } = await import('./phoneCallService')
+    expect(sanitizePhoneNumber('+91 98450 61245')).toBe('919845061245')
+    expect(sanitizePhoneNumber('98450-61245')).toBe('9845061245')
+    expect(formatPhoneNumber('9845061245')).toBe('+91 98450 61245')
+  })
+
+  it('provides default Vapi and Call Centre telephony configuration', async () => {
+    const { getTelephonyConfig } = await import('./telephonyConfig')
+    const config = getTelephonyConfig()
+    expect(config.vapiPublicKey).toBe('affb096d-8be5-4554-a320-f2920f64e166')
+    expect(config.vapiAssistantId).toBe('94354921-6e0a-4533-a7b0-68acfbadf50f')
+    expect(config.callCentreNumber).toBe('+91 80 6900 1234')
   })
 })

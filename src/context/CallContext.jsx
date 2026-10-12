@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, u
 import { useToast } from './ToastContext'
 import { formatTimer } from '../utils/format'
 import { callAudio } from '../utils/callAudioEngine'
+import { vapiService } from '../utils/vapiService'
+import { phoneCallService } from '../utils/phoneCallService'
 import { CONVERSATION_SCENARIOS, matchAiResponse } from '../utils/callConversation'
 
 const CallContext = createContext(null)
@@ -29,6 +31,7 @@ export function CallProvider({ children }) {
   const [wrapup, setWrapup] = useState(null)
   const [consentContact, setConsentContact] = useState(null)
   const [isMicActive, setIsMicActive] = useState(false)
+  const [isVapiActive, setIsVapiActive] = useState(false)
   const recognitionRef = useRef(null)
 
   const active = call?.phase === 'active'
@@ -50,6 +53,168 @@ export function CallProvider({ children }) {
     return () => callAudio.stopRingback()
   }, [call?.phase])
 
+  // Vapi event listeners
+  useEffect(() => {
+    const handleVapiCallStart = () => {
+      setIsVapiActive(true)
+      toast('Vapi AI Voice Agent Connected! Live audio streaming.')
+    }
+
+    const handleVapiCallEnd = () => {
+      setIsVapiActive(false)
+      setSpeakingSource('none')
+    }
+
+    const handleVapiSpeechStart = () => {
+      setSpeakingSource('customer')
+    }
+
+    const handleVapiSpeechEnd = () => {
+      setSpeakingSource('none')
+    }
+
+    const handleVapiMessage = (msg) => {
+      if (msg.type === 'transcript' && msg.transcript) {
+        const text = msg.transcript.trim()
+        if (!text) return
+        const isAssistant = msg.role === 'assistant'
+        const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+        setTranscript((prev) => [
+          ...prev,
+          {
+            id: `vapi-${Date.now()}-${Math.random()}`,
+            sender: isAssistant ? 'Faizan (AI Voice Agent)' : 'Agent',
+            text,
+            time: nowTime,
+          },
+        ])
+
+        if (isAssistant) {
+          const resp = matchAiResponse('ai-to-human', text)
+          setSentiment({ score: resp.sentiment, label: resp.sentimentLabel })
+        }
+      }
+    }
+
+    vapiService.on('call-start', handleVapiCallStart)
+    vapiService.on('call-end', handleVapiCallEnd)
+    vapiService.on('speech-start', handleVapiSpeechStart)
+    vapiService.on('speech-end', handleVapiSpeechEnd)
+    vapiService.on('message', handleVapiMessage)
+
+    return () => {
+      vapiService.off('call-start', handleVapiCallStart)
+      vapiService.off('call-end', handleVapiCallEnd)
+      vapiService.off('speech-start', handleVapiSpeechStart)
+      vapiService.off('speech-end', handleVapiSpeechEnd)
+      vapiService.off('message', handleVapiMessage)
+    }
+  }, [toast])
+
+  // PhoneCallService event listeners for Human-to-Human calls
+  useEffect(() => {
+    const handleRemoteStream = (remoteStream) => {
+      toast('Live WebRTC Voice Connected! Both microphones active.')
+      const audioEl = document.getElementById('remote-webrtc-audio')
+      if (audioEl) {
+        audioEl.srcObject = remoteStream
+        audioEl.play().catch(() => {})
+      }
+    }
+
+    const handleCallConnected = (data) => {
+      toast(`Connected to ${data.targetPhone}! Two-way audio active.`)
+    }
+
+    const handleCallEnded = () => {
+      toast('Remote participant hung up.')
+    }
+
+    phoneCallService.on('remoteStream', handleRemoteStream)
+    phoneCallService.on('callConnected', handleCallConnected)
+    phoneCallService.on('callEnded', handleCallEnded)
+
+    return () => {
+      phoneCallService.off('remoteStream', handleRemoteStream)
+      phoneCallService.off('callConnected', handleCallConnected)
+      phoneCallService.off('callEnded', handleCallEnded)
+    }
+  }, [toast])
+
+  // Send an utterance from user speech recognition or text
+  const sendUtterance = useCallback(
+    (text) => {
+      if (!text || !text.trim()) return
+      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      const trimmed = text.trim()
+
+      const userTurn = {
+        id: `u-${Date.now()}`,
+        sender: 'Agent',
+        text: trimmed,
+        time: nowTime,
+      }
+
+      setTranscript((prev) => [...prev, userTurn])
+      setSpeakingSource('agent')
+
+      // If Vapi is handling the conversation, Vapi will respond naturally via its audio stream.
+      // If Vapi is not active, synthesize response via client AI engine:
+      if (!isVapiActive) {
+        setTimeout(() => {
+          const resp = matchAiResponse(callMode, trimmed)
+          const customerTurn = {
+            id: `c-${Date.now()}`,
+            sender: callMode === 'human-to-human' ? 'Faizan (Peer)' : 'Faizan (AI Customer)',
+            text: resp.customerReply,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            sentiment: resp.sentiment,
+            sopPoint: resp.sopPoint,
+          }
+
+          setTranscript((prev) => [...prev, customerTurn])
+          setSentiment({
+            score: resp.sentiment,
+            label: resp.sentimentLabel,
+          })
+          setSpeakingSource('customer')
+
+          // Speak customer response out loud with browser SpeechSynthesis
+          callAudio.speak(
+            resp.customerReply,
+            () => setSpeakingSource('customer'),
+            () => setSpeakingSource('none'),
+          )
+        }, 500)
+      }
+    },
+    [callMode, isVapiActive],
+  )
+
+  // Request real microphone input
+  const enableMicrophone = useCallback(async () => {
+    callAudio.initAudio()
+    const res = await callAudio.startMicrophone()
+    if (res.success) {
+      setIsMicActive(true)
+
+      // Start live speech recognition if supported
+      recognitionRef.current = callAudio.startSpeechRecognition(
+        (recognizedText) => {
+          if (recognizedText) {
+            sendUtterance(recognizedText)
+          }
+        },
+        () => {},
+      )
+      return true
+    } else {
+      setIsMicActive(false)
+      return false
+    }
+  }, [sendUtterance])
+
   // Initialize transcript and greeting on call connect
   const initCallConversation = useCallback(
     (mode, contact) => {
@@ -70,20 +235,33 @@ export function CallProvider({ children }) {
       setTranscript(initialTranscripts)
       setSentiment({ score: 82, label: 'Positive' })
 
-      // If AI-to-human mode, trigger initial AI greeting speech
+      // Engage real microphone automatically
+      enableMicrophone()
+
       if (mode === 'ai-to-human') {
-        setSpeakingSource('agent')
-        callAudio.speak(
-          scenario.initialGreeting,
-          () => setSpeakingSource('agent'),
-          () => setSpeakingSource('none'),
-        )
+        // Try connecting to real Vapi AI Voice agent first
+        vapiService
+          .start()
+          .then(() => {
+            setIsVapiActive(true)
+          })
+          .catch((err) => {
+            console.warn('Vapi direct voice session fallback:', err)
+            // Seamless client audio fallback
+            setSpeakingSource('agent')
+            callAudio.speak(
+              scenario.initialGreeting,
+              () => setSpeakingSource('agent'),
+              () => setSpeakingSource('none'),
+            )
+          })
       } else {
-        // Human-to-Human: establish WebRTC loopback
-        callAudio.startWebRtcLoopback()
+        // Human-to-Human: dial phone number via WebRTC softphone
+        const phone = contact?.phone || '98450 61245'
+        phoneCallService.dialPhoneNumber(phone, 'On-Ground Agent')
       }
     },
-    [],
+    [enableMicrophone],
   )
 
   const begin = useCallback((contact, kind, phase, mode = 'ai-to-human') => {
@@ -105,7 +283,7 @@ export function CallProvider({ children }) {
       const mode = options.mode || contact.callMode || callMode || 'ai-to-human'
       setCallMode(mode)
 
-      // Start ringing sound if outgoing
+      // Start audio & connected chime
       callAudio.initAudio()
       callAudio.playConnectedChime()
 
@@ -156,7 +334,11 @@ export function CallProvider({ children }) {
     callAudio.stopSpeech()
     callAudio.stopMicrophone()
     callAudio.stopSpeechRecognition()
-    callAudio.stopWebRtc()
+
+    // Stop Vapi and PhoneCallService
+    vapiService.stop()
+    phoneCallService.hangUp()
+    setIsVapiActive(false)
 
     const formatted = formatTimer(seconds)
     const effectiveDuration = !formatted || formatted === '00:00' ? '00:38' : formatted
@@ -178,6 +360,7 @@ export function CallProvider({ children }) {
     setMuted((m) => {
       const next = !m
       callAudio.isMuted = next
+      vapiService.setMuted(next)
       toast(next ? 'Microphone muted' : 'Microphone unmuted')
       return next
     })
@@ -201,53 +384,6 @@ export function CallProvider({ children }) {
     callAudio.playDtmf(digit)
   }, [])
 
-  // Send an utterance from the user or prompt
-  const sendUtterance = useCallback(
-    (text) => {
-      if (!text || !text.trim()) return
-      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      const trimmed = text.trim()
-
-      const userTurn = {
-        id: `u-${Date.now()}`,
-        sender: 'Agent',
-        text: trimmed,
-        time: nowTime,
-      }
-
-      setTranscript((prev) => [...prev, userTurn])
-      setSpeakingSource('agent')
-
-      // Get dynamic AI customer or remote peer response
-      setTimeout(() => {
-        const resp = matchAiResponse(callMode, trimmed)
-        const customerTurn = {
-          id: `c-${Date.now()}`,
-          sender: callMode === 'human-to-human' ? 'Faizan (Peer)' : 'Faizan (AI Customer)',
-          text: resp.customerReply,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          sentiment: resp.sentiment,
-          sopPoint: resp.sopPoint,
-        }
-
-        setTranscript((prev) => [...prev, customerTurn])
-        setSentiment({
-          score: resp.sentiment,
-          label: resp.sentimentLabel,
-        })
-        setSpeakingSource('customer')
-
-        // Speak customer response out loud with browser SpeechSynthesis!
-        callAudio.speak(
-          resp.customerReply,
-          () => setSpeakingSource('customer'),
-          () => setSpeakingSource('none'),
-        )
-      }, 500)
-    },
-    [callMode],
-  )
-
   const switchCallMode = useCallback(
     (newMode) => {
       setCallMode(newMode)
@@ -257,29 +393,6 @@ export function CallProvider({ children }) {
     },
     [call?.contact, initCallConversation, toast],
   )
-
-  // Request actual microphone input
-  const enableMicrophone = useCallback(async () => {
-    callAudio.initAudio()
-    const res = await callAudio.startMicrophone()
-    if (res.success) {
-      setIsMicActive(true)
-      toast('Live microphone connected! Audio waveform active.')
-
-      // Start live speech recognition if supported
-      recognitionRef.current = callAudio.startSpeechRecognition(
-        (recognizedText) => {
-          if (recognizedText) {
-            sendUtterance(recognizedText)
-          }
-        },
-        () => {},
-      )
-    } else {
-      setIsMicActive(false)
-      toast('Microphone unavailable — synthetic audio wave generator engaged.')
-    }
-  }, [sendUtterance, toast])
 
   const openWrapup = useCallback((contact, duration = '00:38') => {
     setWrapup({
@@ -306,6 +419,7 @@ export function CallProvider({ children }) {
       sentiment,
       transcript,
       isMicActive,
+      isVapiActive,
       wrapup,
       consentContact,
       setConsentContact,
@@ -332,6 +446,7 @@ export function CallProvider({ children }) {
       sentiment,
       transcript,
       isMicActive,
+      isVapiActive,
       wrapup,
       consentContact,
       startCall,
@@ -349,7 +464,13 @@ export function CallProvider({ children }) {
     ],
   )
 
-  return <CallContext.Provider value={value}>{children}</CallContext.Provider>
+  return (
+    <CallContext.Provider value={value}>
+      {children}
+      {/* Hidden audio element for receiving remote WebRTC audio */}
+      <audio id="remote-webrtc-audio" autoPlay playsInline style={{ display: 'none' }} />
+    </CallContext.Provider>
+  )
 }
 
 export function useCall() {
