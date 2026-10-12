@@ -61,8 +61,10 @@ export function AppShell() {
   const [incomingTransfer, setIncomingTransfer] = useState(null)
   const [incomingCustomerCall, setIncomingCustomerCall] = useState(null)
 
-  // Only register customer phone line if this client is running in handset mode (?customerPhone=...)
+  // Connect agent desk to the helpline channel on mount so customer transfers & calls are heard
   useEffect(() => {
+    phoneCallService.initAgentDeskChannel()
+
     if (customerPhoneOpen) {
       phoneCallService.registerCustomerPhone(initialCustomerPhone)
     }

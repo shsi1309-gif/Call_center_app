@@ -104,26 +104,26 @@ class PhoneCallService {
     }
   }
 
-  // Cross-device Realtime SSE Signaling over https://ntfy.sh (zero setup, works on all mobile networks)
+  // Cross-device Realtime WebSocket Signaling over wss://ntfy.sh (zero setup, works on all mobile networks)
   initCustomerSignalChannel(phoneNumber) {
     const digits = sanitizePhoneNumber(phoneNumber) || '9380541855'
-    if (typeof window === 'undefined' || !('EventSource' in window)) return
+    if (typeof window === 'undefined' || !('WebSocket' in window)) return
 
-    if (this.signalSource) {
+    if (this.signalWs) {
       try {
-        this.signalSource.close()
+        this.signalWs.close()
       } catch (e) {
         void e
       }
-      this.signalSource = null
+      this.signalWs = null
     }
 
-    const topic = `oncall-sig-${digits}`
+    const topic = `oncall-customer-${digits}`
     try {
-      const source = new EventSource(`https://ntfy.sh/${topic}/sse`)
-      this.signalSource = source
+      const ws = new WebSocket(`wss://ntfy.sh/${topic}/ws`)
+      this.signalWs = ws
 
-      source.onmessage = (event) => {
+      ws.onmessage = (event) => {
         try {
           const parsed = JSON.parse(event.data)
           if (parsed.event === 'message' && parsed.message) {
@@ -135,32 +135,32 @@ class PhoneCallService {
         }
       }
 
-      source.onerror = () => {
-        console.warn('Realtime telephony SSE channel reconnecting...')
+      ws.onerror = () => {
+        console.warn('Customer signal WebSocket reconnecting...')
       }
     } catch (err) {
-      console.warn('Could not initialize SSE signal channel:', err)
+      console.warn('Could not initialize customer signal WebSocket:', err)
     }
   }
 
-  initAgentSignalChannel(agentPeerId) {
-    if (typeof window === 'undefined' || !('EventSource' in window)) return
+  initAgentDeskChannel() {
+    if (typeof window === 'undefined' || !('WebSocket' in window)) return
 
-    if (this.agentSignalSource) {
+    if (this.agentSignalWs) {
       try {
-        this.agentSignalSource.close()
+        this.agentSignalWs.close()
       } catch (e) {
         void e
       }
-      this.agentSignalSource = null
+      this.agentSignalWs = null
     }
 
-    const topic = `oncall-agent-${agentPeerId}`
+    const topic = 'oncall-helpline-desk'
     try {
-      const source = new EventSource(`https://ntfy.sh/${topic}/sse`)
-      this.agentSignalSource = source
+      const ws = new WebSocket(`wss://ntfy.sh/${topic}/ws`)
+      this.agentSignalWs = ws
 
-      source.onmessage = (event) => {
+      ws.onmessage = (event) => {
         try {
           const parsed = JSON.parse(event.data)
           if (parsed.event === 'message' && parsed.message) {
@@ -171,8 +171,12 @@ class PhoneCallService {
           void e
         }
       }
+
+      ws.onerror = () => {
+        console.warn('Agent desk signal WebSocket reconnecting...')
+      }
     } catch (err) {
-      console.warn('Could not initialize agent SSE channel:', err)
+      console.warn('Could not initialize agent desk WebSocket:', err)
     }
   }
 
@@ -193,17 +197,13 @@ class PhoneCallService {
     console.log('[Telephony Realtime Signal]', data)
 
     if (data.type === 'INCOMING_PHONE_CALL') {
-      const myPhone = sanitizePhoneNumber(this.registeredPhone)
-      const targetPhone = sanitizePhoneNumber(data.targetPhone)
-      if (!myPhone || !targetPhone || myPhone === targetPhone) {
-        this.remotePeerId = data.agentPeerId
-        this.emit('incomingCall', {
-          callerPhone: data.callerPhone || getTelephonyConfig().callCentreNumber,
-          callerName: data.callerName || 'On-Ground.ai Call Centre',
-          targetPhone: data.targetPhone,
-          agentPeerId: data.agentPeerId,
-        })
-      }
+      this.remotePeerId = data.agentPeerId
+      this.emit('incomingCall', {
+        callerPhone: data.callerPhone || getTelephonyConfig().callCentreNumber,
+        callerName: data.callerName || 'On-Ground.ai Call Centre',
+        targetPhone: data.targetPhone,
+        agentPeerId: data.agentPeerId,
+      })
     } else if (data.type === 'PHONE_CALL_ACCEPTED') {
       this.remotePeerId = data.customerPeerId || this.remotePeerId
       this.emit('callConnected', { targetPhone: data.targetPhone })
@@ -290,17 +290,13 @@ class PhoneCallService {
 
   // Transfer an IVR call from customer to live human agent
   transferToAgent(customerPhone = '+91 93805 41855', customerName = 'Shivam Singh') {
-    const digits = sanitizePhoneNumber(customerPhone) || '9380541855'
     const payload = {
       type: 'INCOMING_IVR_TRANSFER',
       customerPhone,
       customerName,
       reason: 'IVR Transfer · Option 2: Human Customer Expert',
     }
-    this.publishSignal(`oncall-sig-${digits}`, payload)
-    if (this.remotePeerId) {
-      this.publishSignal(`oncall-agent-${this.remotePeerId}`, payload)
-    }
+    this.publishSignal('oncall-helpline-desk', payload)
     this.sendDataMessage(payload)
     this.emit('incomingIvrTransfer', payload)
   }
@@ -312,10 +308,7 @@ class PhoneCallService {
       type: 'IVR_TRANSFER_ACCEPTED',
       customerPhone,
     }
-    this.publishSignal(`oncall-sig-${digits}`, payload)
-    if (this.remotePeerId) {
-      this.publishSignal(`oncall-agent-${this.remotePeerId}`, payload)
-    }
+    this.publishSignal(`oncall-customer-${digits}`, payload)
     this.sendDataMessage(payload)
     this.emit('ivrTransferAccepted', payload)
   }
@@ -432,10 +425,7 @@ class PhoneCallService {
       targetPhone: this.registeredPhone,
       customerPeerId,
     }
-    this.publishSignal(`oncall-sig-${digits}`, acceptPayload)
-    if (this.remotePeerId) {
-      this.publishSignal(`oncall-agent-${this.remotePeerId}`, acceptPayload)
-    }
+    this.publishSignal('oncall-helpline-desk', acceptPayload)
 
     if (!this.localStream) {
       await this.getLocalMicrophoneStream(true)
@@ -472,8 +462,8 @@ class PhoneCallService {
     const targetPeerId = `tel-in-${digits}`
     const agentPeerId = `agent-${Math.floor(10000 + Math.random() * 90000)}`
 
-    // 1. Agent listens on dedicated agent signaling channel for answer / transfer events
-    this.initAgentSignalChannel(agentPeerId)
+    // Ensure agent desk is listening on helpline topic
+    this.initAgentDeskChannel()
 
     const incomingPayload = {
       type: 'INCOMING_PHONE_CALL',
@@ -484,8 +474,8 @@ class PhoneCallService {
       timestamp: Date.now(),
     }
 
-    // 2. Publish real-time ring signal directly to customer phone channel (instant cross-device delivery)
-    this.publishSignal(`oncall-sig-${digits}`, incomingPayload)
+    // Publish real-time ring signal directly to customer phone channel (instant cross-device delivery)
+    this.publishSignal(`oncall-customer-${digits}`, incomingPayload)
 
     // Broadcast incoming call event across tabs/devices
     if (this.broadcastChannel) {
@@ -561,10 +551,8 @@ class PhoneCallService {
       type: 'PHONE_CALL_ENDED',
       targetPhone: this.activeTargetPhone || this.registeredPhone,
     }
-    this.publishSignal(`oncall-sig-${digits}`, endPayload)
-    if (this.remotePeerId) {
-      this.publishSignal(`oncall-agent-${this.remotePeerId}`, endPayload)
-    }
+    this.publishSignal(`oncall-customer-${digits}`, endPayload)
+    this.publishSignal('oncall-helpline-desk', endPayload)
     this.sendDataMessage(endPayload)
     this.cleanup()
     this.emit('callEnded', { reason: 'local_hangup' })
