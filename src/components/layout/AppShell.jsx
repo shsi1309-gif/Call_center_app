@@ -61,29 +61,23 @@ export function AppShell() {
   const [incomingTransfer, setIncomingTransfer] = useState(null)
   const [incomingCustomerCall, setIncomingCustomerCall] = useState(null)
 
-  // Register customer handset line on page load and listen for calls
+  // Only register customer phone line if this client is running in handset mode (?customerPhone=...)
   useEffect(() => {
-    phoneCallService.registerCustomerPhone(initialCustomerPhone)
+    if (customerPhoneOpen) {
+      phoneCallService.registerCustomerPhone(initialCustomerPhone)
+    }
 
     const handleTransfer = (data) => {
       setIncomingTransfer(data)
       callAudio.startRingback()
     }
 
-    const handleIncomingCall = (data) => {
-      setIncomingCustomerCall(data)
-      setCustomerPhoneOpen(true)
-      callAudio.startRingback()
-    }
-
     phoneCallService.on('incomingIvrTransfer', handleTransfer)
-    phoneCallService.on('incomingCall', handleIncomingCall)
 
     return () => {
       phoneCallService.off('incomingIvrTransfer', handleTransfer)
-      phoneCallService.off('incomingCall', handleIncomingCall)
     }
-  }, [initialCustomerPhone])
+  }, [customerPhoneOpen, initialCustomerPhone])
 
   const handleAcceptTransfer = () => {
     if (!incomingTransfer) return

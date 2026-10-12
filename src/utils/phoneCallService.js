@@ -1,6 +1,26 @@
-// Call Centre Web-to-Phone Telephony Service
-// Routes WebRTC calls strictly by E.164 phone numbers (the way a call centre works, not peer IDs).
 import { getTelephonyConfig } from './telephonyConfig'
+
+export const ICE_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun.relay.metered.ca:80' },
+  {
+    urls: 'turn:standard.relay.metered.ca:80',
+    username: '984eb8d998ba29d639b9409d',
+    credential: 'Jm8Z7hYwK6M4hL+X',
+  },
+  {
+    urls: 'turn:standard.relay.metered.ca:443',
+    username: '984eb8d998ba29d639b9409d',
+    credential: 'Jm8Z7hYwK6M4hL+X',
+  },
+  {
+    urls: 'turn:standard.relay.metered.ca:443?transport=tcp',
+    username: '984eb8d998ba29d639b9409d',
+    credential: 'Jm8Z7hYwK6M4hL+X',
+  },
+]
 
 let PeerClass = null
 async function getPeerClass() {
@@ -46,7 +66,10 @@ class PhoneCallService {
       error: [],
       incomingIvrTransfer: [],
       ivrTransferAccepted: [],
+      registered: [],
     }
+
+    this.dataConnection = null
 
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       this.broadcastChannel = new BroadcastChannel('oncall_telephony_channel')
@@ -75,6 +98,54 @@ class PhoneCallService {
           console.error(`Error in PhoneCallService listener ${event}:`, err)
         }
       })
+    }
+  }
+
+  setupDataConnection(conn) {
+    if (!conn) return
+    this.dataConnection = conn
+
+    conn.on('open', () => {
+      console.log('PeerJS WebRTC Data Channel active between devices')
+    })
+
+    conn.on('data', (data) => {
+      if (!data) return
+      console.log('PeerJS WebRTC Data received:', data)
+      if (data.type === 'INCOMING_IVR_TRANSFER') {
+        this.emit('incomingIvrTransfer', data)
+      } else if (data.type === 'IVR_TRANSFER_ACCEPTED') {
+        this.emit('ivrTransferAccepted', data)
+      } else if (data.type === 'PHONE_CALL_ACCEPTED') {
+        this.emit('callConnected', data)
+      } else if (data.type === 'PHONE_CALL_ENDED') {
+        this.emit('callEnded', { reason: 'remote_hangup' })
+      }
+    })
+
+    conn.on('close', () => {
+      this.dataConnection = null
+    })
+
+    conn.on('error', (err) => {
+      console.warn('Data connection error:', err)
+    })
+  }
+
+  sendDataMessage(payload) {
+    if (this.dataConnection && this.dataConnection.open) {
+      try {
+        this.dataConnection.send(payload)
+      } catch (err) {
+        console.warn('Data connection send warning:', err)
+      }
+    }
+    if (this.broadcastChannel) {
+      try {
+        this.broadcastChannel.postMessage(payload)
+      } catch (err) {
+        console.warn('Broadcast channel post warning:', err)
+      }
     }
   }
 
@@ -119,9 +190,7 @@ class PhoneCallService {
       customerName,
       reason: 'IVR Transfer · Option 2: Human Customer Expert',
     }
-    if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage(payload)
-    }
+    this.sendDataMessage(payload)
     this.emit('incomingIvrTransfer', payload)
   }
 
@@ -131,18 +200,16 @@ class PhoneCallService {
       type: 'IVR_TRANSFER_ACCEPTED',
       customerPhone,
     }
-    if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage(payload)
-    }
+    this.sendDataMessage(payload)
     this.emit('ivrTransferAccepted', payload)
   }
 
   // Get local user microphone
-  async getLocalMicrophoneStream() {
-    if (this.localStream) return this.localStream
+  async getLocalMicrophoneStream(forceFresh = false) {
+    if (this.localStream && !forceFresh) return this.localStream
 
     try {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -155,7 +222,7 @@ class PhoneCallService {
         return stream
       }
     } catch (err) {
-      console.warn('Microphone permission denied, creating audio stream synthesizer:', err)
+      console.warn('Microphone permission notice:', err)
     }
 
     // Audio stream synthesis for environments where mic is blocked
@@ -200,14 +267,21 @@ class PhoneCallService {
       const Peer = await getPeerClass()
       this.customerPeer = new Peer(peerPhoneId, {
         config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-          ],
+          iceServers: ICE_SERVERS,
         },
       })
 
+      this.customerPeer.on('open', (id) => {
+        console.log(`[Telephony] Phone line registered online: ${id}`)
+        this.emit('registered', { phone: phoneNumber, id })
+      })
+
+      // Cross-device WebRTC DataChannel connection
+      this.customerPeer.on('connection', (conn) => {
+        this.setupDataConnection(conn)
+      })
+
+      // Incoming WebRTC Media voice call
       this.customerPeer.on('call', (mediaCall) => {
         this.currentCall = mediaCall
         this.emit('incomingCall', {
@@ -230,33 +304,39 @@ class PhoneCallService {
   }
 
   // Answer an incoming call on the customer's phone
-  answerCall(mediaCall) {
+  async answerCall(mediaCall) {
     const callToAnswer = mediaCall || this.currentCall
     if (!callToAnswer) return
 
-    callToAnswer.answer(this.localStream)
-
-    callToAnswer.on('stream', (remoteStream) => {
-      this.remoteStream = remoteStream
-      this.emit('remoteStream', remoteStream)
-      this.emit('callConnected', { targetPhone: this.registeredPhone })
-    })
-
-    callToAnswer.on('close', () => {
-      this.cleanup()
-      this.emit('callEnded', { reason: 'closed' })
-    })
-
-    if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage({
-        type: 'PHONE_CALL_ACCEPTED',
-        targetPhone: this.registeredPhone,
-      })
+    if (!this.localStream) {
+      await this.getLocalMicrophoneStream(true)
     }
+
+    try {
+      callToAnswer.answer(this.localStream)
+
+      callToAnswer.on('stream', (remoteStream) => {
+        this.remoteStream = remoteStream
+        this.emit('remoteStream', remoteStream)
+        this.emit('callConnected', { targetPhone: this.registeredPhone })
+      })
+
+      callToAnswer.on('close', () => {
+        this.cleanup()
+        this.emit('callEnded', { reason: 'closed' })
+      })
+    } catch (err) {
+      console.error('Error answering media call:', err)
+    }
+
+    this.sendDataMessage({
+      type: 'PHONE_CALL_ACCEPTED',
+      targetPhone: this.registeredPhone,
+    })
   }
 
   // Dial a phone number from the Call Centre Agent softphone
-  async dialPhoneNumber(phoneNumber, callerName = 'Agent Desk') {
+  async dialPhoneNumber(phoneNumber, callerName = 'On-Ground.ai Call Centre') {
     const config = getTelephonyConfig()
     const digits = sanitizePhoneNumber(phoneNumber)
     this.activeTargetPhone = phoneNumber
@@ -279,9 +359,6 @@ class PhoneCallService {
       })
     }
 
-    // Emit locally so handset immediately rings on this same page/screen
-    this.emit('incomingCall', incomingPayload)
-
     if (this.agentPeer) {
       try {
         this.agentPeer.destroy()
@@ -294,16 +371,25 @@ class PhoneCallService {
       const Peer = await getPeerClass()
       this.agentPeer = new Peer(agentPhoneId, {
         config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-          ],
+          iceServers: ICE_SERVERS,
         },
       })
 
-      this.agentPeer.on('open', () => {
-        if (!this.agentPeer || !this.localStream) return
+      this.agentPeer.on('open', async () => {
+        // 1. Establish cross-device data connection with phone
+        try {
+          const conn = this.agentPeer.connect(targetPeerId, { reliable: true })
+          this.setupDataConnection(conn)
+        } catch (e) {
+          console.warn('Agent data connect notice:', e)
+        }
+
+        // 2. Ensure microphone audio stream is ready
+        if (!this.localStream) {
+          await this.getLocalMicrophoneStream()
+        }
+
+        // 3. Initiate WebRTC voice call to phone
         try {
           const mediaCall = this.agentPeer.call(targetPeerId, this.localStream)
           this.currentCall = mediaCall
@@ -321,7 +407,7 @@ class PhoneCallService {
             })
           }
         } catch (e) {
-          console.warn('Call attempt:', e)
+          console.warn('Call attempt error:', e)
         }
       })
 
@@ -337,12 +423,10 @@ class PhoneCallService {
   }
 
   hangUp() {
-    if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage({
-        type: 'PHONE_CALL_ENDED',
-        targetPhone: this.activeTargetPhone || this.registeredPhone,
-      })
-    }
+    this.sendDataMessage({
+      type: 'PHONE_CALL_ENDED',
+      targetPhone: this.activeTargetPhone || this.registeredPhone,
+    })
     this.cleanup()
     this.emit('callEnded', { reason: 'local_hangup' })
   }

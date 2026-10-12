@@ -23,6 +23,7 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
   // 'idle' | 'calling-agent' | 'ringing' | 'connected'
   const [callState, setCallState] = useState(() => (initialCallData ? 'ringing' : 'idle'))
   const [incomingCallData, setIncomingCallData] = useState(initialCallData)
+  const [audioReady, setAudioReady] = useState(false)
   const [seconds, setSeconds] = useState(0)
   const [copied, setCopied] = useState(false)
   const remoteAudioRef = useRef(null)
@@ -30,12 +31,28 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
   const helplineNumber = getTelephonyConfig().callCentreNumber || '+91 80 9578 1284'
   const helphoneNumber = helplineNumber
 
+  const handleActivateAudio = async () => {
+    callAudio.initAudio()
+    callAudio.playConnectedChime()
+    try {
+      await phoneCallService.getLocalMicrophoneStream(true)
+      setAudioReady(true)
+      toast('Phone speaker and microphone ready! Line is live.')
+    } catch {
+      setAudioReady(true)
+      toast('Audio speaker enabled!')
+    }
+  }
+
   // React to incoming call data passed from parent
   useEffect(() => {
     if (initialCallData) {
       setIncomingCallData(initialCallData)
       setCallState('ringing')
       callAudio.startRingback()
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([400, 200, 400, 200, 800])
+      }
     }
   }, [initialCallData])
 
@@ -66,6 +83,9 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
       setIncomingCallData(data)
       setCallState('ringing')
       callAudio.startRingback()
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([400, 200, 400, 200, 800])
+      }
       toast(`Incoming call from ${data.callerName || 'On-Ground Call Centre'}!`)
     }
 
@@ -92,6 +112,9 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
     }
 
     const handleEnded = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
       callAudio.stopRingback()
       callAudio.stopHoldMusic()
       setCallState('idle')
@@ -135,10 +158,22 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
     phoneCallService.answerCall(incomingCallData?.mediaCall)
     setCallState('ivr')
     toast('Call answered · On-Ground IVR Greeting Active')
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+      const utter = new SpeechSynthesisUtterance(
+        'Welcome to On-Ground. Press 1 to talk to our AI assistant, or press 2 to speak with a human representative.',
+      )
+      utter.rate = 1.0
+      window.speechSynthesis.speak(utter)
+    }
   }
 
   // Option 1: Start Vapi AI Voice Chatbot
   const handleSelectOption1 = async () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
     toast('Option 1 selected: Connecting to Vapi AI Customer Assistant...')
     try {
       const { vapiService } = await import('../../utils/vapiService')
@@ -153,6 +188,9 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
 
   // Option 2: Transfer to Live Human Agent
   const handleSelectOption2 = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
     toast('Option 2 selected: Transferring to human agent...')
     phoneCallService.transferToAgent(phone, 'Shivam Singh')
     setCallState('connected')
@@ -160,6 +198,9 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
 
   // Hang up
   const handleHangUp = async () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
     callAudio.stopRingback()
     callAudio.stopHoldMusic()
     try {
@@ -306,6 +347,52 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
             <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px' }}>
               Call Centre Line: <strong style={{ color: '#38bdf8' }}>{helphoneNumber}</strong>
             </div>
+
+            {!audioReady ? (
+              <button
+                onClick={handleActivateAudio}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '14px',
+                  padding: '12px 16px',
+                  fontSize: '13.5px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)',
+                  marginBottom: '14px',
+                }}
+              >
+                <Volume2 size={16} />
+                <span>Tap to Enable Speaker & Mic</span>
+              </button>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: '7px 12px',
+                  borderRadius: '10px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  background: 'rgba(34, 197, 94, 0.15)',
+                  color: '#4ade80',
+                  marginBottom: '14px',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                }}
+              >
+                <Volume2 size={15} />
+                <span>Speaker & Mic Ready · Waiting for Incoming Call</span>
+              </div>
+            )}
 
             <button
               onClick={handleCallAgent}

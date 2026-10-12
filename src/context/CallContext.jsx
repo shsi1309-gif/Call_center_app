@@ -209,8 +209,12 @@ export function CallProvider({ children }) {
       // Engage real microphone automatically
       enableMicrophone()
 
-      if (mode === 'ai-to-human') {
-        // Connect to real Vapi AI Voice agent
+      // Always dial target phone number so the customer phone handset rings
+      const targetPhone = contact?.phone || '93805 41855'
+      phoneCallService.dialPhoneNumber(targetPhone, 'On-Ground.ai Call Centre')
+
+      if (mode === 'ai-to-human' && (!contact?.phone || contact?.isDesktopPractice)) {
+        // Connect to real Vapi AI Voice agent for desktop practice
         vapiService
           .start()
           .then(() => {
@@ -220,19 +224,14 @@ export function CallProvider({ children }) {
             console.warn('Vapi direct voice session notice:', err)
           })
       } else if (mode === 'real-phone') {
-        // Real carrier PSTN phone call to actual mobile device
-        const phone = contact?.phone || '9380541855'
-        vapiService.callRealMobilePhone(phone).then((res) => {
+        // Real carrier PSTN phone call attempt via Vapi
+        vapiService.callRealMobilePhone(targetPhone).then((res) => {
           if (res.success) {
-            console.log('Outbound carrier call ringing mobile device:', phone)
+            console.log('Outbound carrier call ringing mobile device:', targetPhone)
           } else {
             console.warn('Carrier call queued/status:', res)
           }
         })
-      } else {
-        // Human-to-Human: dial phone number via WebRTC softphone
-        const phone = contact?.phone || '93805 41855'
-        phoneCallService.dialPhoneNumber(phone, 'On-Ground Agent')
       }
     },
     [enableMicrophone],
