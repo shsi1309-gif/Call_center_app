@@ -267,24 +267,7 @@ export function AppShell() {
         </aside>
       )}
 
-      <DemoBar
-        onOpenConsent={(c) => {
-          startCall(
-            {
-              name: c.name || 'Shivam Singh',
-              initials: (c.name || 'SS').slice(0, 2).toUpperCase(),
-              detail: c.phone || '+91 93805 41855',
-              phone: c.phone || '93805 41855',
-              callType: c.callType || 'Call centre',
-            },
-            'outgoing',
-          )
-          setConsentContact(c)
-        }}
-        onOpenDpdpSafe={() => setDpdpSafeOpen(true)}
-        onOpenCustomerPhone={() => setCustomerPhoneOpen(true)}
-        onOpenTelephony={() => setTelephonyOpen(true)}
-      />
+      <DemoBar onOpenTelephony={() => setTelephonyOpen(true)} />
     </div>
   )
 }

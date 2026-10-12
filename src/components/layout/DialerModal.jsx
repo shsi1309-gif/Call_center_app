@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Delete, Phone } from 'lucide-react'
+import { Delete, Phone, Settings, X } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 import { useToast } from '../../context/ToastContext'
 import { vapiService } from '../../utils/vapiService'
@@ -13,7 +13,7 @@ const KEYS = [
   ['*', '0', '#'],
 ]
 
-export function DialerModal({ isOpen, onClose, onCallStarted }) {
+export function DialerModal({ isOpen, onClose, onCallStarted, onOpenTelephony }) {
   const toast = useToast()
   const { startCall, playDtmf } = useCall()
   const config = getTelephonyConfig()
@@ -111,16 +111,72 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drag pill handle */}
+        {/* Header with pill, settings, and close */}
         <div
           style={{
-            width: '36px',
-            height: '4px',
-            backgroundColor: '#e2e8f0',
-            borderRadius: '999px',
-            margin: '0 auto 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            marginBottom: '12px',
           }}
-        />
+        >
+          {onOpenTelephony ? (
+            <button
+              type="button"
+              onClick={() => {
+                onClose?.()
+                onOpenTelephony?.()
+              }}
+              style={{
+                background: '#f1f5f9',
+                border: 'none',
+                borderRadius: '50%',
+                width: '30px',
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#64748b',
+              }}
+              title="Telephony & Gateway Settings"
+            >
+              <Settings size={15} />
+            </button>
+          ) : (
+            <div style={{ width: '30px' }} />
+          )}
+
+          <div
+            style={{
+              width: '36px',
+              height: '4px',
+              backgroundColor: '#e2e8f0',
+              borderRadius: '999px',
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: '#f1f5f9',
+              border: 'none',
+              borderRadius: '50%',
+              width: '30px',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#64748b',
+            }}
+            title="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
 
         {/* Displayed dialed number */}
         <div
