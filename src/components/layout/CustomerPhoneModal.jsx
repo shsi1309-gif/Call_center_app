@@ -146,9 +146,24 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
     setSeconds(0)
     callAudio.initAudio()
     callAudio.startRingback()
-    // Directly ring the agent dashboard
-    phoneCallService.transferToAgent(phone, 'Shivam Singh')
-    toast(`Ringing On-Ground Agent at ${helphoneNumber}...`)
+    toast(`Connecting to On-Ground Call Centre (${helphoneNumber})...`)
+
+    // Ring for 1.5s then IVR system automatically answers with formal greeting
+    setTimeout(() => {
+      callAudio.stopRingback()
+      callAudio.playConnectedChime()
+      setCallState('ivr')
+      toast('Call connected · On-Ground IVR Greeting Active')
+
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+        const utter = new SpeechSynthesisUtterance(
+          'Welcome to On-Ground. Press 1 to talk to our AI assistant, or press 2 to speak with a human customer representative.',
+        )
+        utter.rate = 1.0
+        window.speechSynthesis.speak(utter)
+      }
+    }, 1500)
   }
 
   // Shivam answers incoming call from agent -> enters IVR greeting
