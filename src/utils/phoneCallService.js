@@ -70,6 +70,9 @@ class PhoneCallService {
     }
 
     this.dataConnection = null
+    this.signalSource = null
+    this.agentSignalSource = null
+    this.remotePeerId = null
 
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       this.broadcastChannel = new BroadcastChannel('oncall_telephony_channel')
@@ -101,6 +104,118 @@ class PhoneCallService {
     }
   }
 
+  // Cross-device Realtime SSE Signaling over https://ntfy.sh (zero setup, works on all mobile networks)
+  initCustomerSignalChannel(phoneNumber) {
+    const digits = sanitizePhoneNumber(phoneNumber) || '9380541855'
+    if (typeof window === 'undefined' || !('EventSource' in window)) return
+
+    if (this.signalSource) {
+      try {
+        this.signalSource.close()
+      } catch (e) {
+        void e
+      }
+      this.signalSource = null
+    }
+
+    const topic = `oncall-sig-${digits}`
+    try {
+      const source = new EventSource(`https://ntfy.sh/${topic}/sse`)
+      this.signalSource = source
+
+      source.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data)
+          if (parsed.event === 'message' && parsed.message) {
+            const payload = JSON.parse(parsed.message)
+            this.handleIncomingSignal(payload)
+          }
+        } catch (e) {
+          void e
+        }
+      }
+
+      source.onerror = () => {
+        console.warn('Realtime telephony SSE channel reconnecting...')
+      }
+    } catch (err) {
+      console.warn('Could not initialize SSE signal channel:', err)
+    }
+  }
+
+  initAgentSignalChannel(agentPeerId) {
+    if (typeof window === 'undefined' || !('EventSource' in window)) return
+
+    if (this.agentSignalSource) {
+      try {
+        this.agentSignalSource.close()
+      } catch (e) {
+        void e
+      }
+      this.agentSignalSource = null
+    }
+
+    const topic = `oncall-agent-${agentPeerId}`
+    try {
+      const source = new EventSource(`https://ntfy.sh/${topic}/sse`)
+      this.agentSignalSource = source
+
+      source.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data)
+          if (parsed.event === 'message' && parsed.message) {
+            const payload = JSON.parse(parsed.message)
+            this.handleIncomingSignal(payload)
+          }
+        } catch (e) {
+          void e
+        }
+      }
+    } catch (err) {
+      console.warn('Could not initialize agent SSE channel:', err)
+    }
+  }
+
+  async publishSignal(topic, payload) {
+    try {
+      await fetch(`https://ntfy.sh/${topic}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload),
+      })
+    } catch (err) {
+      console.warn('Signal publish notice:', err)
+    }
+  }
+
+  handleIncomingSignal(data) {
+    if (!data) return
+    console.log('[Telephony Realtime Signal]', data)
+
+    if (data.type === 'INCOMING_PHONE_CALL') {
+      const myPhone = sanitizePhoneNumber(this.registeredPhone)
+      const targetPhone = sanitizePhoneNumber(data.targetPhone)
+      if (!myPhone || !targetPhone || myPhone === targetPhone) {
+        this.remotePeerId = data.agentPeerId
+        this.emit('incomingCall', {
+          callerPhone: data.callerPhone || getTelephonyConfig().callCentreNumber,
+          callerName: data.callerName || 'On-Ground.ai Call Centre',
+          targetPhone: data.targetPhone,
+          agentPeerId: data.agentPeerId,
+        })
+      }
+    } else if (data.type === 'PHONE_CALL_ACCEPTED') {
+      this.remotePeerId = data.customerPeerId || this.remotePeerId
+      this.emit('callConnected', { targetPhone: data.targetPhone })
+    } else if (data.type === 'INCOMING_IVR_TRANSFER') {
+      this.emit('incomingIvrTransfer', data)
+    } else if (data.type === 'IVR_TRANSFER_ACCEPTED') {
+      this.emit('ivrTransferAccepted', data)
+    } else if (data.type === 'PHONE_CALL_ENDED') {
+      this.emit('callEnded', { reason: 'remote_hangup' })
+    }
+  }
+
   setupDataConnection(conn) {
     if (!conn) return
     this.dataConnection = conn
@@ -111,16 +226,7 @@ class PhoneCallService {
 
     conn.on('data', (data) => {
       if (!data) return
-      console.log('PeerJS WebRTC Data received:', data)
-      if (data.type === 'INCOMING_IVR_TRANSFER') {
-        this.emit('incomingIvrTransfer', data)
-      } else if (data.type === 'IVR_TRANSFER_ACCEPTED') {
-        this.emit('ivrTransferAccepted', data)
-      } else if (data.type === 'PHONE_CALL_ACCEPTED') {
-        this.emit('callConnected', data)
-      } else if (data.type === 'PHONE_CALL_ENDED') {
-        this.emit('callEnded', { reason: 'remote_hangup' })
-      }
+      this.handleIncomingSignal(data)
     })
 
     conn.on('close', () => {
@@ -184,11 +290,16 @@ class PhoneCallService {
 
   // Transfer an IVR call from customer to live human agent
   transferToAgent(customerPhone = '+91 93805 41855', customerName = 'Shivam Singh') {
+    const digits = sanitizePhoneNumber(customerPhone) || '9380541855'
     const payload = {
       type: 'INCOMING_IVR_TRANSFER',
       customerPhone,
       customerName,
       reason: 'IVR Transfer · Option 2: Human Customer Expert',
+    }
+    this.publishSignal(`oncall-sig-${digits}`, payload)
+    if (this.remotePeerId) {
+      this.publishSignal(`oncall-agent-${this.remotePeerId}`, payload)
     }
     this.sendDataMessage(payload)
     this.emit('incomingIvrTransfer', payload)
@@ -196,9 +307,14 @@ class PhoneCallService {
 
   // Agent accepts the IVR transfer
   acceptIvrTransfer(customerPhone = '+91 93805 41855') {
+    const digits = sanitizePhoneNumber(customerPhone) || '9380541855'
     const payload = {
       type: 'IVR_TRANSFER_ACCEPTED',
       customerPhone,
+    }
+    this.publishSignal(`oncall-sig-${digits}`, payload)
+    if (this.remotePeerId) {
+      this.publishSignal(`oncall-agent-${this.remotePeerId}`, payload)
     }
     this.sendDataMessage(payload)
     this.emit('ivrTransferAccepted', payload)
@@ -247,13 +363,15 @@ class PhoneCallService {
   // Register this browser/device to receive calls at a specific phone number
   async registerCustomerPhone(phoneNumber) {
     const digits = sanitizePhoneNumber(phoneNumber) || '9380541855'
-    if (this.customerPeer && !this.customerPeer.destroyed && sanitizePhoneNumber(this.registeredPhone) === digits) {
-      return true
-    }
     this.registeredPhone = phoneNumber
     const peerPhoneId = `tel-in-${digits}`
 
-    await this.getLocalMicrophoneStream()
+    // 1. Instantly subscribe to real-time incoming call signals (no mic required, zero latency)
+    this.initCustomerSignalChannel(phoneNumber)
+
+    if (this.customerPeer && !this.customerPeer.destroyed && sanitizePhoneNumber(this.registeredPhone) === digits) {
+      return true
+    }
 
     if (this.customerPeer) {
       try {
@@ -298,65 +416,80 @@ class PhoneCallService {
 
       return true
     } catch (err) {
-      console.error('Failed to register customer phone:', err)
-      return false
+      console.error('Failed to register customer peer:', err)
+      return true
     }
   }
 
   // Answer an incoming call on the customer's phone
   async answerCall(mediaCall) {
-    const callToAnswer = mediaCall || this.currentCall
-    if (!callToAnswer) return
+    const digits = sanitizePhoneNumber(this.registeredPhone) || '9380541855'
+    const customerPeerId = `cust-${Math.floor(10000 + Math.random() * 90000)}`
+
+    // Notify agent that phone was answered
+    const acceptPayload = {
+      type: 'PHONE_CALL_ACCEPTED',
+      targetPhone: this.registeredPhone,
+      customerPeerId,
+    }
+    this.publishSignal(`oncall-sig-${digits}`, acceptPayload)
+    if (this.remotePeerId) {
+      this.publishSignal(`oncall-agent-${this.remotePeerId}`, acceptPayload)
+    }
 
     if (!this.localStream) {
       await this.getLocalMicrophoneStream(true)
     }
 
-    try {
-      callToAnswer.answer(this.localStream)
+    const callToAnswer = mediaCall || this.currentCall
+    if (callToAnswer) {
+      try {
+        callToAnswer.answer(this.localStream)
 
-      callToAnswer.on('stream', (remoteStream) => {
-        this.remoteStream = remoteStream
-        this.emit('remoteStream', remoteStream)
-        this.emit('callConnected', { targetPhone: this.registeredPhone })
-      })
+        callToAnswer.on('stream', (remoteStream) => {
+          this.remoteStream = remoteStream
+          this.emit('remoteStream', remoteStream)
+          this.emit('callConnected', { targetPhone: this.registeredPhone })
+        })
 
-      callToAnswer.on('close', () => {
-        this.cleanup()
-        this.emit('callEnded', { reason: 'closed' })
-      })
-    } catch (err) {
-      console.error('Error answering media call:', err)
+        callToAnswer.on('close', () => {
+          this.cleanup()
+          this.emit('callEnded', { reason: 'closed' })
+        })
+      } catch (err) {
+        console.error('Error answering media call:', err)
+      }
     }
 
-    this.sendDataMessage({
-      type: 'PHONE_CALL_ACCEPTED',
-      targetPhone: this.registeredPhone,
-    })
+    this.sendDataMessage(acceptPayload)
   }
 
   // Dial a phone number from the Call Centre Agent softphone
   async dialPhoneNumber(phoneNumber, callerName = 'On-Ground.ai Call Centre') {
     const config = getTelephonyConfig()
-    const digits = sanitizePhoneNumber(phoneNumber)
+    const digits = sanitizePhoneNumber(phoneNumber) || '9380541855'
     this.activeTargetPhone = phoneNumber
     const targetPeerId = `tel-in-${digits}`
-    const agentPhoneId = `agent-${Math.floor(10000 + Math.random() * 90000)}`
+    const agentPeerId = `agent-${Math.floor(10000 + Math.random() * 90000)}`
 
-    await this.getLocalMicrophoneStream()
+    // 1. Agent listens on dedicated agent signaling channel for answer / transfer events
+    this.initAgentSignalChannel(agentPeerId)
 
     const incomingPayload = {
+      type: 'INCOMING_PHONE_CALL',
       callerPhone: config.callCentreNumber,
       callerName,
       targetPhone: phoneNumber,
+      agentPeerId,
+      timestamp: Date.now(),
     }
+
+    // 2. Publish real-time ring signal directly to customer phone channel (instant cross-device delivery)
+    this.publishSignal(`oncall-sig-${digits}`, incomingPayload)
 
     // Broadcast incoming call event across tabs/devices
     if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage({
-        type: 'INCOMING_PHONE_CALL',
-        ...incomingPayload,
-      })
+      this.broadcastChannel.postMessage(incomingPayload)
     }
 
     if (this.agentPeer) {
@@ -369,7 +502,7 @@ class PhoneCallService {
 
     try {
       const Peer = await getPeerClass()
-      this.agentPeer = new Peer(agentPhoneId, {
+      this.agentPeer = new Peer(agentPeerId, {
         config: {
           iceServers: ICE_SERVERS,
         },
@@ -423,10 +556,16 @@ class PhoneCallService {
   }
 
   hangUp() {
-    this.sendDataMessage({
+    const digits = sanitizePhoneNumber(this.activeTargetPhone || this.registeredPhone) || '9380541855'
+    const endPayload = {
       type: 'PHONE_CALL_ENDED',
       targetPhone: this.activeTargetPhone || this.registeredPhone,
-    })
+    }
+    this.publishSignal(`oncall-sig-${digits}`, endPayload)
+    if (this.remotePeerId) {
+      this.publishSignal(`oncall-agent-${this.remotePeerId}`, endPayload)
+    }
+    this.sendDataMessage(endPayload)
     this.cleanup()
     this.emit('callEnded', { reason: 'local_hangup' })
   }
