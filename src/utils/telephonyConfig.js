@@ -20,6 +20,9 @@ export function getTelephonyConfig() {
       if (parsed.defaultCustomerPhone && parsed.defaultCustomerPhone.includes('63611')) {
         parsed.defaultCustomerPhone = DEFAULT_CONFIG.defaultCustomerPhone
       }
+      if (parsed.callCentreNumber && parsed.callCentreNumber.includes('63611')) {
+        parsed.callCentreNumber = DEFAULT_CONFIG.callCentreNumber
+      }
       return { ...DEFAULT_CONFIG, ...parsed }
     }
   } catch (e) {

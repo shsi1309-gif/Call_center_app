@@ -71,27 +71,27 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
         TELEPHONY ACTIVE
       </span>
 
-      {/* Customer Phone Receiver */}
+      {/* Primary Action: Call Shivam Singh */}
       <button
-        onClick={() => onOpenCustomerPhone?.()}
+        onClick={launchHumanCall}
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          padding: '5px 12px',
+          padding: '6px 14px',
           borderRadius: '99px',
-          background: '#f0fdf4',
-          border: '1.5px solid #86efac',
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#15803d',
+          background: 'linear-gradient(135deg, #16a34a, #15803d)',
+          border: 'none',
+          fontSize: '12.5px',
+          fontWeight: 800,
+          color: '#ffffff',
           cursor: 'pointer',
           whiteSpace: 'nowrap',
-          boxShadow: '0 2px 6px rgba(34, 197, 94, 0.15)',
+          boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
         }}
-        title="Open Shivam's Mobile Handset (+91 93805 41855) to call Helpline +91 80 9578 1284 or receive calls"
+        title="Dial Shivam Singh (+91 93805 41855) on his phone now"
       >
-        <Smartphone size={14} color="#16a34a" /> 📱 Shivam (+91 93805 41855)
+        <Phone size={14} color="#ffffff" /> 📞 Call Shivam (+91 93805 41855)
       </button>
 
       {/* 1-Click AI-to-Human Calling */}
@@ -116,26 +116,26 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
         <Bot size={14} color="#059669" /> 🤖 AI Voice Call (Vapi)
       </button>
 
-      {/* 1-Click Human-to-Human WebRTC Calling */}
+      {/* Handset Simulator (for single-screen testing without physical phone) */}
       <button
-        onClick={launchHumanCall}
+        onClick={() => onOpenCustomerPhone?.()}
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
-          padding: '5px 12px',
+          gap: '5px',
+          padding: '5px 10px',
           borderRadius: '99px',
-          background: '#eff6ff',
-          border: '1px solid #bfdbfe',
-          fontSize: '12px',
-          fontWeight: 700,
-          color: '#1e40af',
+          background: '#f8fafc',
+          border: '1px solid #cbd5e1',
+          fontSize: '11.5px',
+          fontWeight: 600,
+          color: '#64748b',
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}
-        title="Dial Shivam via WebRTC Softphone"
+        title="Open Handset Simulator on this computer"
       >
-        <Users size={14} color="#2563eb" /> 👥 Agent Call Shivam
+        <Smartphone size={13} color="#64748b" /> 📱 Handset Simulator
       </button>
 
       {/* Telephony Settings */}
