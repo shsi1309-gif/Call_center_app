@@ -61,25 +61,28 @@ No backend, API keys or external services. No global state library: three small 
 
 **Working Call Centre Calling Engine (No Mocks, No Peer IDs)**
 - **Web-to-Phone-Number Calling (Real Call Centre Architecture)**:
-  - Calls are routed strictly by **E.164 phone numbers** (e.g., `+91 98450 61245`), the way a call centre PBX and softphone works, **never peer IDs or room codes**.
+  - Calls are routed strictly by **E.164 phone numbers** (configured by default for **Shivam Singh: `+91 63611 67314`**), the way a real call centre PBX and softphone works, **never peer IDs or room codes**.
   - Clicking **Call** on any lead or entering a number in the DTMF dialpad initiates a genuine call addressed to that phone number.
-  - Dedicated **Customer Phone Receiver** (`?customerPhone=9845061245`): opens an interactive mobile customer terminal that rings with caller ID (`On-Ground.ai Call Centre +91 80 6900 1234`) and connects two-way audio upon answering.
+  - Dedicated **Customer Phone Receiver** (`?customerPhone=6361167314`): opens an interactive mobile customer terminal that rings with caller ID (`On-Ground.ai Call Centre +91 80 6900 1234`) and connects two-way audio upon answering.
 - **AI-to-Human Voice Agent Calling**:
-  - Direct integration with **Vapi AI Voice WebRTC SDK** (`@vapi-ai/web`).
+  - Direct integration with **Vapi AI Voice WebRTC SDK** (`@vapi-ai/web`) and provisioned Vapi telephony number (`+1 669 209 9017`).
   - You speak into your real microphone; the AI voice agent listens, responds with natural voice audio in real time, and streams live conversation transcripts.
   - **Dynamic Audio Visualizer**: 60fps real-time frequency visualizer connected to microphone analysis (`AnalyserNode`).
   - **Live AI Assist & SOP Checklist**: Listens as you talk, auto-drafts meeting notes in real time, and checks off SOP compliance items (opening, product discovery, EMI options, warranty, and closing) with zero duplicates.
 - **Human-to-Human WebRTC Calling**:
   - Two-way WebRTC live microphone audio streaming between agent and customer phone number with STUN NAT traversal.
   - Ringback cadence, connect/disconnect chimes, hold music synthesizer, and mute controls.
+- **Real Cellular Outbound Phone Calling (Carrier PSTN)**:
+  - Integrated via Vapi Telecom Gateway (`POST https://api.vapi.ai/call/phone`).
+  - Dialing `6361167314` in **Real Phone** mode triggers an actual cellular call to the mobile device over the cellular carrier network!
 
 ## Note on How I Got Calling Working
 
 In real call centres, calling is centered around customer phone numbers and audio streams, not temporary room codes or peer IDs. Here is the technical implementation of how calling was built:
 
 1. **Web-to-Phone-Number Signaling & Routing (`src/utils/phoneCallService.js`)**:
-   - Rather than exposing arbitrary peer IDs, the signaling layer maps endpoints directly to standardized E.164 phone numbers (e.g. `tel-in-919845061245`).
-   - When an agent dials a lead (+91 98450 61245), an outgoing call request is dispatched to that phone number's address of record via WebRTC signaling and cross-tab/cross-device channels.
+   - Rather than exposing arbitrary peer IDs, the signaling layer maps endpoints directly to standardized E.164 phone numbers (e.g. `tel-in-916361167314`).
+   - When an agent dials Shivam's number (`+91 63611 67314`), an outgoing call request is dispatched to that phone number's address of record via WebRTC signaling and cross-tab/cross-device channels.
    - The customer endpoint receives an incoming phone call event with caller ID (`+91 80 6900 1234`), plays an authentic ringtone, and upon answering, exchanges SDP offers/answers to establish an encrypted SRTP audio stream.
 
 2. **AI-to-Human Conversational Engine (`src/utils/vapiService.js` & `src/utils/callAudioEngine.js`)**:
@@ -89,20 +92,27 @@ In real call centres, calling is centered around customer phone numbers and audi
    - If offline or in restricted network environments, an intelligent client fallback engages browser Web Speech API & audio synthesis, guaranteeing 100% call reliability.
 
 3. **Telephony & Carrier Gateway (`src/utils/telephonyConfig.js`)**:
-   - Configurable telephony gateway with support for Vapi Public/Private keys and Assistant IDs, enabling seamless transition between in-browser WebRTC testing and real carrier PSTN outbound mobile calling.
+   - Outbound PSTN carrier phone calls are dispatched directly to physical mobile networks via Vapi's phone API (`b24991ea-c7f2-4608-bb3d-8dfc113192d0` / `+16692099017`).
+   - Enables seamless transition between in-browser WebRTC testing and real carrier PSTN outbound mobile calling.
 
 ## How to Test the Calling Features
 
 1. **AI-to-Human Call**:
-   - In **Plan → Calls to make**, click **🤖 AI Call** on Faizan A. (or click **🤖 AI Voice Call** on the bottom bar).
+   - In **Plan → Calls to make**, click **🤖 AI Call** on Shivam Singh (or click **🤖 AI Voice Call** on the bottom bar).
    - Allow microphone permissions.
-   - Speak naturally into your microphone (e.g., "Hello Faizan, are you interested in our massage chair with 0% EMI?").
+   - Speak naturally into your microphone (e.g., "Hello Shivam, are you interested in our massage chair with 0% EMI?").
    - Listen to the AI voice agent respond with clear audio, watch the live waveform animate, and see the SOP checklist check off items automatically.
+
 2. **Human-to-Human Web-to-Phone Call (2 Devices or 2 Tabs)**:
-   - On the bottom bar, click **📱 Customer Phone (+91 98450 61245)** (or open `/?customerPhone=9845061245` in an incognito window or on your mobile phone).
-   - In the main app window, click **👥 Dial Phone Number** or click **👥 Live VoIP** on Faizan's lead card.
+   - On the bottom bar, click **📱 Customer Phone (+91 63611 67314)** (or open `https://call-center-app-eta.vercel.app/?customerPhone=6361167314` in an incognito window or on your mobile phone).
+   - In the main app window, click **👥 Dial Phone Number** or click **👥 Live VoIP** on Shivam's lead card.
    - The Customer Phone rings with an authentic ringtone and shows incoming caller ID.
    - Tap **Answer**: both microphones connect with live two-way WebRTC audio! Speak into one device and hear the voice stream cleanly through the other.
+
+3. **Real Phone Outbound Carrier Call (PSTN to Mobile Device)**:
+   - Click the green floating dialer button at the bottom right.
+   - Select **📱 Real Phone** mode (pre-filled with `+91 63611 67314`).
+   - Tap **Call**: Vapi telephony initiates an outbound carrier phone call to mobile number `+91 63611 67314`.
 
 ```
 src/
