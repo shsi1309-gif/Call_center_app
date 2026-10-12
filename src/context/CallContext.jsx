@@ -4,6 +4,7 @@ import { formatTimer } from '../utils/format'
 import { callAudio } from '../utils/callAudioEngine'
 import { vapiService } from '../utils/vapiService'
 import { phoneCallService } from '../utils/phoneCallService'
+import { exotelService } from '../utils/exotelService'
 import { CONVERSATION_SCENARIOS, matchAiResponse } from '../utils/callConversation'
 
 const CallContext = createContext(null)
@@ -224,17 +225,27 @@ export function CallProvider({ children }) {
             console.warn('Vapi direct voice session notice:', err)
           })
       } else if (mode === 'real-phone') {
-        // Real carrier PSTN phone call attempt via Vapi
-        vapiService.callRealMobilePhone(targetPhone).then((res) => {
-          if (res.success) {
-            console.log('Outbound carrier call ringing mobile device:', targetPhone)
-          } else {
-            console.warn('Carrier call queued/status:', res)
-          }
-        })
+        // Real carrier cellular phone call attempt via Exotel or Vapi
+        if (exotelService.isConfigured()) {
+          exotelService.callRealMobilePhone(targetPhone).then((res) => {
+            if (res.success) {
+              toast(`Ringing mobile phone ${targetPhone} via Exotel!`)
+            } else {
+              toast(res.error || 'Exotel call attempt finished')
+            }
+          })
+        } else {
+          vapiService.callRealMobilePhone(targetPhone).then((res) => {
+            if (res.success) {
+              console.log('Outbound carrier call ringing mobile device:', targetPhone)
+            } else {
+              console.warn('Carrier call queued/status:', res)
+            }
+          })
+        }
       }
     },
-    [enableMicrophone],
+    [enableMicrophone, toast],
   )
 
   const begin = useCallback((contact, kind, phase, mode = 'ai-to-human') => {

@@ -8,6 +8,14 @@ const DEFAULT_CONFIG = {
   vapiPhoneNumberId: 'b24991ea-c7f2-4608-bb3d-8dfc113192d0',
   callCentreNumber: '+91 80 9578 1284',
   defaultCustomerPhone: '+91 93805 41855',
+  // Exotel India Telephony Configuration
+  exotelAccountSid: '',
+  exotelApiKey: '',
+  exotelApiToken: '',
+  exotelCallerId: '', // Virtual ExoPhone number provided by Exotel
+  exotelAppId: '', // Optional IVR flow ID: http://my.exotel.com/{sid}/exoml/start_voice/{app_id}
+  exotelCluster: 'api.exotel.com', // 'api.exotel.com' or 'api.in.exotel.com'
+  activeEngine: 'exotel', // 'exotel' | 'vapi' | 'webrtc'
 }
 
 export function getTelephonyConfig() {

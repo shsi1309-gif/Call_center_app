@@ -101,4 +101,13 @@ describe('phoneCallService & telephony', () => {
     expect(config.callCentreNumber).toBe('+91 80 9578 1284')
     expect(config.defaultCustomerPhone).toBe('+91 93805 41855')
   })
+
+  it('formats numbers and checks configuration in exotelService', async () => {
+    const { exotelService } = await import('./exotelService')
+    expect(exotelService.sanitizePhoneNumber('9380541855')).toBe('09380541855')
+    expect(exotelService.sanitizePhoneNumber('+91 93805 41855')).toBe('09380541855')
+    expect(exotelService.formatE164('9380541855')).toBe('+919380541855')
+    expect(typeof exotelService.isConfigured()).toBe('boolean')
+  })
 })
+

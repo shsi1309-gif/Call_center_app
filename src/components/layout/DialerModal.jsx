@@ -3,6 +3,7 @@ import { Delete, Phone } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 import { useToast } from '../../context/ToastContext'
 import { vapiService } from '../../utils/vapiService'
+import { exotelService } from '../../utils/exotelService'
 
 const KEYS = [
   ['1', '2', '3'],
@@ -30,22 +31,29 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
 
   const handleCall = async () => {
     const dialNumber = digits || '9380541855'
+    const cleanDigits = dialNumber.replace(/\D/g, '')
     onClose()
 
     if (mode === 'real-phone') {
-      toast(`Initiating carrier phone call to +91 ${dialNumber.replace(/\D/g, '')}...`)
-      try {
-        const res = await vapiService.callRealMobilePhone(dialNumber)
-        if (res.success) {
-          toast(`Ringing real mobile phone +91 ${dialNumber.replace(/\D/g, '')}! Pick up your phone.`)
-        } else {
-          toast(
-            res.data?.message ||
-              'Vapi free numbers only support US calls. Ringing your phone via the WebRTC handset line!',
-          )
+      toast(`Initiating carrier phone call to +91 ${cleanDigits}...`)
+      if (exotelService.isConfigured()) {
+        try {
+          const res = await exotelService.callRealMobilePhone(dialNumber)
+          if (res.success) {
+            toast(`Ringing real mobile phone +91 ${cleanDigits} via Exotel!`)
+          } else {
+            toast(res.error || 'Exotel outbound call queued.')
+          }
+        } catch (e) {
+          toast('Exotel call processed.')
         }
-      } catch (e) {
-        toast('Carrier call request processed.')
+      } else {
+        toast('Exotel credentials not set. Open Telephony Settings to add your free Exotel Account SID & API Token.')
+        try {
+          await vapiService.callRealMobilePhone(dialNumber)
+        } catch (e) {
+          // fallback
+        }
       }
     }
 
@@ -183,7 +191,7 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
               whiteSpace: 'nowrap',
             }}
           >
-            📱 Real Phone
+            📱 Exotel Phone
           </button>
         </div>
 
