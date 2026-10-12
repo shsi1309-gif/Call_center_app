@@ -1,4 +1,4 @@
-import { Bot, Phone, Settings, Smartphone, Users } from 'lucide-react'
+import { Bot, Phone, Settings, ShieldCheck, Smartphone, Users } from 'lucide-react'
 import { useCall } from '../../context/CallContext'
 
 export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, onOpenTelephony }) {

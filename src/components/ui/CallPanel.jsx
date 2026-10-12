@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import {
+  Grip,
   Mic,
   MicOff,
   Pause,
+  Play,
   Phone,
   PhoneOff,
   Bot,
