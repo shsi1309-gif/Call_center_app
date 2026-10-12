@@ -7,13 +7,13 @@ const DEFAULT_CONFIG = {
   vapiAssistantId: '94354921-6e0a-4533-a7b0-68acfbadf50f',
   vapiPhoneNumberId: 'b24991ea-c7f2-4608-bb3d-8dfc113192d0',
   callCentreNumber: '+91 80 9578 1284',
-  defaultCustomerPhone: '+91 93805 41855',
+  defaultCustomerPhone: '+91 63611 67314',
   // Exotel India Telephony Configuration
   exotelAccountSid: 'callcenter67',
   exotelApiKey: 'e85d062b935b53d955e5bbc31add62580945f203cac230df',
   exotelApiToken: '6ce1b19034acfe73e058f46f17dc5f903129e9f10e66081b',
   exotelCallerId: '08040265374', // Virtual ExoPhone number provided by Exotel
-  exotelAppId: '1359232', // IVR call flow ID: http://my.exotel.com/callcenter67/exoml/start_voice/1359232
+  exotelAppId: '1359239', // Voicebot call flow ID: http://my.exotel.com/callcenter67/exoml/start_voice/1359239
   exotelCluster: 'api.exotel.com', // 'api.exotel.com' or 'api.in.exotel.com'
   activeEngine: 'exotel', // 'exotel' | 'vapi' | 'webrtc'
 }
@@ -25,9 +25,6 @@ export function getTelephonyConfig() {
     const saved = localStorage.getItem('oncall_telephony_config')
     if (saved) {
       const parsed = JSON.parse(saved)
-      if (parsed.defaultCustomerPhone && parsed.defaultCustomerPhone.includes('63611')) {
-        parsed.defaultCustomerPhone = DEFAULT_CONFIG.defaultCustomerPhone
-      }
       if (parsed.callCentreNumber && parsed.callCentreNumber.includes('63611')) {
         parsed.callCentreNumber = DEFAULT_CONFIG.callCentreNumber
       }
@@ -35,7 +32,7 @@ export function getTelephonyConfig() {
       if (!parsed.exotelApiKey) parsed.exotelApiKey = DEFAULT_CONFIG.exotelApiKey
       if (!parsed.exotelApiToken) parsed.exotelApiToken = DEFAULT_CONFIG.exotelApiToken
       if (!parsed.exotelCallerId) parsed.exotelCallerId = DEFAULT_CONFIG.exotelCallerId
-      if (!parsed.exotelAppId) parsed.exotelAppId = DEFAULT_CONFIG.exotelAppId
+      if (!parsed.exotelAppId || parsed.exotelAppId === '1359232') parsed.exotelAppId = DEFAULT_CONFIG.exotelAppId
       return { ...DEFAULT_CONFIG, ...parsed }
     }
   } catch (e) {

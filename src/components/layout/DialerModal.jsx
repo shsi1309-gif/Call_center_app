@@ -4,6 +4,7 @@ import { useCall } from '../../context/CallContext'
 import { useToast } from '../../context/ToastContext'
 import { vapiService } from '../../utils/vapiService'
 import { exotelService } from '../../utils/exotelService'
+import { getTelephonyConfig } from '../../utils/telephonyConfig'
 
 const KEYS = [
   ['1', '2', '3'],
@@ -15,8 +16,11 @@ const KEYS = [
 export function DialerModal({ isOpen, onClose, onCallStarted }) {
   const toast = useToast()
   const { startCall, playDtmf } = useCall()
-  const [digits, setDigits] = useState('9380541855')
-  const [mode, setMode] = useState('human-to-human') // 'human-to-human' | 'real-phone' | 'ai-to-human'
+  const config = getTelephonyConfig()
+  const [digits, setDigits] = useState(
+    config.defaultCustomerPhone ? config.defaultCustomerPhone.replace(/\D/g, '') : '6361167314',
+  )
+  const [mode, setMode] = useState('real-phone') // default to real-phone
 
   if (!isOpen) return null
 
