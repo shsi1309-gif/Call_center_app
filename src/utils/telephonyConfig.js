@@ -7,7 +7,7 @@ const DEFAULT_CONFIG = {
   vapiAssistantId: '94354921-6e0a-4533-a7b0-68acfbadf50f',
   vapiPhoneNumberId: 'b24991ea-c7f2-4608-bb3d-8dfc113192d0',
   callCentreNumber: '+91 80 9578 1284',
-  defaultCustomerPhone: '+91 63611 67314',
+  defaultCustomerPhone: '+91 93805 41855',
 }
 
 export function getTelephonyConfig() {
@@ -16,7 +16,11 @@ export function getTelephonyConfig() {
   try {
     const saved = localStorage.getItem('oncall_telephony_config')
     if (saved) {
-      return { ...DEFAULT_CONFIG, ...JSON.parse(saved) }
+      const parsed = JSON.parse(saved)
+      if (parsed.defaultCustomerPhone && parsed.defaultCustomerPhone.includes('63611')) {
+        parsed.defaultCustomerPhone = DEFAULT_CONFIG.defaultCustomerPhone
+      }
+      return { ...DEFAULT_CONFIG, ...parsed }
     }
   } catch (e) {
     console.warn('Could not read telephony config from localStorage:', e)

@@ -250,7 +250,7 @@ export function CallPanel() {
               {call.contact.name || 'Shivam Singh'}
             </h2>
             <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px' }}>
-              {call.contact.detail || '+91 63611 67314 · Tranquo Massager Chair'}
+              {call.contact.detail || '+91 93805 41855 · Tranquo Massager Chair'}
             </div>
             <div
               style={{
@@ -403,7 +403,7 @@ export function CallPanel() {
             >
               {callMode === 'ai-to-human'
                 ? 'Your voice is streamed directly to the AI Assistant. Real-time transcription, sentiment analysis, and SOP notes generate automatically as you speak.'
-                : `Connected to customer phone line (${call?.contact?.phone || '+91 63611 67314'}). Two-way live voice streaming with noise suppression active.`}
+                : `Connected to customer phone line (${call?.contact?.phone || '+91 93805 41855'}). Two-way live voice streaming with noise suppression active.`}
             </div>
           </div>
 

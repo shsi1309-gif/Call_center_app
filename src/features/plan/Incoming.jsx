@@ -63,8 +63,8 @@ export function Incoming() {
                       {
                         name: c.name,
                         initials: c.initials,
-                        detail: '+91 63611 67314',
-                        phone: '63611 67314',
+                        detail: '+91 93805 41855',
+                        phone: '93805 41855',
                         callType: 'Call centre',
                       },
                       'callback',

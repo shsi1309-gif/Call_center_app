@@ -16,7 +16,7 @@ import { getTelephonyConfig } from '../../utils/telephonyConfig'
 import { formatTimer } from '../../utils/format'
 import { useToast } from '../../context/ToastContext'
 
-export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 63611 67314', initialCallData = null }) {
+export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 41855', initialCallData = null }) {
   const toast = useToast()
   const [phone] = useState(initialPhone)
   const [isRegistered, setIsRegistered] = useState(false)

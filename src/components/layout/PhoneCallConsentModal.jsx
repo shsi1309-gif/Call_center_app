@@ -10,7 +10,7 @@ const SCRIPTS = {
 }
 
 export function PhoneCallConsentModal({
-  contact = { name: 'Shivam Singh', phone: '63611 67314' },
+  contact = { name: 'Shivam Singh', phone: '93805 41855' },
   callType = 'Phone call',
   initialMode = 'wa',
   onClose,
@@ -18,7 +18,7 @@ export function PhoneCallConsentModal({
 }) {
   const [lang, setLang] = useState('English')
   const [mode, setMode] = useState(contact?.initialMode || initialMode || 'wa') // 'wa' | 'voice'
-  const [phone, setPhone] = useState(contact.phone?.replace('+91', '').trim() || '63611 67314')
+  const [phone, setPhone] = useState(contact.phone?.replace('+91', '').trim() || '93805 41855')
   const [under18, setUnder18] = useState(false)
   const [offers, setOffers] = useState(false)
   const [sent, setSent] = useState(false)

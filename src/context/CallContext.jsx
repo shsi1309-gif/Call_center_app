@@ -11,8 +11,8 @@ const CallContext = createContext(null)
 const PRACTICE_CONTACT = {
   name: 'Faizan A. (Shivam)',
   initials: 'FA',
-  detail: '🎯 Intent 85 · calling from +91 63611 67314',
-  phone: '63611 67314',
+  detail: '🎯 Intent 85 · calling from +91 93805 41855',
+  phone: '93805 41855',
   product: 'Tranquo Massager Chair · ₹24,990',
   closingChance: '85%',
   callMode: 'ai-to-human',
@@ -221,7 +221,7 @@ export function CallProvider({ children }) {
           })
       } else if (mode === 'real-phone') {
         // Real carrier PSTN phone call to actual mobile device
-        const phone = contact?.phone || '6361167314'
+        const phone = contact?.phone || '9380541855'
         vapiService.callRealMobilePhone(phone).then((res) => {
           if (res.success) {
             console.log('Outbound carrier call ringing mobile device:', phone)
@@ -231,7 +231,7 @@ export function CallProvider({ children }) {
         })
       } else {
         // Human-to-Human: dial phone number via WebRTC softphone
-        const phone = contact?.phone || '63611 67314'
+        const phone = contact?.phone || '93805 41855'
         phoneCallService.dialPhoneNumber(phone, 'On-Ground Agent')
       }
     },
@@ -267,7 +267,7 @@ export function CallProvider({ children }) {
       if (options.openConsent !== false) {
         setConsentContact({
           name: contact.name || 'Shivam Singh',
-          phone: contact.phone || '63611 67314',
+          phone: contact.phone || '93805 41855',
           callType: contact.callType || 'Call centre',
           initialMode: 'wa',
         })
@@ -295,7 +295,7 @@ export function CallProvider({ children }) {
     initCallConversation(mode, call?.contact)
     setConsentContact({
       name: call?.contact?.name || 'Shivam Singh',
-      phone: call?.contact?.phone || '63611 67314',
+      phone: call?.contact?.phone || '93805 41855',
       callType: 'Call centre',
       initialMode: 'wa',
     })

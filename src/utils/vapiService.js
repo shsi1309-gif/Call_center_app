@@ -118,7 +118,7 @@ class VapiService {
   // Dial real mobile phone over carrier cellular PSTN network
   async callRealMobilePhone(phoneNumber) {
     const config = getTelephonyConfig()
-    const rawDigits = (phoneNumber || '6361167314').replace(/\D/g, '')
+    const rawDigits = (phoneNumber || '9380541855').replace(/\D/g, '')
     const e164Number = rawDigits.startsWith('91') ? `+${rawDigits}` : `+91${rawDigits}`
 
     try {

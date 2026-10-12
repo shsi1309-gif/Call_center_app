@@ -14,7 +14,7 @@ const KEYS = [
 export function DialerModal({ isOpen, onClose, onCallStarted }) {
   const toast = useToast()
   const { startCall, playDtmf } = useCall()
-  const [digits, setDigits] = useState('6361167314')
+  const [digits, setDigits] = useState('9380541855')
   const [mode, setMode] = useState('human-to-human') // 'human-to-human' | 'real-phone' | 'ai-to-human'
 
   if (!isOpen) return null
@@ -29,7 +29,7 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
   }
 
   const handleCall = async () => {
-    const dialNumber = digits || '6361167314'
+    const dialNumber = digits || '9380541855'
     onClose()
 
     if (mode === 'real-phone') {
@@ -51,7 +51,7 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
 
     startCall(
       {
-        name: dialNumber === '6361167314' ? 'Shivam Singh' : `Caller (${dialNumber})`,
+        name: dialNumber === '9380541855' ? 'Shivam Singh' : `Caller (${dialNumber})`,
         initials: 'SS',
         detail: `+91 ${dialNumber} · Live Phone Line`,
         phone: dialNumber,
@@ -125,7 +125,7 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
             width: '100%',
           }}
         >
-          {digits ? `+91 ${digits}` : <span style={{ color: '#94a3b8', fontSize: '18px' }}>+91 63611 67314</span>}
+          {digits ? `+91 ${digits}` : <span style={{ color: '#94a3b8', fontSize: '18px' }}>+91 93805 41855</span>}
         </div>
 
         <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '12px' }}>

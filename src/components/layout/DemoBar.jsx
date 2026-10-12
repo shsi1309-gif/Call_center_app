@@ -9,8 +9,8 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
       {
         name: 'Shivam Singh',
         initials: 'SS',
-        phone: '63611 67314',
-        detail: '+91 63611 67314 · Tranquo Massager Chair',
+        phone: '93805 41855',
+        detail: '+91 93805 41855 · Tranquo Massager Chair',
         callType: 'Call centre',
         callMode: 'ai-to-human',
       },
@@ -24,8 +24,8 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
       {
         name: 'Shivam Singh (Customer)',
         initials: 'SS',
-        phone: '63611 67314',
-        detail: '+91 63611 67314 · WebRTC Softphone',
+        phone: '93805 41855',
+        detail: '+91 93805 41855 · WebRTC Softphone',
         callType: 'Phone call',
         callMode: 'human-to-human',
       },
@@ -89,9 +89,9 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
           whiteSpace: 'nowrap',
           boxShadow: '0 2px 6px rgba(34, 197, 94, 0.15)',
         }}
-        title="Open Shivam's Mobile Handset (+91 63611 67314) to call Helpline +91 80 9578 1284 or receive calls"
+        title="Open Shivam's Mobile Handset (+91 93805 41855) to call Helpline +91 80 9578 1284 or receive calls"
       >
-        <Smartphone size={14} color="#16a34a" /> 📱 Shivam (+91 63611 67314)
+        <Smartphone size={14} color="#16a34a" /> 📱 Shivam (+91 93805 41855)
       </button>
 
       {/* 1-Click AI-to-Human Calling */}
@@ -162,7 +162,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
 
       {/* Consent Modal Trigger */}
       <button
-        onClick={() => onOpenConsent?.({ name: 'Shivam Singh', phone: '63611 67314', callType: 'Call centre', initialMode: 'wa' })}
+        onClick={() => onOpenConsent?.({ name: 'Shivam Singh', phone: '93805 41855', callType: 'Call centre', initialMode: 'wa' })}
         style={{
           display: 'flex',
           alignItems: 'center',

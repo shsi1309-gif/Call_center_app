@@ -46,7 +46,7 @@ export function AppShell() {
       const p = params.get('customerPhone') || params.get('phone')
       if (p) return p.startsWith('+') ? p : `+91 ${p}`
     }
-    return '+91 63611 67314'
+    return '+91 93805 41855'
   })
 
   const { pathname } = useLocation()
@@ -93,8 +93,8 @@ export function AppShell() {
       {
         name: incomingTransfer.customerName || 'Shivam Singh',
         initials: 'SS',
-        phone: incomingTransfer.customerPhone || '63611 67314',
-        detail: `${incomingTransfer.customerPhone || '+91 63611 67314'} · Transferred from IVR`,
+        phone: incomingTransfer.customerPhone || '93805 41855',
+        detail: `${incomingTransfer.customerPhone || '+91 93805 41855'} · Transferred from IVR`,
         callType: 'Phone call',
         callMode: 'human-to-human',
       },
@@ -230,7 +230,7 @@ export function AppShell() {
               📞 INCOMING CALL · +91 80 9578 1284
             </div>
             <div style={{ fontSize: '16px', fontWeight: 800 }}>
-              {incomingTransfer.customerName || 'Shivam Singh'} ({incomingTransfer.customerPhone || '+91 63611 67314'})
+              {incomingTransfer.customerName || 'Shivam Singh'} ({incomingTransfer.customerPhone || '+91 93805 41855'})
             </div>
             <div style={{ fontSize: '12px', color: '#94a3b8' }}>
               Direct Caller · Tap Accept Call to connect live two-way audio
@@ -277,8 +277,8 @@ export function AppShell() {
             {
               name: c.name || 'Shivam Singh',
               initials: (c.name || 'SS').slice(0, 2).toUpperCase(),
-              detail: c.phone || '+91 63611 67314',
-              phone: c.phone || '63611 67314',
+              detail: c.phone || '+91 93805 41855',
+              phone: c.phone || '93805 41855',
               callType: c.callType || 'Call centre',
             },
             'outgoing',

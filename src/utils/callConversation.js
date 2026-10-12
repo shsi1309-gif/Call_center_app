@@ -65,7 +65,7 @@ export const CONVERSATION_SCENARIOS = {
     leadName: 'Shivam Singh (Customer)',
     product: 'Smart Luxe Mattress · ₹34,990',
     initialGreeting:
-      'Connecting WebRTC softphone... Two-way carrier-grade audio channel established with Shivam (+91 63611 67314). Microphones live.',
+      'Connecting WebRTC softphone... Two-way carrier-grade audio channel established with Shivam (+91 93805 41855). Microphones live.',
     quickPrompts: [
       { id: 'greet', label: '👋 Standard Greeting', text: 'Hello Shivam, thank you for taking my call!' },
       { id: 'pitch', label: '🛏️ Recommend Smart Luxe', text: 'Based on your search, the Smart Luxe with Patented Grid is ideal for back support.' },
@@ -110,7 +110,7 @@ export const CONVERSATION_SCENARIOS = {
     leadName: 'Shivam Singh (PSTN Cellular)',
     product: 'Tranquo Smart Massager · ₹24,990',
     initialGreeting:
-      'Ringing mobile carrier phone +91 63611 67314 via Vapi Telecom Gateway. Handset connected.',
+      'Ringing mobile carrier phone +91 93805 41855 via Vapi Telecom Gateway. Handset connected.',
     quickPrompts: [
       { id: 'greet', label: '👋 Standard Greeting', text: 'Hello Shivam, calling from The Sleep Company call centre.' },
       { id: 'pitch', label: '🪑 Explain Massager', text: 'Our Tranquo chair has 8-zone body mapping rollers.' },
@@ -125,7 +125,7 @@ export const CONVERSATION_SCENARIOS = {
         sopPoint: 'Opening & Intent Confirm',
       },
     ],
-    defaultReply: 'Great to speak with you! Let me send the complete catalog and warranty details to +91 63611 67314 on WhatsApp.',
+    defaultReply: 'Great to speak with you! Let me send the complete catalog and warranty details to +91 93805 41855 on WhatsApp.',
   },
 }
 

@@ -112,7 +112,7 @@ class PhoneCallService {
   }
 
   // Transfer an IVR call from customer to live human agent
-  transferToAgent(customerPhone = '+91 63611 67314', customerName = 'Shivam Singh') {
+  transferToAgent(customerPhone = '+91 93805 41855', customerName = 'Shivam Singh') {
     const payload = {
       type: 'INCOMING_IVR_TRANSFER',
       customerPhone,
@@ -126,7 +126,7 @@ class PhoneCallService {
   }
 
   // Agent accepts the IVR transfer
-  acceptIvrTransfer(customerPhone = '+91 63611 67314') {
+  acceptIvrTransfer(customerPhone = '+91 93805 41855') {
     const payload = {
       type: 'IVR_TRANSFER_ACCEPTED',
       customerPhone,
@@ -179,7 +179,7 @@ class PhoneCallService {
 
   // Register this browser/device to receive calls at a specific phone number
   async registerCustomerPhone(phoneNumber) {
-    const digits = sanitizePhoneNumber(phoneNumber) || '6361167314'
+    const digits = sanitizePhoneNumber(phoneNumber) || '9380541855'
     if (this.customerPeer && !this.customerPeer.destroyed && sanitizePhoneNumber(this.registeredPhone) === digits) {
       return true
     }
