@@ -95,24 +95,63 @@ In real call centres, calling is centered around customer phone numbers and audi
    - Outbound PSTN carrier phone calls are dispatched directly to physical mobile networks via Vapi's phone API (`b24991ea-c7f2-4608-bb3d-8dfc113192d0` / `+16692099017`).
    - Enables seamless transition between in-browser WebRTC testing and real carrier PSTN outbound mobile calling.
 
-## How to Test the Calling Features
+## How to Make Calls (Inbound & Outbound)
 
-1. **AI-to-Human Call**:
-   - In **Plan → Calls to make**, click **🤖 AI Call** on Shivam Singh (or click **🤖 AI Voice Call** on the bottom bar).
-   - Allow microphone permissions.
-   - Speak naturally into your microphone (e.g., "Hello Shivam, are you interested in our massage chair with 0% EMI?").
-   - Listen to the AI voice agent respond with clear audio, watch the live waveform animate, and see the SOP checklist check off items automatically.
+On-Ground.ai supports both **real cellular carrier calling via Exotel & Vapi** and **browser-based WebRTC softphone calling**. Follow the steps below for both directions:
 
-2. **Human-to-Human Web-to-Phone Call (2 Devices or 2 Tabs)**:
-   - On the bottom bar, click **📱 Customer Phone (+91 63611 67314)** (or open `https://call-center-app-eta.vercel.app/?customerPhone=6361167314` in an incognito window or on your mobile phone).
-   - In the main app window, click **👥 Dial Phone Number** or click **👥 Live VoIP** on Shivam's lead card.
-   - The Customer Phone rings with an authentic ringtone and shows incoming caller ID.
-   - Tap **Answer**: both microphones connect with live two-way WebRTC audio! Speak into one device and hear the voice stream cleanly through the other.
+---
 
-3. **Real Phone Outbound Carrier Call (PSTN to Mobile Device)**:
-   - Click the green floating dialer button at the bottom right.
-   - Select **📱 Real Phone** mode (pre-filled with `+91 63611 67314`).
-   - Tap **Call**: Vapi telephony initiates an outbound carrier phone call to mobile number `+91 63611 67314`.
+### 1. Inbound Calls (Customer Calls in from a Real Phone)
+
+Customers dial into the On-Ground call centre using physical mobile phones (Airtel, Jio, Vi, BSNL):
+
+1. **Dial the Inbound Number**:
+   - Pick up any mobile phone and call **`09513886363`** (or **`08040265374`**).
+2. **Enter the Security PIN**:
+   - When prompted by the IVR, enter PIN: **`6361-1673-14`**.
+3. **AI Voicebot Answers**:
+   - The call connects to Exotel's AI Voicebot Flow (`voicebot-mum-prod-default-flow` / `1359239`).
+   - The AI agent introduces itself and speaks live with the customer.
+4. **Interactive IVR Experience (Web Simulator)**:
+   - On the web handset simulator, callers hear:
+     > *"Welcome to On-Ground. Press 1 to talk to our AI assistant, or press 2 to speak with a human customer representative."*
+   - **Press 1**: Starts the autonomous conversational AI voicebot.
+   - **Press 2**: Immediately connects live two-way WebRTC audio to the human agent sitting at the computer desk.
+
+---
+
+### 2. Outbound Calls (Webpage Dials a Customer's Real Mobile Phone)
+
+Agents initiate outbound calls directly from the web interface to ring a customer's physical phone:
+
+1. **Open the On-Ground App**:
+   - Navigate to the deployed app at [`https://call-center-app-eta.vercel.app`](https://call-center-app-eta.vercel.app) (or `http://localhost:5173` locally).
+2. **Open the Dialer**:
+   - Click the green **Floating Dialer Icon** (FAB) at the bottom-right corner of the screen.
+3. **Choose the Destination Phone Number**:
+   - The dialer is pre-loaded with verified number **`6361167314`** (or enter any target phone number).
+4. **Select Carrier Mode**:
+   - Select **`📱 Exotel Phone`** mode.
+5. **Click Call**:
+   - Tap the large green **Call** button.
+   - The web app sends an API request to Exotel (`POST /v1/Accounts/callcenter67/Calls/connect.json`).
+6. **Physical Phone Rings**:
+   - The customer's mobile phone rings showing Caller ID `08040265374` (or saved as `On-Ground AI`).
+7. **1-Minute AI Conversation**:
+   - When the customer answers, the **On-Ground AI Voicebot** immediately begins explaining On-Ground AI plans and features.
+   - The call is configured for a 1-minute maximum duration, closing with an automated polite wrap-up message.
+
+---
+
+### 3. In-Browser WebRTC & Desktop Practice (No Physical Phone Needed)
+
+1. **AI Voice Practice (`🤖 AI Voice`)**:
+   - In the floating dialer, select **`🤖 AI Voice`** mode and click Call.
+   - Speak naturally into your microphone; the AI agent responds with voice audio, animates a 60fps waveform, and tracks SOP checklists in real time.
+2. **Live Two-Way VoIP (`👥 Web VoIP`)**:
+   - In the floating dialer, select **`👥 Web VoIP`** mode.
+   - Establishes an end-to-end WebRTC peer audio channel with live transcription, hold music, and mute controls.
+
 
 ```
 src/
