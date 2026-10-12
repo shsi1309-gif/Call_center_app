@@ -89,9 +89,9 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
           whiteSpace: 'nowrap',
           boxShadow: '0 2px 6px rgba(34, 197, 94, 0.15)',
         }}
-        title="Open Customer Phone Simulator to test two-way calls to +91 63611 67314"
+        title="Open Shivam's Mobile Handset (+91 63611 67314) to call Helpline +91 80 9578 1284 or receive calls"
       >
-        <Smartphone size={14} color="#16a34a" /> 📱 Customer Phone (+91 63611 67314)
+        <Smartphone size={14} color="#16a34a" /> 📱 Shivam (+91 63611 67314)
       </button>
 
       {/* 1-Click AI-to-Human Calling */}
@@ -113,7 +113,7 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
         }}
         title="Live AI-to-Human Voice Call with Vapi WebRTC & Live Waveform"
       >
-        <Bot size={14} color="#059669" /> 🤖 AI Voice Call
+        <Bot size={14} color="#059669" /> 🤖 AI Call Shivam
       </button>
 
       {/* 1-Click Human-to-Human WebRTC Calling */}
@@ -133,9 +133,9 @@ export function DemoBar({ onOpenConsent, onOpenDpdpSafe, onOpenCustomerPhone, on
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}
-        title="Dial Customer Phone Number via WebRTC VoIP"
+        title="Dial Shivam via WebRTC Softphone"
       >
-        <Users size={14} color="#2563eb" /> 👥 Dial Phone Number
+        <Users size={14} color="#2563eb" /> 👥 Agent Call Shivam
       </button>
 
       {/* Telephony Settings */}

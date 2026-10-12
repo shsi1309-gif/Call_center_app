@@ -44,6 +44,8 @@ class PhoneCallService {
       callEnded: [],
       remoteStream: [],
       error: [],
+      incomingIvrTransfer: [],
+      ivrTransferAccepted: [],
     }
 
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
@@ -94,9 +96,45 @@ class PhoneCallService {
       if (this.activeTargetPhone && sanitizePhoneNumber(this.activeTargetPhone) === targetPhone) {
         this.emit('callConnected', { targetPhone })
       }
+    } else if (data.type === 'INCOMING_IVR_TRANSFER') {
+      this.emit('incomingIvrTransfer', {
+        customerPhone: data.customerPhone,
+        customerName: data.customerName,
+        reason: data.reason || 'IVR Option 2: Human Customer Expert',
+      })
+    } else if (data.type === 'IVR_TRANSFER_ACCEPTED') {
+      this.emit('ivrTransferAccepted', {
+        customerPhone: data.customerPhone,
+      })
     } else if (data.type === 'PHONE_CALL_ENDED') {
       this.emit('callEnded', { reason: 'remote_hangup' })
     }
+  }
+
+  // Transfer an IVR call from customer to live human agent
+  transferToAgent(customerPhone = '+91 63611 67314', customerName = 'Shivam Singh') {
+    const payload = {
+      type: 'INCOMING_IVR_TRANSFER',
+      customerPhone,
+      customerName,
+      reason: 'IVR Transfer · Option 2: Human Customer Expert',
+    }
+    if (this.broadcastChannel) {
+      this.broadcastChannel.postMessage(payload)
+    }
+    this.emit('incomingIvrTransfer', payload)
+  }
+
+  // Agent accepts the IVR transfer
+  acceptIvrTransfer(customerPhone = '+91 63611 67314') {
+    const payload = {
+      type: 'IVR_TRANSFER_ACCEPTED',
+      customerPhone,
+    }
+    if (this.broadcastChannel) {
+      this.broadcastChannel.postMessage(payload)
+    }
+    this.emit('ivrTransferAccepted', payload)
   }
 
   // Get local user microphone

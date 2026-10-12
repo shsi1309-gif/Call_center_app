@@ -126,7 +126,7 @@ export function DialerModal({ isOpen, onClose, onCallStarted }) {
         </div>
 
         <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '12px' }}>
-          Call Centre Line: +91 80 6900 1234
+          On-Ground.ai Helpline: +91 80 9578 1284
         </div>
 
         {/* Mode Selector */}

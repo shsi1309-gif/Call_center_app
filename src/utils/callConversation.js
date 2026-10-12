@@ -4,10 +4,10 @@
 
 export const CONVERSATION_SCENARIOS = {
   'ai-to-human': {
-    leadName: 'Faizan A.',
+    leadName: 'Shivam Singh',
     product: 'Tranquo Massager Chair · ₹24,990',
     initialGreeting:
-      "Hello Faizan! This is Arvind from The Sleep Company. I saw you were looking at the Tranquo Smart Massager Chair on our website. Am I catching you at a good time?",
+      'Hello Shivam! This is Arvind from The Sleep Company. I saw you contacted our On-Ground AI Helpline (+91 80 9578 1284) about the Tranquo Massager and Smart Luxe. Am I catching you at a good time?',
     quickPrompts: [
       { id: 'emi', label: '💳 Offer 0% EMI', text: 'Can you tell me about the EMI options available?' },
       { id: 'discount', label: '🏷️ 10% Festive Discount', text: 'Is there any discount or ongoing festival offer on this?' },

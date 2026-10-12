@@ -98,6 +98,7 @@ describe('phoneCallService & telephony', () => {
     const config = getTelephonyConfig()
     expect(config.vapiPublicKey).toBe('affb096d-8be5-4554-a320-f2920f64e166')
     expect(config.vapiAssistantId).toBe('94354921-6e0a-4533-a7b0-68acfbadf50f')
-    expect(config.callCentreNumber).toBe('+91 80 6900 1234')
+    expect(config.callCentreNumber).toBe('+91 80 9578 1284')
+    expect(config.defaultCustomerPhone).toBe('+91 63611 67314')
   })
 })

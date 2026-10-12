@@ -14,6 +14,9 @@ import { DemoBar } from './DemoBar'
 import { CustomerPhoneModal } from './CustomerPhoneModal'
 import { TelephonySettingsModal } from './TelephonySettingsModal'
 import { CallPanel } from '../ui/CallPanel'
+import { PhoneIncoming } from 'lucide-react'
+import { phoneCallService } from '../../utils/phoneCallService'
+import { callAudio } from '../../utils/callAudioEngine'
 import { useCall } from '../../context/CallContext'
 
 export function AppShell() {
@@ -54,6 +57,43 @@ export function AppShell() {
     setAvatarOpen(false)
     setSettingsOpen(false)
   }, [pathname])
+
+  const [incomingTransfer, setIncomingTransfer] = useState(null)
+
+  useEffect(() => {
+    const handleTransfer = (data) => {
+      setIncomingTransfer(data)
+      callAudio.startRingback()
+    }
+    phoneCallService.on('incomingIvrTransfer', handleTransfer)
+    return () => {
+      phoneCallService.off('incomingIvrTransfer', handleTransfer)
+    }
+  }, [])
+
+  const handleAcceptTransfer = () => {
+    if (!incomingTransfer) return
+    callAudio.stopRingback()
+    phoneCallService.acceptIvrTransfer(incomingTransfer.customerPhone)
+    startCall(
+      {
+        name: incomingTransfer.customerName || 'Shivam Singh',
+        initials: 'SS',
+        phone: incomingTransfer.customerPhone || '63611 67314',
+        detail: `${incomingTransfer.customerPhone || '+91 63611 67314'} · Transferred from IVR`,
+        callType: 'Phone call',
+        callMode: 'human-to-human',
+      },
+      'incoming',
+      { mode: 'human-to-human', openConsent: false },
+    )
+    setIncomingTransfer(null)
+  }
+
+  const handleDeclineTransfer = () => {
+    callAudio.stopRingback()
+    setIncomingTransfer(null)
+  }
 
   const openNotifications = () => {
     setNotifOpen((prev) => !prev)
@@ -129,6 +169,90 @@ export function AppShell() {
           onClose={() => setTelephonyOpen(false)}
         />
       )}
+      {/* Inbound Call from IVR Transfer Banner */}
+      {incomingTransfer && (
+        <aside
+          style={{
+            position: 'fixed',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 2000,
+            background: 'linear-gradient(135deg, #064e3b, #0f172a)',
+            color: '#fff',
+            padding: '14px 22px',
+            borderRadius: '24px',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 2px #22c55e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            animation: 'pulse 1.5s infinite',
+            maxWidth: '92vw',
+          }}
+          role="alert"
+          aria-live="assertive"
+        >
+          <div
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              background: '#22c55e',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 15px rgba(34, 197, 94, 0.6)',
+              flexShrink: 0,
+            }}
+          >
+            <PhoneIncoming size={22} color="#fff" />
+          </div>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#4ade80', letterSpacing: '0.05em' }}>
+              📞 INCOMING CALL · HELPLINE +91 80 9578 1284
+            </div>
+            <div style={{ fontSize: '16px', fontWeight: 800 }}>
+              {incomingTransfer.customerName || 'Shivam Singh'} ({incomingTransfer.customerPhone || '+91 63611 67314'})
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+              {incomingTransfer.reason || 'IVR Option 2: Transferred to Human Customer Expert'}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', marginLeft: '12px', flexShrink: 0 }}>
+            <button
+              onClick={handleAcceptTransfer}
+              style={{
+                padding: '9px 18px',
+                background: '#22c55e',
+                color: '#fff',
+                borderRadius: '99px',
+                fontWeight: 800,
+                fontSize: '13px',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)',
+              }}
+            >
+              Accept Call
+            </button>
+            <button
+              onClick={handleDeclineTransfer}
+              style={{
+                padding: '9px 14px',
+                background: 'rgba(255, 255, 255, 0.12)',
+                color: '#cbd5e1',
+                borderRadius: '99px',
+                fontSize: '13px',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Decline
+            </button>
+          </div>
+        </aside>
+      )}
+
       <DemoBar
         onOpenConsent={(c) => {
           startCall(
