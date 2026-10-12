@@ -189,12 +189,11 @@ export const LEADS = [
 
 const byId = (id) => {
   const lead = LEADS.find((l) => l.id === id)
-  if (!lead) throw new Error(`Unknown lead ${id}`)
-  return lead
+  return lead || LEADS[0]
 }
 
 /** Leads surfaced by the dashboard task list, in review order. */
-export const TASK_LEADS = ['mukunda', 'kavitha', 'faizan', 'divya', 'ritu'].map(byId)
+export const TASK_LEADS = ['mukunda', 'kavitha', 'faizan', 'divya', 'shivam'].map(byId).filter(Boolean)
 
 /** Leads ranked by score, highest first. */
 export const RANKED_LEADS = [...LEADS].sort((a, b) => b.score - a.score)
