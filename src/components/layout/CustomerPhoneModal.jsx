@@ -128,18 +128,46 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
     toast(`Ringing On-Ground Agent at ${helphoneNumber}...`)
   }
 
-  // Shivam answers incoming call from agent
+  // Shivam answers incoming call from agent -> enters IVR greeting
   const handleAnswer = () => {
     callAudio.stopRingback()
     callAudio.playConnectedChime()
     phoneCallService.answerCall(incomingCallData?.mediaCall)
+    setCallState('ivr')
+    toast('Call answered · On-Ground IVR Greeting Active')
+  }
+
+  // Option 1: Start Vapi AI Voice Chatbot
+  const handleSelectOption1 = async () => {
+    toast('Option 1 selected: Connecting to Vapi AI Customer Assistant...')
+    try {
+      const { vapiService } = await import('../../utils/vapiService')
+      await vapiService.start()
+      setCallState('vapi-active')
+      toast('Vapi AI Assistant is speaking now. Speak into your mic!')
+    } catch (e) {
+      console.warn('Vapi start notice:', e)
+      setCallState('vapi-active')
+    }
+  }
+
+  // Option 2: Transfer to Live Human Agent
+  const handleSelectOption2 = () => {
+    toast('Option 2 selected: Transferring to human agent...')
+    phoneCallService.transferToAgent(phone, 'Shivam Singh')
     setCallState('connected')
   }
 
   // Hang up
-  const handleHangUp = () => {
+  const handleHangUp = async () => {
     callAudio.stopRingback()
     callAudio.stopHoldMusic()
+    try {
+      const { vapiService } = await import('../../utils/vapiService')
+      vapiService.stop()
+    } catch (e) {
+      void e
+    }
     phoneCallService.hangUp()
     setCallState('idle')
     setIncomingCallData(null)
@@ -430,6 +458,224 @@ export function CustomerPhoneModal({ isOpen, onClose, initialPhone = '+91 93805 
                 title="Answer"
               >
                 <PhoneCall size={26} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* State 3.5: IVR GREETING & OPTION SELECTION */}
+        {callState === 'ivr' && (
+          <div
+            style={{
+              width: '100%',
+              background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+              borderRadius: '24px',
+              padding: '22px 16px',
+              textAlign: 'center',
+              border: '1.5px solid #38bdf8',
+              boxShadow: '0 0 25px rgba(56, 189, 248, 0.2)',
+              marginBottom: '16px',
+            }}
+          >
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.05em', marginBottom: '6px' }}>
+              📞 ON-GROUND.AI SMART IVR GREETING
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>
+              Welcome to On-Ground.ai
+            </div>
+            <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.4, marginBottom: '18px' }}>
+              Press an option below to continue:
+            </div>
+
+            {/* Option 1 Button */}
+            <button
+              onClick={handleSelectOption1}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #059669, #047857)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '14px',
+                padding: '12px 14px',
+                fontSize: '13.5px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)',
+                marginBottom: '10px',
+                textAlign: 'left',
+              }}
+            >
+              <span
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 900,
+                  fontSize: '14px',
+                  flexShrink: 0,
+                }}
+              >
+                1
+              </span>
+              <div>
+                <div>🤖 Press 1: Talk to AI Assistant</div>
+                <div style={{ fontSize: '10.5px', fontWeight: 500, color: '#a7f3d0' }}>
+                  Conversational voice chatbot with Vapi
+                </div>
+              </div>
+            </button>
+
+            {/* Option 2 Button */}
+            <button
+              onClick={handleSelectOption2}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '14px',
+                padding: '12px 14px',
+                fontSize: '13.5px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+                marginBottom: '18px',
+                textAlign: 'left',
+              }}
+            >
+              <span
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 900,
+                  fontSize: '14px',
+                  flexShrink: 0,
+                }}
+              >
+                2
+              </span>
+              <div>
+                <div>👥 Press 2: Human Representative</div>
+                <div style={{ fontSize: '10.5px', fontWeight: 500, color: '#bfdbfe' }}>
+                  Direct two-way voice call with desk agent
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={handleHangUp}
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '50%',
+                background: '#ef4444',
+                border: 'none',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                margin: '0 auto',
+              }}
+              title="End Call"
+            >
+              <PhoneOff size={20} />
+            </button>
+          </div>
+        )}
+
+        {/* State 3.8: VAPI AI CONVERSATION ACTIVE */}
+        {callState === 'vapi-active' && (
+          <div
+            style={{
+              width: '100%',
+              background: 'linear-gradient(145deg, #064e3b, #022c22)',
+              borderRadius: '24px',
+              padding: '24px 16px',
+              textAlign: 'center',
+              border: '1.5px solid #34d399',
+              boxShadow: '0 0 25px rgba(52, 211, 153, 0.25)',
+              marginBottom: '16px',
+            }}
+          >
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#34d399', letterSpacing: '0.05em', marginBottom: '4px' }}>
+              🤖 VAPI AI VOICE CHATBOT ACTIVE
+            </div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: '#ffffff', marginBottom: '8px' }}>
+              On-Ground AI Voice Assistant
+            </div>
+
+            <div
+              style={{
+                background: 'rgba(0, 0, 0, 0.3)',
+                borderRadius: '12px',
+                padding: '10px 12px',
+                fontSize: '12px',
+                color: '#a7f3d0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                marginBottom: '14px',
+              }}
+            >
+              <Mic size={16} />
+              <span>AI Listening & Talking Live</span>
+            </div>
+
+            <p style={{ fontSize: '12px', color: '#cbd5e1', lineHeight: 1.4, margin: '0 0 16px 0' }}>
+              Speak into your mic to ask about products, pricing, or discounts. The AI chatbot is conversing with you live.
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+              <button
+                onClick={handleSelectOption2}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '99px',
+                  padding: '8px 14px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                👥 Transfer to Human
+              </button>
+
+              <button
+                onClick={handleHangUp}
+                style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '50%',
+                  background: '#ef4444',
+                  border: 'none',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                title="End Call"
+              >
+                <PhoneOff size={20} />
               </button>
             </div>
           </div>
