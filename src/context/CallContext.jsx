@@ -210,20 +210,23 @@ export function CallProvider({ children }) {
       // Engage real microphone automatically
       enableMicrophone()
 
-      // Always dial target phone number so the customer phone handset rings
       const targetPhone = contact?.phone || '93805 41855'
-      phoneCallService.dialPhoneNumber(targetPhone, 'On-Ground.ai Call Centre')
 
-      if (mode === 'ai-to-human' && (!contact?.phone || contact?.isDesktopPractice)) {
-        // Connect to real Vapi AI Voice agent for desktop practice
+      if (mode === 'ai-to-human') {
+        // Connect to real Vapi AI Voice agent for conversational AI voice session
         vapiService
           .start()
           .then(() => {
             setIsVapiActive(true)
+            toast('Connected to Vapi AI Voice Assistant! Speak into your microphone.')
           })
           .catch((err) => {
             console.warn('Vapi direct voice session notice:', err)
+            toast('Could not start Vapi Voice session. Please check microphone permissions.')
           })
+      } else if (mode === 'human-to-human') {
+        // Human-to-Human: dial target phone number via WebRTC softphone
+        phoneCallService.dialPhoneNumber(targetPhone, 'On-Ground.ai Call Centre')
       } else if (mode === 'real-phone') {
         // Real carrier cellular phone call attempt via Exotel or Vapi
         if (exotelService.isConfigured()) {
