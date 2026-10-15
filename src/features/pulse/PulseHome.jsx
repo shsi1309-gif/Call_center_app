@@ -68,7 +68,7 @@ export function PulseLogoIcon({ size = 24 }) {
 export function PulseHome() {
   const navigate = useNavigate()
   const toast = useToast()
-  const { postBotMessage, unreadFor, messagesFor, kudosNew, clearKudosNew } = usePulse()
+  const { unreadFor, messagesFor, kudosNew, clearKudosNew } = usePulse()
   const [query, setQuery] = useState('')
   const [agentsOpen, setAgentsOpen] = useState(true)
   const [kudosOpen, setKudosOpen] = useState(false)

@@ -4,7 +4,6 @@ import {
   Copy,
   Mic,
   PhoneCall,
-  PhoneIncoming,
   PhoneOff,
   Smartphone,
   Volume2,

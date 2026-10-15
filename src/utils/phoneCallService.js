@@ -416,7 +416,6 @@ class PhoneCallService {
 
   // Answer an incoming call on the customer's phone
   async answerCall(mediaCall) {
-    const digits = sanitizePhoneNumber(this.registeredPhone) || '9380541855'
     const customerPeerId = `cust-${Math.floor(10000 + Math.random() * 90000)}`
 
     // Notify agent that phone was answered

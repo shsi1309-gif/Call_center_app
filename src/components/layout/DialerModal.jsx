@@ -48,14 +48,14 @@ export function DialerModal({ isOpen, onClose, onCallStarted, onOpenTelephony })
           } else {
             toast(res.error || 'Exotel outbound call queued.')
           }
-        } catch (e) {
+        } catch {
           toast('Exotel call processed.')
         }
       } else {
         toast('Exotel credentials not set. Open Telephony Settings to add your free Exotel Account SID & API Token.')
         try {
           await vapiService.callRealMobilePhone(dialNumber)
-        } catch (e) {
+        } catch {
           // fallback
         }
       }

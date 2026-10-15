@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Phone, Sparkles, X, Check, Calendar, PhoneCall, Ban, ThumbsUp, BookmarkCheck } from 'lucide-react'
+import { Phone, Sparkles, X } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
 const OUTCOMES = [

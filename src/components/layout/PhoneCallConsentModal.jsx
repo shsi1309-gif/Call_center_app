@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Calendar, Check, CheckCircle2, MessageSquare, Mic, Send, ShieldCheck, ThumbsUp, X } from 'lucide-react'
+import { Check, MessageSquare, Mic, Send, ShieldCheck, X } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 import { useCall } from '../../context/CallContext'
 

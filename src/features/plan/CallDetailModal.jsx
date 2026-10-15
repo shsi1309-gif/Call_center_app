@@ -1,4 +1,4 @@
-import { Check, ClipboardList, X } from 'lucide-react'
+import { ClipboardList, X } from 'lucide-react'
 
 const DEFAULT_SOP_ITEMS = [
   { title: 'Opening & Intent Confirm', status: 'pass', quote: '"Hi, calling about your enquiry — good time to talk?"' },
